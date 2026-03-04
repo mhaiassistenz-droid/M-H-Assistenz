@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&amp;H Assistenz — KI-Automatisierung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#9a7f3c;--gold-l:#c4a355;--gold-ll:#e8d49a;--gold-bg:#faf8f2;--gold-border:#e2d5b0;
+  --white:#ffffff;--bg:#f9f8f5;--border:#ebebeb;--text:#111110;--text-2:#5c5649;--text-3:#a09a8e;
+  --success:#1f7a4a;--error:#b83a2c;
+  --font-d:'Cormorant Garamond',Georgia,serif;--font-b:'DM Sans',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);--max:780px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 6px 24px rgba(0,0,0,.09);--shadow-lg:0 16px 48px rgba(0,0,0,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-b);background:var(--white);color:var(--text);font-size:15px;line-height:1.6;padding-top:108px;}
+
+/* ── HEADER ── */
+.site-header{
+  background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;
+  text-align:center;position:fixed;top:0;left:0;right:0;z-index:999;
+  box-shadow:0 1px 12px rgba(0,0,0,.07);
+}
+.header-logo{height:82px;width:auto;display:inline-block;}
+
+/* ── HERO ── */
+.hero{background:var(--white);padding:80px 24px 88px;text-align:center;border-bottom:1px solid var(--border);}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:999px;padding:5px 16px;margin-bottom:24px;}
+.hero-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
+.hero h1{font-family:var(--font-d);font-size:clamp(30px,5vw,52px);font-weight:400;line-height:1.14;letter-spacing:-.02em;color:var(--text);max-width:640px;margin:0 auto 20px;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:16px;color:var(--text-2);max-width:480px;margin:0 auto 20px;line-height:1.65;}
+.hero-proof{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;margin-bottom:52px;}
+.hero-proof-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-3);font-weight:500;}
+.hero-proof-item svg{color:var(--gold);opacity:.8;}
+.hero-numbers{display:flex;align-items:stretch;justify-content:center;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;max-width:480px;margin:0 auto 52px;}
+.hero-num{flex:1;background:var(--white);padding:18px 12px;text-align:center;}
+.hero-num-val{font-family:var(--font-d);font-size:28px;font-weight:500;color:var(--gold);line-height:1;}
+.hero-num-label{font-size:11px;color:var(--text-3);margin-top:4px;line-height:1.4;}
+
+/* ── CALENDAR ── */
+.calendar-card{background:var(--white);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-lg);max-width:700px;margin:0 auto;overflow:hidden;}
+.cal-header{background:linear-gradient(135deg,var(--gold),#7d6530);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;color:#fff;}
+.cal-header-title{font-family:var(--font-d);font-size:21px;font-weight:500;}
+.cal-header-sub{font-size:12px;opacity:.75;margin-top:2px;}
+.cal-nav{display:flex;gap:8px;}
+.cal-nav button{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.cal-nav button:hover{background:rgba(255,255,255,.35);}
+.cal-body{padding:24px 28px 28px;}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:8px;}
+.cal-weekday{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);padding:6px 0;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .18s var(--ease);border:1.5px solid transparent;background:none;}
+.cal-day:hover:not(.disabled):not(.empty){background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);}
+.cal-day.today{background:var(--gold-bg);border-color:var(--gold-border);color:var(--gold);font-weight:700;}
+.cal-day.selected{background:linear-gradient(135deg,var(--gold),#7d6530)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 4px 12px rgba(154,127,60,.4);}
+.cal-day.disabled{color:var(--text-3);cursor:default;opacity:.35;}
+.cal-day.empty{cursor:default;}
+.time-slots-wrap{margin-top:22px;border-top:1px solid var(--border);padding-top:20px;display:none;}
+.time-slots-wrap.visible{display:block;animation:fadeUp .3s var(--ease);}
+.time-slots-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:13px;}
+.time-slots{display:flex;flex-wrap:wrap;gap:8px;}
+.time-slot{padding:9px 17px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer;transition:all .18s var(--ease);}
+.time-slot:hover{border-color:var(--gold-l);background:var(--gold-bg);color:var(--gold);}
+.time-slot.selected{background:linear-gradient(135deg,var(--gold),#7d6530);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(154,127,60,.35);}
+.cal-book-btn{display:none;width:100%;margin-top:20px;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),#7d6530);color:#fff;font-family:var(--font-b);font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(154,127,60,.4);transition:all .25s var(--ease);}
+.cal-book-btn.visible{display:block;animation:fadeUp .3s var(--ease);}
+.cal-book-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(154,127,60,.45);}
+
+/* ── SECTIONS ── */
+.page-section{max-width:var(--max);margin:0 auto;padding:80px 24px;}
+.section-label{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.section-label::before,.section-label::after{content:'';flex:0 0 20px;height:1px;background:var(--gold);}
+h2{font-family:var(--font-d);font-size:clamp(26px,4vw,40px);font-weight:400;line-height:1.18;letter-spacing:-.02em;color:var(--text);margin-bottom:12px;}
+h2 em{font-style:italic;color:var(--gold);}
+.section-sub{font-size:15px;color:var(--text-2);line-height:1.65;max-width:500px;margin-bottom:48px;}
+.section-divider{border:none;border-top:1px solid var(--border);max-width:var(--max);margin:0 auto;}
+.bg-subtle{background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+
+/* ── SERVICES ── */
+.services-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.service-card{border:1px solid var(--border);border-radius:18px;padding:30px;background:var(--white);box-shadow:var(--shadow-sm);transition:all .25s var(--ease);}
+.service-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--gold-border);}
+.service-icon{width:44px;height:44px;border-radius:11px;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold);margin-bottom:18px;}
+.service-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:999px;padding:3px 10px;margin-bottom:10px;}
+.service-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.service-problem{font-size:13px;color:var(--text-3);margin-bottom:10px;padding:10px 14px;background:var(--bg);border-radius:8px;border-left:3px solid var(--gold-border);}
+.service-problem strong{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:3px;}
+.service-solution{font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:14px;}
+.service-benefit{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--success);background:#f0faf4;border:1px solid #b7e4c7;border-radius:8px;padding:10px 14px;}
+.service-benefit svg{flex-shrink:0;}
+.service-price{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-family:var(--font-d);font-size:22px;font-weight:500;color:var(--gold);}
+.service-price span{font-size:13px;color:var(--text-3);font-family:var(--font-b);font-weight:400;}
+
+/* ── PRICING ── */
+.pricing-setup{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:36px;box-shadow:var(--shadow-sm);margin-bottom:20px;}
+.pricing-setup-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid var(--border);}
+.pricing-setup-left h3{font-family:var(--font-d);font-size:26px;font-weight:400;color:var(--text);margin-bottom:4px;}
+.pricing-setup-left p{font-size:14px;color:var(--text-2);}
+.pricing-setup-price{font-family:var(--font-d);font-size:42px;font-weight:400;color:var(--gold);line-height:1;white-space:nowrap;}
+.pricing-setup-price span{font-size:15px;font-family:var(--font-b);color:var(--text-3);font-weight:400;}
+.pricing-includes{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pricing-include-item{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--text-2);}
+.pricing-include-item svg{color:var(--gold);flex-shrink:0;margin-top:1px;}
+.pricing-include-item strong{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px;}
+.pricing-fair{margin-top:18px;padding:14px 18px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;color:var(--text-2);line-height:1.6;}
+.pricing-fair strong{color:var(--gold);}
+.pricing-support-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:36px;}
+.support-card{border:1px solid var(--border);border-radius:14px;padding:24px;background:var(--white);box-shadow:var(--shadow-sm);}
+.support-card.featured{border-color:var(--gold);background:var(--gold-bg);}
+.support-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.support-price{font-family:var(--font-d);font-size:32px;font-weight:400;color:var(--text);line-height:1;margin-bottom:4px;}
+.support-price span{font-size:14px;font-family:var(--font-b);color:var(--text-3);font-weight:400;}
+.support-desc{font-size:13px;color:var(--text-2);margin-bottom:16px;}
+.support-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.support-list li{font-size:13px;color:var(--text-2);display:flex;align-items:flex-start;gap:8px;}
+.support-list li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;margin-top:1px;}
+.pricing-cases h3{font-family:var(--font-d);font-size:26px;font-weight:400;color:var(--text);margin-bottom:8px;}
+.pricing-cases p{font-size:14px;color:var(--text-2);margin-bottom:24px;}
+.cases-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.case-card{border:1px solid var(--border);border-radius:14px;padding:22px;background:var(--white);box-shadow:var(--shadow-sm);transition:all .2s var(--ease);}
+.case-card:hover{box-shadow:var(--shadow-md);border-color:var(--gold-border);}
+.case-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.case-benefit{font-size:12.5px;color:var(--text-2);margin-bottom:14px;line-height:1.55;}
+.case-pricing{display:flex;gap:10px;flex-wrap:wrap;}
+.case-price-item{font-size:12px;padding:5px 11px;border-radius:999px;font-weight:600;}
+.case-price-once{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border);}
+.case-price-monthly{background:var(--bg);color:var(--text-2);border:1px solid var(--border);}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.testi-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:var(--shadow-sm);transition:all .25s var(--ease);}
+.testi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.testi-stars{color:var(--gold);font-size:13px;letter-spacing:2px;margin-bottom:14px;}
+.testi-quote{font-family:var(--font-d);font-size:15.5px;font-weight:400;font-style:italic;color:var(--text);line-height:1.55;margin-bottom:18px;}
+.testi-author{display:flex;align-items:center;gap:12px;}
+.testi-av{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),#7d6530);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.testi-name{font-size:13px;font-weight:600;color:var(--text);}
+.testi-company{font-size:11px;color:var(--text-3);}
+.testi-saving{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--success);background:#f0faf4;border:1px solid #b7e4c7;border-radius:999px;padding:3px 10px;margin-bottom:12px;}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:36px 24px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border);}
+footer .footer-logo{font-family:var(--font-d);font-size:20px;color:var(--gold);margin-bottom:10px;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.visible{display:flex;}
+.modal{background:var(--white);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;animation:modalIn .35s var(--ease);}
+@keyframes modalIn{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal::-webkit-scrollbar{width:4px;}
+.modal::-webkit-scrollbar-thumb{background:var(--gold-border);border-radius:4px;}
+.modal-header{background:linear-gradient(135deg,var(--gold),#7d6530);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;border-radius:20px 20px 0 0;position:sticky;top:0;z-index:10;}
+.modal-header-title{font-family:var(--font-d);font-size:22px;font-weight:500;color:#fff;}
+.modal-header-sub{font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;}
+.modal-close{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0;}
+.modal-close:hover{background:rgba(255,255,255,.35);}
+.modal-progress{padding:13px 28px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:75px;z-index:9;}
+.modal-progress-track{flex:1;height:3px;background:var(--gold-border);border-radius:999px;overflow:hidden;}
+.modal-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:999px;width:0%;transition:width .5s var(--ease);}
+.modal-progress-label{font-size:11px;font-weight:600;color:var(--gold);min-width:36px;text-align:right;}
+.modal-body{padding:28px;}
+.form-section{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:26px;margin-bottom:16px;box-shadow:var(--shadow-sm);animation:fadeUp .4s var(--ease) both;}
+.form-section:hover{box-shadow:var(--shadow-md);}
+.form-section:nth-child(1){animation-delay:.04s}.form-section:nth-child(2){animation-delay:.08s}.form-section:nth-child(3){animation-delay:.12s}.form-section:nth-child(4){animation-delay:.16s}.form-section:nth-child(5){animation-delay:.20s}.form-section:nth-child(6){animation-delay:.24s}.form-section:nth-child(7){animation-delay:.28s}
+.section-header{display:flex;align-items:center;gap:11px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.section-icon{width:32px;height:32px;border-radius:8px;background:var(--gold-bg);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;}
+.section-num{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:1px;}
+.section-title{font-size:14px;font-weight:600;color:var(--text);}
+.field-group{display:flex;flex-direction:column;gap:16px;}
+.field-row-2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);display:flex;align-items:center;gap:5px;}
+.req{color:var(--gold);}
+.opt{font-size:10px;font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;}
+input[type=text],input[type=email],input[type=url],select,textarea{width:100%;padding:11px 13px;font-family:var(--font-b);font-size:13.5px;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:8px;outline:none;transition:all .2s var(--ease);-webkit-appearance:none;appearance:none;}
+input::placeholder,textarea::placeholder{color:var(--text-3);font-size:13px;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(154,127,60,.1);}
+input.error,select.error,textarea.error{border-color:var(--error);box-shadow:0 0 0 3px rgba(184,58,44,.08);}
+textarea{min-height:96px;resize:vertical;line-height:1.6;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239a7f3c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:36px;cursor:pointer;}
+.field-error{font-size:11px;color:var(--error);font-weight:600;display:none;align-items:center;gap:4px;}
+.field-error.visible{display:flex;}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.choice-item{position:relative;}
+.choice-item input[type=checkbox],.choice-item input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+.choice-label{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-2);background:var(--bg);transition:all .18s var(--ease);user-select:none;text-transform:none;letter-spacing:0;}
+.choice-label:hover{border-color:var(--gold-l);background:var(--gold-bg);color:var(--text);}
+.choice-item input:checked+.choice-label{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.cdot{width:14px;height:14px;border-radius:4px;border:1.5px solid currentColor;flex-shrink:0;position:relative;transition:all .18s;}
+.choice-item input[type=radio]+.choice-label .cdot{border-radius:50%;}
+.cdot::after{content:'';position:absolute;inset:3px;border-radius:inherit;background:currentColor;opacity:0;transform:scale(.3);transition:all .18s;}
+.choice-item input:checked+.choice-label .cdot::after{opacity:1;transform:scale(1);}
+.other-field{display:none;margin-top:7px;grid-column:1/-1;}
+.other-field.visible{display:block;}
+.modal-submit-btn{width:100%;padding:16px 32px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),#7d6530);color:#fff;font-family:var(--font-b);font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(154,127,60,.38);transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;}
+.modal-submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(154,127,60,.45);}
+.modal-submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.loading .spin{display:block;}.loading .btn-text{display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.modal-note{margin-top:12px;text-align:center;font-size:11px;color:var(--text-3);display:flex;align-items:center;justify-content:center;gap:5px;}
+.modal-success{display:none;text-align:center;padding:56px 32px 48px;}
+.modal-success.visible{display:block;animation:fadeUp .5s var(--ease);}
+.success-icon{width:68px;height:68px;border-radius:50%;background:#f0faf4;border:1px solid #b7e4c7;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes scaleIn{from{transform:scale(.3);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{font-family:var(--font-d);font-size:30px;font-weight:400;color:var(--text);margin-bottom:10px;}
+.success-msg{font-size:15px;color:var(--text-2);line-height:1.65;max-width:360px;margin:0 auto 24px;}
+.success-redirect-btn{display:inline-flex;align-items:center;gap:8px;padding:15px 28px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#7d6530);color:#fff;font-family:var(--font-b);font-size:14px;font-weight:600;text-decoration:none;letter-spacing:.04em;box-shadow:0 4px 16px rgba(154,127,60,.4);transition:all .25s var(--ease);}
+.success-redirect-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(154,127,60,.45);}
+.success-note{margin-top:14px;font-size:12px;color:var(--text-3);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── PROCESS CARDS ── */
+.process-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.process-card{border:1px solid var(--border);border-radius:18px;padding:28px;background:var(--white);box-shadow:var(--shadow-sm);transition:all .25s var(--ease);}
+.process-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:var(--gold-border);}
+.process-num{font-family:var(--font-d);font-size:38px;font-weight:400;color:var(--gold);opacity:.35;line-height:1;margin-bottom:12px;}
+.process-card h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.process-card p{font-size:13px;color:var(--text-2);line-height:1.65;}
+
+/* ── PROBLEM LIST ── */
+.problem-list{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:28px;}
+.problem-list li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--text-2);padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--bg);}
+.problem-list li svg{color:#b83a2c;flex-shrink:0;margin-top:1px;}
+.problem-conclusion{font-size:15px;color:var(--text);font-weight:500;padding:16px 20px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:10px;}
+
+/* ── AUTO LIST ── */
+.auto-cols{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start;}
+.auto-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+.auto-list li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text-2);padding:12px 0;border-bottom:1px solid var(--border);}
+.auto-list li:last-child{border-bottom:none;}
+.auto-list li svg{color:var(--gold);flex-shrink:0;margin-top:1px;}
+.auto-list li strong{color:var(--text);display:block;font-size:13px;margin-bottom:1px;}
+
+/* ── WHY FREE ── */
+.why-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
+.why-list li{display:flex;align-items:flex-start;gap:11px;font-size:13.5px;color:var(--text-2);padding:14px 16px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:10px;}
+.why-list li svg{color:var(--gold);flex-shrink:0;margin-top:1px;}
+
+/* ── PROGRAM CARD ── */
+.program-card{background:linear-gradient(135deg,var(--gold-bg) 0%,var(--white) 100%);border:1px solid var(--gold-border);border-radius:18px;padding:28px 32px;max-width:580px;margin:0 auto 52px;text-align:left;box-shadow:0 4px 20px rgba(154,127,60,.12);}
+.program-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.program-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.program-title{font-family:var(--font-d);font-size:20px;font-weight:500;color:var(--text);margin-bottom:10px;line-height:1.25;}
+.program-text{font-size:14px;color:var(--text-2);line-height:1.72;margin-bottom:20px;}
+.program-footer{display:flex;align-items:center;gap:16px;padding-top:18px;border-top:1px solid var(--gold-border);}
+.program-num{font-family:var(--font-d);font-size:44px;font-weight:400;color:var(--gold);line-height:1;flex-shrink:0;}
+.program-meta{font-size:11.5px;color:var(--text-3);font-weight:600;letter-spacing:.05em;text-transform:uppercase;line-height:1.6;}
+.program-meta strong{display:block;color:var(--text-2);font-size:12.5px;letter-spacing:0;text-transform:none;font-weight:600;margin-bottom:1px;}
+
+/* ── AUDIENCE LIST ── */
+.audience-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:20px;}
+.audience-list li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--text-2);padding:13px 16px;border:1px solid var(--border);border-radius:10px;background:var(--bg);transition:all .2s var(--ease);}
+.audience-list li:hover{border-color:var(--gold-border);background:var(--gold-bg);}
+.audience-list li svg{color:var(--gold);flex-shrink:0;margin-top:1px;}
+
+@media(max-width:680px){.testi-grid{grid-template-columns:1fr;}.process-grid{grid-template-columns:1fr 1fr;}.why-list{grid-template-columns:1fr;}}
+@media(max-width:600px){.services-grid{grid-template-columns:1fr;}.site-header{padding:14px 16px;}body{padding-top:90px;}.cal-body{padding:16px;}.auto-cols{grid-template-columns:1fr;}.process-grid{grid-template-columns:1fr;}}
+@media(max-width:560px){.pricing-support-grid{grid-template-columns:1fr;}.cases-grid{grid-template-columns:1fr;}}
+@media(max-width:500px){.field-row-2{grid-template-columns:1fr;}.modal-body{padding:20px 16px;}.form-section{padding:20px 16px;}.pricing-includes{grid-template-columns:1fr;}}
+@media(max-width:400px){.choice-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <img src="logo.jpg" alt="M&H Assistenz" class="header-logo">
+</header>
+
+<section class="hero">
+  <div class="hero-badge"><span class="hero-badge-dot"></span>Kostenloses Fallstudie-Angebot</div>
+  <h1>Mehr Zeit für das, was wirklich zählt —<br><em>ohne einen Finger mehr zu rühren.</em></h1>
+  <p class="hero-sub">Du verbringst zu viel Zeit mit Aufgaben, die sich täglich wiederholen? Wir lösen das für dich — maßgeschneidert, einsatzbereit innerhalb weniger Tage. <strong>Komplett kostenlos.</strong></p>
+  <div class="hero-proof">
+    <div class="hero-proof-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Kostenlos — ohne Haken, ohne versteckte Kosten</div>
+    <div class="hero-proof-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Kein Risiko — du entscheidest nach 14 Tagen</div>
+    <div class="hero-proof-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Keine Technik-Kenntnisse nötig</div>
+  </div>
+  <div class="program-card">
+    <div class="program-label">Exklusives Fallstudie-Programm</div>
+    <div class="program-title">Wir betreuen 7 Unternehmen kostenlos —<br>um echte Ergebnisse sichtbar zu machen.</div>
+    <p class="program-text">Im Rahmen unseres Fallstudie-Programms richten wir für genau 7 Unternehmen ein vollständiges Automatisierungssystem ein — ohne Kosten, ohne Verpflichtung. Unser Ziel: dokumentierte Ergebnisse aus der Praxis, keine Hochglanzversprechen. Als einzige Gegenleistung bitten wir um einen ehrlichen Erfahrungsbericht, den wir als Referenz auf unserer Website veröffentlichen dürfen — nur wenn du das möchtest.</p>
+    <div class="program-footer">
+      <div class="program-num">7</div>
+      <div class="program-meta"><strong>Plätze insgesamt · Limitiert</strong>Kostenlos · Persönliche Begleitung · Kein Vertrag</div>
+    </div>
+  </div>
+  <div class="calendar-card">
+    <div class="cal-header">
+      <div><div class="cal-header-title" id="calMonthTitle"></div><div class="cal-header-sub">Wähle einen Tag — dann eine Uhrzeit</div></div>
+      <div class="cal-nav"><button id="calPrev" aria-label="Vorheriger Monat">&#8249;</button><button id="calNext" aria-label="Nächster Monat">&#8250;</button></div>
+    </div>
+    <div class="cal-body">
+      <div class="cal-weekdays"><div class="cal-weekday">Mo</div><div class="cal-weekday">Di</div><div class="cal-weekday">Mi</div><div class="cal-weekday">Do</div><div class="cal-weekday">Fr</div><div class="cal-weekday">Sa</div><div class="cal-weekday">So</div></div>
+      <div class="cal-days" id="calDays"></div>
+      <div class="time-slots-wrap" id="timeSlotsWrap">
+        <div class="time-slots-label" id="timeSlotsLabel">Verfügbare Zeiten</div>
+        <div class="time-slots" id="timeSlots"></div>
+      </div>
+      <button class="cal-book-btn" id="calBookBtn">Kostenloses Gespräch buchen →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROBLEM ── -->
+<hr class="section-divider">
+<section class="page-section">
+  <div class="section-label">Kennst du das?</div>
+  <h2>Diese Probleme<br><em>kostet dich täglich Zeit.</em></h2>
+  <p class="section-sub">Du bist nicht allein damit. Die meisten Unternehmer kämpfen mit denselben Engpässen.</p>
+  <ul class="problem-list">
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Du beantwortest täglich dieselben Fragen — per E-Mail, Telefon, Chat.
+    </li>
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Neue Anfragen müssen manuell ins System eingetragen werden.
+    </li>
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Wichtige Aufgaben bleiben liegen, weil Routinearbeit die Zeit frisst.
+    </li>
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Dein Team erledigt Dinge per Hand, die sich von selbst erledigen könnten.
+    </li>
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Du verlierst potenzielle Kunden, weil die Nachverfolgung nicht schnell genug passiert.
+    </li>
+    <li>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Anrufe außerhalb deiner Öffnungszeiten gehen ins Leere — und der Interessent ruft kein zweites Mal an.
+    </li>
+  </ul>
+  <p class="problem-conclusion">Das ist kein Organisationsproblem. Das ist ein System-Problem — und es hat eine Lösung.</p>
+</section>
+
+<!-- ── BENEFITS ── -->
+<hr class="section-divider">
+<section class="page-section">
+  <div class="section-label">Was du davon hast</div>
+  <h2>Deine Aufgaben.<br><em>Erledigt. Automatisch.</em></h2>
+  <p class="section-sub">Kein Technik-Gerede. Konkrete Probleme, konkrete Ergebnisse — messbar, nicht versprochen.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="service-tag">Zeitgewinn</div>
+      <div class="service-title">Stunden zurückgewinnen</div>
+      <div class="service-problem"><strong>Das Problem heute</strong>Routineaufgaben fressen täglich wertvolle Stunden — immer wieder, immer dasselbe.</div>
+      <div class="service-solution">Aufgaben die sich wiederholen, erledigen sich morgen von selbst. Diese Zeit gehört wieder dir — für Kunden, Wachstum, oder einfach mehr Freiheit.</div>
+      <div class="service-benefit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Durchschnittlich 8 Stunden pro Woche zurückgewonnen.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="service-tag">Zuverlässigkeit</div>
+      <div class="service-title">Weniger Fehler</div>
+      <div class="service-problem"><strong>Das Problem heute</strong>Manuelle Übertragungen sind fehleranfällig. Ein vergessenes Feld, eine falsche Zeile — und der Fehler zieht Kreise.</div>
+      <div class="service-solution">Ein automatisierter Prozess macht dieselbe Aufgabe jedes Mal gleich — und richtig. Keine Flüchtigkeitsfehler, keine vergessenen Schritte.</div>
+      <div class="service-benefit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Zuverlässige Abläufe — rund um die Uhr, ohne Ausnahme.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div class="service-tag">Reaktionszeit</div>
+      <div class="service-title">Schneller als die Konkurrenz</div>
+      <div class="service-problem"><strong>Das Problem heute</strong>Anfragen gehen ein — und warten. Stunden, manchmal Tage. In dieser Zeit entscheidet sich der Interessent woanders.</div>
+      <div class="service-solution">Ob Kundenfrage per Nachricht oder Anruf nach Feierabend — dein System reagiert sofort. Ein Assistent beantwortet Fragen automatisch, ein Anrufassistent nimmt Anfragen auf. Kein Interessent geht verloren, weil gerade niemand da war.</div>
+      <div class="service-benefit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Sofortige Reaktion — auch nachts, am Wochenende, im Urlaub.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="service-tag">Fokus</div>
+      <div class="service-title">Mehr Fokus auf das Wesentliche</div>
+      <div class="service-problem"><strong>Das Problem heute</strong>Dein Team verbringt Zeit mit Dateneingabe, Copy-Paste und Dingen die sich keine Aufmerksamkeit verdienen.</div>
+      <div class="service-solution">Mit einem System im Hintergrund erledigt dein Team die Dinge, für die es wirklich gebraucht wird — nicht die zehnte Wiederholung derselben Aufgabe.</div>
+      <div class="service-benefit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Mehr Wert pro Arbeitsstunde — für dich und dein Team.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AUTOMATION EXPLANATION ── -->
+<hr class="section-divider">
+<div class="bg-subtle">
+<section class="page-section">
+  <div class="section-label">Was ist Automatisierung?</div>
+  <h2>Nicht Magie —<br><em>schlauere Geschäftslogik.</em></h2>
+  <p class="section-sub">Automatisierung ist kein Roboter, der auf Tasten drückt. Es ist einfach intelligentere Logik, die für dich arbeitet — während du schläfst, im Meeting sitzt, oder Kunden betreust.</p>
+  <div class="auto-cols">
+    <ul class="auto-list">
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <div><strong>Neue Anfragen automatisch erfassen</strong>Eingehende Kontaktanfragen landen direkt in deiner Übersicht — kein manuelles Eintragen mehr, keine vergessenen Leads.</div>
+      </li>
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div><strong>Dein eigener Assistent beantwortet Kundenfragen</strong>Ein Assistent im Hintergrund antwortet auf die häufigsten Fragen deiner Kunden — sofort, rund um die Uhr, ohne dass du eingreifen musst. Wie ein Mitarbeiter, der nie Feierabend hat.</div>
+      </li>
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        <div><strong>Daten automatisch synchronisieren</strong>Informationen fließen zwischen deinen Tools — kein Copy-Paste, keine doppelte Pflege, keine veralteten Datensätze.</div>
+      </li>
+    </ul>
+    <ul class="auto-list">
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 4h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 11a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18.92z"/></svg>
+        <div><strong>Follow-ups zum richtigen Zeitpunkt</strong>Nachfass-Nachrichten gehen automatisch raus — wenn es am wirkungsvollsten ist, ohne dass du daran denken musst.</div>
+      </li>
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div><strong>Automatische Terminbestätigungen &amp; Erinnerungen</strong>Wer einen Termin bucht, bekommt sofort eine Bestätigung — und eine Erinnerung kurz vorher. Weniger No-Shows, kein manuelles Nachschreiben.</div>
+      </li>
+      <li>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 4h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 11a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18.92z"/></svg>
+        <div><strong>Kein Anruf geht mehr verloren</strong>Ein Anrufassistent nimmt auch außerhalb deiner Öffnungszeiten Anfragen entgegen — erfasst Name, Anliegen und Rückrufwunsch. Am nächsten Morgen weißt du genau, wen du anrufen sollst.</div>
+      </li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<!-- ── PROCESS ── -->
+<hr class="section-divider">
+<section class="page-section">
+  <div class="section-label">Wie läuft es ab?</div>
+  <h2>Transparent.<br><em>Ohne Überraschungen.</em></h2>
+  <p class="section-sub">Du weißt jederzeit, wo du stehst. Kein Kleingedrucktes, kein Druck — nur ein ehrlicher Prozess.</p>
+  <div class="process-grid">
+    <div class="process-card">
+      <div class="process-num">01</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 4h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 11a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18.92z"/></svg></div>
+      <h3>Kostenloser Call</h3>
+      <p>15 Minuten, gemeinsam reingucken. Wo verlierst du Zeit? Welche Aufgaben wiederholen sich? Was nervt dich am meisten? Kein Verkaufsgespräch — nur ein ehrliches Gespräch.</p>
+    </div>
+    <div class="process-card">
+      <div class="process-num">02</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <h3>Analyse &amp; Planung</h3>
+      <p>Auf Basis des Gesprächs entwickeln wir ein System, das exakt zu deinen Abläufen passt. Kein Standard-Template — individuell, für dein Unternehmen.</p>
+    </div>
+    <div class="process-card">
+      <div class="process-num">03</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+      <h3>Umsetzung</h3>
+      <p>Wir bauen. Du arbeitest weiter. Innerhalb weniger Tage ist dein System live — getestet, übergeben, erklärt. Du musst nichts selbst einrichten.</p>
+    </div>
+    <div class="process-card">
+      <div class="process-num">04</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <h3>Nach 14 Tagen</h3>
+      <p>Wir treffen uns kurz und sprechen über konkrete Ergebnisse. Was hat sich verändert? Was läuft besser? Was könnten wir noch verbessern?</p>
+    </div>
+    <div class="process-card">
+      <div class="process-num">05</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h3>Deine Bewertung</h3>
+      <p>Wir bitten dich um ehrliches Feedback — kein Drehbuch, keine vorgeschriebenen Sätze. Gern auch als kurzes Video für unsere Website. Das entscheidest du.</p>
+    </div>
+    <div class="process-card">
+      <div class="process-num">06</div>
+      <div class="service-icon" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></div>
+      <h3>Danach?</h3>
+      <p>Du entscheidest. Das System gehört dir — egal wie es weitergeht. Kein Abo, kein Vertrag, kein Druck. Wer möchte, kann weiterarbeiten. Wer nicht — kein Problem.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY FREE ── -->
+<hr class="section-divider">
+<div class="bg-subtle">
+<section class="page-section">
+  <div class="section-label">Warum kostenlos?</div>
+  <h2>Wir investieren —<br><em>weil wir von den Ergebnissen überzeugt sind.</em></h2>
+  <p class="section-sub">Dieses Angebot ist keine Charity. Wir wählen unsere Fallstudien-Partner bewusst aus — und setzen Expertise, Zeit und Ressourcen ein, weil wir überzeugt sind, dass Automatisierung bei dir einen echten Unterschied macht.</p>
+  <div class="pricing-setup" style="margin-bottom:0">
+    <div class="pricing-setup-header">
+      <div class="pricing-setup-left">
+        <h3>Was wir geben. Was wir uns erhoffen.</h3>
+        <p>Du erhältst ein vollständig eingerichtetes System — maßgeschneidert, kostenlos, ohne Verpflichtung. Im Gegenzug bitten wir dich nach 14 Tagen um eine ehrliche Rückmeldung zu den Ergebnissen. Gern auch als kurzes Statement oder Video für unsere Website — aber nur, wenn du das möchtest.</p>
+      </div>
+      <div class="pricing-setup-price" style="font-size:32px">0 € <span style="display:block;font-size:13px;margin-top:4px">für dich</span></div>
+    </div>
+    <ul class="why-list">
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Kein verstecktes Kleingedrucktes
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Keine Folgekosten, die du nicht kennst
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Keine Verpflichtung nach den 14 Tagen
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Kein Verkaufsdruck im Gespräch
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Das System gehört dir — unabhängig vom weiteren Verlauf
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Deine ehrliche Rückmeldung nach 14 Tagen ist unser einziger Gegenwert
+      </li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<!-- ── FOR WHOM ── -->
+<hr class="section-divider">
+<section class="page-section">
+  <div class="section-label">Für wen?</div>
+  <h2>Genau richtig<br><em>für dein Unternehmen.</em></h2>
+  <p class="section-sub">Branchen und Größe spielen keine Rolle. Was zählt: der Wille, etwas zu verändern.</p>
+  <ul class="audience-list">
+    <li>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div><strong>Unternehmer &amp; Selbstständige</strong>, die täglich Zeit mit sich wiederholenden Aufgaben verlieren und mehr Fokus auf ihr Kerngeschäft wollen.</div>
+    </li>
+    <li>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div><strong>Führungskräfte &amp; Entscheider</strong>, die ihr Team für wichtigere Dinge einsetzen wollen — nicht für Dateneingabe und Copy-Paste.</div>
+    </li>
+    <li>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <div><strong>Wachsende Unternehmen</strong>, die skalieren möchten — ohne proportional mehr Personal einstellen zu müssen.</div>
+    </li>
+    <li>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <div><strong>Alle, die offen für Neues sind</strong> — keine langen Einarbeitungszeiten, keine Technik-Kenntnisse nötig, einfach Ergebnisse sehen.</div>
+    </li>
+  </ul>
+</section>
+
+<footer>
+  <div class="footer-logo">M&amp;H Assistenz</div>
+  <p>© 2025 M&amp;H Assistenz · KI-Automatisierung · Alle Rechte vorbehalten</p>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div><div class="modal-header-title" id="modalTitle">Vorbereitung für dein Gespräch</div><div class="modal-header-sub" id="modalHeaderSub">Damit wir uns optimal vorbereiten können — ca. 5 Min.</div></div>
+      <button class="modal-close" id="modalClose" aria-label="Schließen">✕</button>
+    </div>
+    <div class="modal-progress">
+      <div class="modal-progress-track"><div class="modal-progress-fill" id="modalProgressFill"></div></div>
+      <div class="modal-progress-label" id="modalProgressLabel">0 %</div>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <form id="mainForm" novalidate>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><span class="section-num">01/07</span><span class="section-title">Grunddaten</span></div></div>
+          <div class="field-group">
+            <div class="field-row-2">
+              <div class="field"><label for="fn">Name <span class="req">*</span></label><input type="text" id="fn" name="name" placeholder="Dein vollständiger Name" required><span class="field-error" id="err_name">Pflichtfeld</span></div>
+              <div class="field"><label for="fe">E-Mail <span class="req">*</span></label><input type="email" id="fe" name="email" placeholder="Deine E-Mail-Adresse" required><span class="field-error" id="err_email">Gültige E-Mail erforderlich</span></div>
+            </div>
+            <div class="field"><label for="fw">Website <span class="opt">(optional)</span></label><input type="url" id="fw" name="website" placeholder="URL deiner Website"></div>
+            <div class="field-row-2">
+              <div class="field"><label for="fc">Firmenname <span class="req">*</span></label><input type="text" id="fc" name="company" placeholder="Name deines Unternehmens" required><span class="field-error" id="err_company">Pflichtfeld</span></div>
+              <div class="field"><label for="fi">Branche <span class="req">*</span></label><input type="text" id="fi" name="industry" placeholder="Deine Branche" required><span class="field-error" id="err_industry">Pflichtfeld</span></div>
+            </div>
+            <div class="field"><label for="ft">Teamgröße</label><select id="ft" name="team_size"><option value="" disabled selected>Bitte wählen …</option><option value="1">Nur ich</option><option value="2-5">2–5 Personen</option><option value="6-20">6–20 Personen</option><option value="21-50">21–50 Personen</option><option value="50+">50+ Personen</option></select></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><span class="section-num">02/07</span><span class="section-title">Dein Geschäft</span></div></div>
+          <div class="field-group">
+            <div class="field"><label for="fp">Was bietest du an?</label><textarea id="fp" name="product" placeholder="Beschreibe kurz was du verkaufst."></textarea></div>
+            <div class="field"><label for="fcu">Wer ist dein typischer Kunde?</label><textarea id="fcu" name="customer" placeholder="Branche, Größe, typische Situation."></textarea></div>
+            <div class="field"><label for="fsp">Von Anfrage bis Kunde — wie läuft das ab?</label><textarea id="fsp" name="sales_process" placeholder="Beschreibe die Schritte kurz."></textarea></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><span class="section-num">03/07</span><span class="section-title">Leadquellen</span></div></div>
+          <div class="field-group">
+            <div class="field"><label>Wie finden Kunden dich?</label>
+              <div class="choice-grid">
+                <div class="choice-item"><input type="checkbox" id="ls1" name="lead_sources[]" value="Empfehlungen"><label class="choice-label" for="ls1"><span class="cdot"></span>Empfehlungen</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls2" name="lead_sources[]" value="Google / SEO"><label class="choice-label" for="ls2"><span class="cdot"></span>Google / SEO</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls3" name="lead_sources[]" value="Social Media"><label class="choice-label" for="ls3"><span class="cdot"></span>Social Media</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls4" name="lead_sources[]" value="Bezahlte Werbung"><label class="choice-label" for="ls4"><span class="cdot"></span>Bezahlte Werbung</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls5" name="lead_sources[]" value="Cold Outreach"><label class="choice-label" for="ls5"><span class="cdot"></span>Cold Outreach</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls6" name="lead_sources[]" value="Zugekaufte Leads"><label class="choice-label" for="ls6"><span class="cdot"></span>Leads</label></div>
+                <div class="choice-item"><input type="checkbox" id="ls7" name="lead_sources[]" value="Andere" data-reveal="ls_other"><label class="choice-label" for="ls7"><span class="cdot"></span>Andere</label></div>
+              </div>
+              <div class="other-field" id="ls_other"><input type="text" name="lead_source_other" placeholder="Weitere Quellen"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><span class="section-num">04/07</span><span class="section-title">Zeitfresser &amp; Engpässe</span></div></div>
+          <div class="field-group">
+            <div class="field"><label for="fll">Wo verlierst du gerade Leads?</label><textarea id="fll" name="lost_leads" placeholder="Wo stockt der Prozess?"></textarea></div>
+            <div class="field"><label for="frep">Was machst du täglich manuell, obwohl es sich wiederholt?</label><textarea id="frep" name="repetitive" placeholder="Aufgaben die sich immer gleich anfühlen."></textarea></div>
+            <div class="field"><label for="ft3">Deine 3 größten Zeitfresser pro Woche?</label><textarea id="ft3" name="top3" placeholder="Nenne die drei Aufgaben die dich am meisten Zeit kosten."></textarea></div>
+            <div class="field"><label for="fma">Was würdest du als erstes automatisieren?</label><textarea id="fma" name="one_auto" placeholder="Dein persönlicher Wunsch."></textarea></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><span class="section-num">05/07</span><span class="section-title">Vertrieb</span></div></div>
+          <div class="field-group">
+            <div class="field"><label>Wer macht den Verkauf?</label>
+              <div class="choice-grid">
+                <div class="choice-item"><input type="radio" id="sw1" name="sales_who" value="Nur ich"><label class="choice-label" for="sw1"><span class="cdot"></span>Nur ich</label></div>
+                <div class="choice-item"><input type="radio" id="sw2" name="sales_who" value="Ich + 1–2 Personen"><label class="choice-label" for="sw2"><span class="cdot"></span>Ich + 1–2 Personen</label></div>
+                <div class="choice-item"><input type="radio" id="sw3" name="sales_who" value="Sales Team (3+)"><label class="choice-label" for="sw3"><span class="cdot"></span>Sales Team (3+)</label></div>
+                <div class="choice-item"><input type="radio" id="sw4" name="sales_who" value="Kein aktiver Verkauf"><label class="choice-label" for="sw4"><span class="cdot"></span>Kein aktiver Verkauf</label></div>
+              </div>
+            </div>
+            <div class="field"><label for="fdp">Was hindert euch aktuell am Abschluss?</label><textarea id="fdp" name="deal_problem" placeholder="Was passiert kurz vor dem Ja?"></textarea></div>
+            <div class="field"><label for="fay">Was kostet nach dem Ja die meiste Zeit?</label><textarea id="fay" name="after_yes" placeholder="Was passiert nach dem Vertragsabschluss?"></textarea></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><span class="section-num">06/07</span><span class="section-title">Kommunikation</span></div></div>
+          <div class="field-group">
+            <div class="field"><label>Wo kommunizierst du mit Kunden?</label>
+              <div class="choice-grid">
+                <div class="choice-item"><input type="checkbox" id="cc1" name="comm[]" value="E-Mail"><label class="choice-label" for="cc1"><span class="cdot"></span>E-Mail</label></div>
+                <div class="choice-item"><input type="checkbox" id="cc2" name="comm[]" value="WhatsApp"><label class="choice-label" for="cc2"><span class="cdot"></span>WhatsApp</label></div>
+                <div class="choice-item"><input type="checkbox" id="cc3" name="comm[]" value="CRM"><label class="choice-label" for="cc3"><span class="cdot"></span>CRM</label></div>
+                <div class="choice-item"><input type="checkbox" id="cc4" name="comm[]" value="Social Media"><label class="choice-label" for="cc4"><span class="cdot"></span>Social Media</label></div>
+                <div class="choice-item"><input type="checkbox" id="cc5" name="comm[]" value="Telefon"><label class="choice-label" for="cc5"><span class="cdot"></span>Telefon</label></div>
+                <div class="choice-item"><input type="checkbox" id="cc6" name="comm[]" value="Andere" data-reveal="cc_other"><label class="choice-label" for="cc6"><span class="cdot"></span>Andere</label></div>
+              </div>
+              <div class="other-field" id="cc_other"><input type="text" name="comm_other" placeholder="Weitere Kanäle"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-header"><div class="section-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div><span class="section-num">07/07</span><span class="section-title">Dein Ziel</span></div></div>
+          <div class="field-group">
+            <div class="field"><label for="fg">Was wäre dein größter Gewinn durch Automatisierung?</label><textarea id="fg" name="goal" style="min-height:100px" placeholder="Was wäre für dich der wichtigste Gewinn?"></textarea></div>
+          </div>
+        </div>
+
+        <button type="submit" class="modal-submit-btn" id="submitBtn">
+          <span class="spin" id="btnSpin"></span>
+          <span class="btn-text">Termin bestätigen &amp; absenden →</span>
+        </button>
+        <p class="modal-note"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Deine Angaben werden vertraulich behandelt.</p>
+      </form>
+    </div>
+    <div class="modal-success" id="modalSuccess">
+      <div class="success-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1f7a4a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h2 class="success-title">Termin erfolgreich gebucht!</h2>
+      <p class="success-msg">Wir bereiten alles für dich vor. Klicke jetzt um deinen Video-Call Termin direkt in deinem Kalender zu bestätigen.</p>
+      <a href="#" id="successCalLink" target="_blank" class="success-redirect-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Video-Call im Kalender bestätigen →</a>
+      <p class="success-note" id="successNote">Du erhältst außerdem eine Bestätigung per E-Mail.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const WEBHOOK       = 'https://n8n.srv1419118.hstgr.cloud/webhook/customform';
+const CALENDAR_LINK = 'https://calendar.google.com/calendar/appointments';
+
+const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const TIMES_DEFAULT = ['15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00'];
+const TIMES_THU     = ['18:00','18:30','19:00','19:30','20:00'];
+const TIMES_FRI     = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00'];
+function getTimesForDate(ds){const[y,m,d]=ds.split('-').map(Number);const dow=new Date(y,m-1,d).getDay();if(dow===4)return{slots:TIMES_THU,range:'18:00–20:00'};if(dow===5)return{slots:TIMES_FRI,range:'17:00–20:00'};return{slots:TIMES_DEFAULT,range:'15:00–20:00'};}
+let curYear, curMonth, selDate = null, selTime = null;
+
+function initCal() {
+  const n = new Date(); curYear = n.getFullYear(); curMonth = n.getMonth(); renderCal();
+}
+function renderCal() {
+  document.getElementById('calMonthTitle').textContent = MONTHS[curMonth] + ' ' + curYear;
+  const grid = document.getElementById('calDays');
+  grid.innerHTML = '';
+  const firstDay = new Date(curYear, curMonth, 1).getDay();
+  const offset   = firstDay === 0 ? 6 : firstDay - 1;
+  const days     = new Date(curYear, curMonth + 1, 0).getDate();
+  const today    = new Date(); today.setHours(0,0,0,0);
+  for (let i = 0; i < offset; i++) { const e = document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
+  for (let d = 1; d <= days; d++) {
+    const e = document.createElement('div');
+    const date = new Date(curYear, curMonth, d); date.setHours(0,0,0,0);
+    e.className = 'cal-day'; e.textContent = d;
+    if (date < today) { e.classList.add('disabled'); }
+    else {
+      if (date.getTime() === today.getTime()) e.classList.add('today');
+      const ds = `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      if (selDate === ds) e.classList.add('selected');
+      e.addEventListener('click', () => selectDate(ds, e));
+    }
+    grid.appendChild(e);
+  }
+}
+function selectDate(ds, el) {
+  selDate = ds; selTime = null;
+  document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  const [y,m,d] = ds.split('-');
+  const {slots, range} = getTimesForDate(ds);
+  document.getElementById('timeSlotsLabel').textContent = 'Verfügbare Zeiten — '+d+'.'+m+'.'+y+' ('+range+' Uhr)';
+  const slotsEl = document.getElementById('timeSlots'); slotsEl.innerHTML = '';
+  slots.forEach(t => {
+    const btn = document.createElement('div'); btn.className='time-slot'; btn.textContent=t+' Uhr';
+    btn.addEventListener('click', () => { document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected')); btn.classList.add('selected'); selTime=t; document.getElementById('calBookBtn').classList.add('visible'); });
+    slotsEl.appendChild(btn);
+  });
+  document.getElementById('timeSlotsWrap').classList.add('visible');
+  document.getElementById('calBookBtn').classList.remove('visible');
+}
+document.getElementById('calPrev').addEventListener('click', () => {
+  const now = new Date();
+  if (curYear > now.getFullYear() || (curYear === now.getFullYear() && curMonth > now.getMonth())) {
+    curMonth--; if (curMonth<0){curMonth=11;curYear--;} renderCal();
+  }
+});
+document.getElementById('calNext').addEventListener('click', () => { curMonth++; if(curMonth>11){curMonth=0;curYear++;} renderCal(); });
+document.getElementById('calBookBtn').addEventListener('click', openModal);
+initCal();
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('visible');
+  document.body.style.overflow = 'hidden';
+  if (selDate && selTime) { const [y,m,d]=selDate.split('-'); document.getElementById('modalHeaderSub').textContent='Termin: '+d+'.'+m+'.'+y+' um '+selTime+' Uhr'; }
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('visible'); document.body.style.overflow=''; }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+function updateProgress() {
+  const inputs = document.querySelectorAll('#mainForm input:not([type=submit]):not([type=checkbox]):not([type=radio]), #mainForm select, #mainForm textarea');
+  const checked = document.querySelectorAll('#mainForm input[type=checkbox]:checked, #mainForm input[type=radio]:checked');
+  let filled = 0; inputs.forEach(el => { if(el.value.trim()) filled++; }); filled += checked.length;
+  const pct = Math.min(Math.round((filled/(inputs.length+8))*100),100);
+  document.getElementById('modalProgressFill').style.width = pct+'%';
+  document.getElementById('modalProgressLabel').textContent = pct+' %';
+}
+document.getElementById('mainForm').addEventListener('input', updateProgress);
+document.getElementById('mainForm').addEventListener('change', updateProgress);
+
+document.querySelectorAll('[data-reveal]').forEach(cb => {
+  cb.addEventListener('change', () => { const t=document.getElementById(cb.dataset.reveal); if(t) t.classList.toggle('visible',cb.checked); });
+});
+
+[['fn','err_name'],['fe','err_email'],['fc','err_company'],['fi','err_industry']].forEach(([id,eid]) => {
+  document.getElementById(id)?.addEventListener('input', () => { document.getElementById(id).classList.remove('error'); document.getElementById(eid).classList.remove('visible'); });
+});
+function validate() {
+  let ok = true;
+  [['fn','err_name',v=>v.trim().length>0],['fe','err_email',v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())],['fc','err_company',v=>v.trim().length>0],['fi','err_industry',v=>v.trim().length>0]].forEach(([id,eid,fn]) => {
+    const el=document.getElementById(id); const valid=fn(el.value);
+    el.classList.toggle('error',!valid); document.getElementById(eid).classList.toggle('visible',!valid); if(!valid) ok=false;
+  });
+  return ok;
+}
+function collect() {
+  const g=id=>document.getElementById(id)?.value.trim()??'';
+  const radio=n=>document.querySelector(`input[name="${n}"]:checked`)?.value??'';
+  const checks=n=>[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(e=>e.value);
+  return { appointment_date:selDate??'', appointment_time:selTime??'', name:g('fn'), email:g('fe'), website:g('fw'), company:g('fc'), industry:g('fi'), team_size:g('ft'), product:g('fp'), customer:g('fcu'), sales_process:g('fsp'), lead_sources:checks('lead_sources[]'), lead_source_other:document.querySelector('[name="lead_source_other"]')?.value.trim()??'', lost_leads:g('fll'), repetitive:g('frep'), top3:g('ft3'), one_auto:g('fma'), sales_who:radio('sales_who'), deal_problem:g('fdp'), after_yes:g('fay'), comm_channels:checks('comm[]'), comm_other:document.querySelector('[name="comm_other"]')?.value.trim()??'', goal:g('fg'), submitted_at:new Date().toISOString() };
+}
+document.getElementById('mainForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validate()) { document.querySelector('.field-error.visible')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  const btn=document.getElementById('submitBtn'); btn.disabled=true; btn.classList.add('loading');
+  try { await fetch(WEBHOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())}); } catch(err) {}
+  if (selDate&&selTime) { const [y,m,d]=selDate.split('-'); document.getElementById('successNote').textContent='Gebuchter Termin: '+d+'.'+m+'.'+y+' um '+selTime+' Uhr'; }
+  document.getElementById('successCalLink').href=CALENDAR_LINK;
+  document.getElementById('modalProgressFill').style.width='100%';
+  document.getElementById('modalProgressLabel').textContent='100 %';
+  document.getElementById('modalBody').style.display='none';
+  document.getElementById('modalSuccess').classList.add('visible');
+  setTimeout(()=>window.open(CALENDAR_LINK,'_blank'),1500);
+});
+</script>
+</body>
+</html>
