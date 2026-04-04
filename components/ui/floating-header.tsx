@@ -8,18 +8,9 @@ export function FloatingHeader() {
 	const [open, setOpen] = React.useState(false);
 
 	const links = [
-		{
-			label: 'Features',
-			href: '#',
-		},
-		{
-			label: 'Pricing',
-			href: '#',
-		},
-		{
-			label: 'About',
-			href: '#',
-		},
+		{ label: 'Leistungen', href: '#leistungen' },
+		{ label: 'Wie es funktioniert', href: '#prozess' },
+		{ label: 'Preise', href: '#preise' },
 	];
 
 	return (
@@ -31,13 +22,15 @@ export function FloatingHeader() {
 			)}
 		>
 			<nav className="mx-auto flex items-center justify-between p-1.5">
-				<div className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 duration-100">
-					<Grid2x2PlusIcon className="size-5" />
-					<p className="font-mono text-base font-bold">Asme</p>
+				<div className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1">
+					<span style={{ fontFamily: 'Georgia, serif', color: '#9a7f3c', fontSize: '18px', fontWeight: 500 }}>
+						M&amp;H Assistenz
+					</span>
 				</div>
 				<div className="hidden items-center gap-1 lg:flex">
 					{links.map((link) => (
 						<a
+							key={link.href}
 							className={buttonVariants({ variant: 'ghost', size: 'sm' })}
 							href={link.href}
 						>
@@ -46,7 +39,11 @@ export function FloatingHeader() {
 					))}
 				</div>
 				<div className="flex items-center gap-2">
-					<Button size="sm">Login</Button>
+					<a href="#formular">
+						<Button size="sm" style={{ background: 'linear-gradient(135deg, #9a7f3c, #7d6530)', border: 'none' }}>
+							Kostenlos starten
+						</Button>
+					</a>
 					<Sheet open={open} onOpenChange={setOpen}>
 						<Button
 							size="icon"
@@ -64,19 +61,21 @@ export function FloatingHeader() {
 							<div className="grid gap-y-2 overflow-y-auto px-4 pt-12 pb-5">
 								{links.map((link) => (
 									<a
-										className={buttonVariants({
-											variant: 'ghost',
-											className: 'justify-start',
-										})}
+										key={link.href}
+										className={buttonVariants({ variant: 'ghost', className: 'justify-start' })}
 										href={link.href}
+										onClick={() => setOpen(false)}
 									>
 										{link.label}
 									</a>
 								))}
 							</div>
 							<SheetFooter>
-								<Button variant="outline">Sign In</Button>
-								<Button>Get Started</Button>
+								<a href="#formular" onClick={() => setOpen(false)}>
+									<Button className="w-full" style={{ background: 'linear-gradient(135deg, #9a7f3c, #7d6530)', border: 'none' }}>
+										Kostenlos starten
+									</Button>
+								</a>
 							</SheetFooter>
 						</SheetContent>
 					</Sheet>
