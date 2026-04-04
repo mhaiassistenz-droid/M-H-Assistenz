@@ -1,4 +1,7 @@
+"use client";
+
 import { motion } from 'framer-motion';
+import * as React from 'react';
 
 export const Component = () => {
   return (
@@ -33,7 +36,7 @@ export const Component = () => {
   );
 };
 
-const PricingCard = ({ label, monthlyPrice, description, cta, background, BGComponent }) => {
+const PricingCard = ({ label, monthlyPrice, description, cta, background, BGComponent }: { label: string; monthlyPrice: string; description: string; cta: string; background: string; BGComponent: React.ComponentType }) => {
   return (
     <motion.div
       whileHover="hover"
