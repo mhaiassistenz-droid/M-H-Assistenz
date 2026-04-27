@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&H Assistenz — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f6f8fc;
+  --card: #ffffff;
+  --card-border: rgba(15,23,42,.09);
+  --blue: #2F5CFF;
+  --blue-l: #5278FF;
+  --purple: #7c3aed;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --text: #0f172a;
+  --text-2: rgba(15,23,42,.58);
+  --text-3: rgba(15,23,42,.38);
+  --font-d: 'Geist', system-ui, sans-serif;
+  --font-b: 'Geist', system-ui, sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+  --shadow: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(47,92,255,.1), 0 1px 3px rgba(0,0,0,.05);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-b); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
+
+/* ── SIDEBAR (dark) ── */
+.sidebar {
+  background: #000;
+  padding: 0;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+}
+.sidebar-top { padding: 22px 18px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.sidebar-brand-logo { width: 32px; height: 32px; border-radius: 8px; background: var(--blue); display: flex; align-items: center; justify-content: center; font-family: var(--font-d); font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.sidebar-brand-name { font-family: var(--font-d); font-size: 14px; font-weight: 700; color: #f1f5f9; }
+.sidebar-brand-sub { font-size: 10px; color: rgba(255,255,255,.3); margin-top: 1px; }
+.sidebar-live { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--green); font-weight: 600; margin-top: 12px; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: livePulse 2s ease-in-out infinite; }
+@keyframes livePulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4);} 50%{box-shadow:0 0 0 6px rgba(34,197,94,0);} }
+
+.sidebar-nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.28); padding: 0 8px; margin-bottom: 5px; margin-top: 14px; }
+.nav-label:first-child { margin-top: 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 10px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,.55);
+  transition: all .2s; text-decoration: none; margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+.nav-item.active { background: rgba(47,92,255,.2); color: #fff; border-color: rgba(47,92,255,.3); }
+.nav-icon { width: 15px; height: 15px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; font-size: 10px; font-weight: 700; background: rgba(47,92,255,.3); color: #8B83F0; border-radius: 999px; padding: 1px 7px; }
+
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,.08); }
+.sidebar-user { display: flex; align-items: center; gap: 10px; }
+.sidebar-user-av { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg,#2F5CFF,#7c3aed); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+.sidebar-user-role { font-size: 10px; color: rgba(255,255,255,.3); }
+
+/* ── MAIN ── */
+.main { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px; border-bottom: 1px solid var(--card-border);
+  background: rgba(246,248,252,.92); backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-family: var(--font-d); font-size: 17px; font-weight: 700; color: var(--text); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-time { font-size: 12px; color: var(--text-3); font-feature-settings: "tnum"; }
+.topbar-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px; border: 1px solid var(--card-border);
+  background: var(--card); color: var(--text-2); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s; font-family: var(--font-b); box-shadow: var(--shadow);
+}
+.topbar-btn:hover { border-color: rgba(47,92,255,.25); color: var(--text); }
+.topbar-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 8px rgba(47,92,255,.3); }
+.topbar-btn.primary:hover { background: var(--blue-l); }
+
+/* ── TABS ── */
+.tab-bar { display: flex; align-items: center; gap: 4px; padding: 18px 28px 0; }
+.tab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 16px; border-radius: 10px 10px 0 0;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  color: var(--text-3); border: 1px solid transparent; border-bottom: none;
+  transition: all .2s; background: none; font-family: var(--font-b);
+}
+.tab:hover { color: var(--text-2); background: rgba(15,23,42,.03); }
+.tab.active { color: var(--text); background: var(--card); border-color: var(--card-border); position: relative; bottom: -1px; box-shadow: 0 -1px 4px rgba(0,0,0,.04); }
+.tab-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+.tab-content { display: none; padding: 0 28px 28px; border-top: 1px solid var(--card-border); background: var(--bg); }
+.tab-content.active { display: block; }
+
+/* ── STATS GRID ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; padding-top: 22px; margin-bottom: 18px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px; padding: 18px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .25s, border-color .25s, transform .25s;
+  position: relative; overflow: hidden;
+}
+.card:hover { box-shadow: var(--shadow-md); border-color: rgba(47,92,255,.18); }
+
+/* ── STAT CARD ── */
+.stat-card { padding: 16px 18px; }
+.stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; }
+.stat-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+.stat-icon-blue { background: rgba(47,92,255,.1); color: var(--blue); }
+.stat-icon-green { background: rgba(34,197,94,.1); color: var(--green); }
+.stat-icon-purple { background: rgba(124,58,237,.1); color: var(--purple); }
+.stat-icon-amber { background: rgba(245,158,11,.1); color: var(--amber); }
+.stat-value { font-family: var(--font-d); font-size: 30px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -.02em; margin-bottom: 4px; }
+.stat-sub { font-size: 11px; color: var(--text-3); }
+.stat-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; margin-top: 8px; }
+.trend-up { background: rgba(34,197,94,.1); color: #16a34a; }
+.trend-down { background: rgba(239,68,68,.08); color: var(--red); }
+.trend-neu { background: rgba(47,92,255,.08); color: var(--blue); }
+
+/* ── SECTION HEADER ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-title { font-family: var(--font-d); font-size: 14px; font-weight: 700; color: var(--text); }
+.section-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: rgba(47,92,255,.08); color: var(--blue); border: 1px solid rgba(47,92,255,.15); }
+
+/* ── BIG CALENDAR ── */
+.kal-main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; }
+
+.big-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.big-cal-month { font-family: var(--font-d); font-size: 15px; font-weight: 700; color: var(--text); }
+.big-cal-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--card-border); background: var(--bg); color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all .2s; }
+.big-cal-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+.big-cal-head { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 6px; }
+.big-cal-day-label { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-3); padding: 4px 0; letter-spacing: .05em; }
+
+.big-cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+.bcd {
+  min-height: 88px; padding: 7px 7px 5px;
+  border-radius: 8px; border: 1px solid transparent;
+  transition: border-color .15s, background .15s; cursor: default;
+  background: rgba(15,23,42,.015);
+}
+.bcd:hover { background: rgba(47,92,255,.04); border-color: rgba(47,92,255,.12); }
+.bcd.other { opacity: .4; }
+.bcd.today { background: rgba(47,92,255,.04); border-color: rgba(47,92,255,.2); }
+.bcd-num {
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+}
+.bcd-num.today-n { background: var(--blue); color: #fff; font-weight: 700; }
+.bcd.other .bcd-num { color: var(--text-3); }
+
+.cal-event {
+  font-size: 10px; font-weight: 500; padding: 2px 5px;
+  border-radius: 4px; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.4;
+}
+.ev-green { background: rgba(34,197,94,.12); color: #16a34a; }
+.ev-blue { background: rgba(47,92,255,.12); color: var(--blue); }
+.ev-amber { background: rgba(245,158,11,.12); color: #b45309; }
+.ev-purple { background: rgba(124,58,237,.1); color: var(--purple); }
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; margin: 1px 2px; display: inline-block; }
+
+/* ── APPOINTMENT LIST ── */
+.appt-list { display: flex; flex-direction: column; gap: 8px; }
+.appt-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 13px; border-radius: 10px;
+  background: var(--bg); border: 1px solid var(--card-border);
+  transition: all .2s;
+}
+.appt-item.active-now { background: rgba(47,92,255,.05); border-color: rgba(47,92,255,.2); }
+.appt-time { font-size: 12px; font-weight: 700; color: var(--text); min-width: 48px; font-feature-settings:"tnum"; }
+.appt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.appt-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.appt-service { font-size: 11px; color: var(--text-3); }
+.appt-badge { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; margin-left: auto; }
+.badge-ok { background: rgba(34,197,94,.1); color: #16a34a; border: 1px solid rgba(34,197,94,.2); }
+.badge-pending { background: rgba(245,158,11,.1); color: #b45309; border: 1px solid rgba(245,158,11,.2); }
+.badge-active { background: rgba(47,92,255,.12); color: var(--blue); border: 1px solid rgba(47,92,255,.2); }
+
+/* ── CALL LIST ── */
+.call-list { display: flex; flex-direction: column; gap: 8px; }
+.call-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 10px;
+  background: var(--bg); border: 1px solid var(--card-border);
+  transition: all .2s;
+}
+.call-item:hover { border-color: rgba(47,92,255,.18); box-shadow: 0 2px 8px rgba(47,92,255,.07); }
+.call-item.live-call { background: rgba(47,92,255,.04); border-color: rgba(47,92,255,.2); }
+.call-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.call-icon-in { background: rgba(34,197,94,.1); }
+.call-icon-fwd { background: rgba(245,158,11,.1); }
+.call-num { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.call-topic { font-size: 11px; color: var(--text-2); }
+.call-live { font-size: 11px; font-weight: 600; color: var(--blue); }
+.call-meta { margin-left: auto; text-align: right; flex-shrink: 0; }
+.call-time { font-size: 11px; color: var(--text-3); }
+.call-dur { font-size: 11px; font-weight: 600; color: var(--text-2); margin-top: 2px; }
+
+/* ── FAQ BARS ── */
+.faq-list { display: flex; flex-direction: column; gap: 13px; }
+.faq-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.faq-q { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.faq-n { font-size: 12px; font-weight: 700; color: var(--text); }
+.faq-track { height: 6px; background: rgba(15,23,42,.07); border-radius: 999px; overflow: hidden; }
+.faq-fill { height: 100%; border-radius: 999px; transition: width 1.5s cubic-bezier(.4,0,.2,1); width: 0; }
+
+/* ── NEXT SLOT CARD ── */
+.next-slot { display: flex; align-items: center; gap: 14px; }
+.next-slot-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(34,197,94,.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.next-slot-time { font-family: var(--font-d); font-size: 18px; font-weight: 700; color: var(--text); }
+.next-slot-sub { font-size: 11px; color: var(--text-3); }
+
+/* ── ANIMATIONS ── */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.fade-in.visible { opacity: 1; transform: none; }
+.fade-in-left { opacity: 0; transform: translateX(-16px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.fade-in-left.visible { opacity: 1; transform: none; }
+.fade-in-right { opacity: 0; transform: translateX(16px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.fade-in-right.visible { opacity: 1; transform: none; }
+@keyframes pulseBadge { 0%,100%{opacity:1;} 50%{opacity:.6;} }
+
+/* ── DEMO BADGE ── */
+.demo-ribbon { position: fixed; top: 14px; right: 16px; z-index: 999; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); color: var(--amber); font-size: 11px; font-weight: 700; padding: 5px 13px; border-radius: 999px; letter-spacing: .06em; text-transform: uppercase; animation: pulseBadge 3s ease infinite; }
+
+/* ── CONTENT GRID ── */
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px) { .stats-grid{grid-template-columns:repeat(2,1fr);} .kal-main-grid,.content-grid{grid-template-columns:1fr;} }
+
+/* ── CHART CARDS ── */
+.chart-card { padding: 22px 24px; }
+.chart-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:12px; }
+.chart-title { font-family: var(--font-d); font-size: 16px; font-weight: 700; color: var(--text); letter-spacing:-.01em; }
+.chart-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.period-selector { display: inline-flex; align-items:center; gap: 2px; background: var(--bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 3px; }
+.period-btn { font-family: var(--font-b); font-size: 11px; font-weight: 600; color: var(--text-3); background: transparent; border: none; border-radius: 6px; padding: 5px 11px; cursor: pointer; transition: all .18s var(--ease); white-space: nowrap; }
+.period-btn:hover { color: var(--text-2); }
+.period-btn.active { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.chart-canvas-wrap { position: relative; width: 100%; height: 280px; }
+.chart-mini-stats { display:flex; gap:24px; margin-bottom: 18px; padding-left: 4px; flex-wrap:wrap; }
+.chart-mini-stat { display:flex; flex-direction: column; gap: 4px; min-width: 0; }
+.chart-mini-stat-label { font-size: 11px; font-weight: 600; color: var(--text-3); display:flex; align-items:center; gap:6px; }
+.chart-mini-stat-dot { width: 8px; height: 8px; border-radius: 2px; }
+.chart-mini-stat-val { font-family: var(--font-d); font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.02em; line-height: 1; }
+.chart-mini-stat-trend { font-size: 11px; font-weight: 600; }
+.chart-mini-stat-trend.up { color: #22c55e; }
+.chart-mini-stat-trend.down { color: #ef4444; }
+
+/* Heatmap */
+.heatmap-grid { display: grid; grid-template-columns: 32px repeat(12, 1fr); gap: 3px; margin-top: 8px; }
+.heatmap-label { font-size: 10px; font-weight: 600; color: var(--text-3); display:flex; align-items:center; }
+.heatmap-cell { aspect-ratio: 1.2; border-radius: 4px; transition: transform .18s var(--ease); cursor: default; }
+.heatmap-cell:hover { transform: scale(1.15); }
+.heatmap-legend { display:flex; align-items:center; gap:8px; margin-top: 14px; font-size: 11px; color: var(--text-3); }
+.heatmap-legend-scale { display:flex; gap:2px; }
+.heatmap-legend-scale span { width: 14px; height: 8px; border-radius: 2px; }
+.heatmap-hours { display: grid; grid-template-columns: 32px repeat(12, 1fr); gap: 3px; margin-top: 4px; font-size: 9px; color: var(--text-3); padding-left: 0; }
+.heatmap-hours span { text-align: center; }
+
+/* Donut */
+.donut-wrap { display:flex; align-items:center; gap: 22px; flex-wrap:wrap; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { flex: 1; min-width: 140px; display:flex; flex-direction: column; gap: 10px; }
+.donut-legend-row { display:flex; align-items:center; gap: 10px; font-size: 13px; }
+.donut-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.donut-legend-label { flex: 1; font-weight: 600; color: var(--text-2); }
+.donut-legend-val { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+@media(max-width:780px) { .layout{grid-template-columns:1fr;} .sidebar{display:none;} }
+</style>
+</head>
+<body>
+
+<div class="demo-ribbon">Demo-Vorschau</div>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a class="sidebar-brand" href="index.html">
+        <img src="logo.png" style="height:30px;object-fit:contain;" onerror="this.style.display='none';document.getElementById('sbLogo').style.display='flex';">
+        <div id="sbLogo" class="sidebar-brand-logo" style="display:none;">M</div>
+        <div>
+          <div class="sidebar-brand-name">M&amp;H Assistenz</div>
+          <div class="sidebar-brand-sub">Dashboard</div>
+        </div>
+      </a>
+      <div class="sidebar-live"><span class="live-dot"></span>Live-Daten</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Übersicht</div>
+      <a class="nav-item active" onclick="switchTab('kalender')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Kalender-System
+        <span class="nav-badge">3</span>
+      </a>
+      <a class="nav-item" onclick="switchTab('voice')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.8a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 0h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Voice Agent
+        <span class="nav-badge">7</span>
+      </a>
+      <a class="nav-item" onclick="switchTab('website')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Website
+        <span class="nav-badge">847</span>
+      </a>
+
+      <div class="nav-label" style="margin-top:20px;">Navigation</div>
+      <a class="nav-item" href="index.html">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Zurück zur Website
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-av">M</div>
+        <div>
+          <div class="sidebar-user-name">Matthias H.</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Kalender-System</div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="liveClock"></div>
+        <button class="topbar-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button class="topbar-btn primary">+ Termin buchen</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab active" data-tab="kalender" onclick="switchTab('kalender')">
+        <span class="tab-dot" style="background:#22c55e;"></span>
+        Kalender-System
+      </button>
+      <button class="tab" data-tab="voice" onclick="switchTab('voice')">
+        <span class="tab-dot" style="background:#2F5CFF;"></span>
+        Voice Agent
+      </button>
+      <button class="tab" data-tab="website" onclick="switchTab('website')">
+        <span class="tab-dot" style="background:#a78bfa;"></span>
+        Website
+      </button>
+    </div>
+
+    <!-- ════════ TAB: KALENDER ════════ -->
+    <div class="tab-content active" id="tab-kalender">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="card stat-card fade-in">
+          <div class="stat-header">
+            <div class="stat-label">Heute</div>
+            <div class="stat-icon stat-icon-blue">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" style="font-feature-settings:'tnum';" data-target="3" id="kal-stat-1">3</div>
+          <div class="stat-sub">Termine heute</div>
+          <div class="stat-trend trend-up">↑ +1 ggü. gestern</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.07s">
+          <div class="stat-header">
+            <div class="stat-label">Diese Woche</div>
+            <div class="stat-icon stat-icon-green">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="11">0</div>
+          <div class="stat-sub">Termine diese Woche</div>
+          <div class="stat-trend trend-up">↑ 4 noch ausstehend</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.14s">
+          <div class="stat-header">
+            <div class="stat-label">Auslastung</div>
+            <div class="stat-icon stat-icon-purple">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="73">0</div>
+          <div class="stat-sub">% Wochenauslastung</div>
+          <div class="stat-trend trend-neu">→ Optimal</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.21s">
+          <div class="stat-header">
+            <div class="stat-label">Nächster freier Slot</div>
+            <div class="stat-icon stat-icon-amber">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" style="font-size:18px;padding-top:4px;">Morgen</div>
+          <div class="stat-sub">14:30 Uhr · buchbar</div>
+          <div class="stat-trend trend-neu">→ 1 Tag wartezeit</div>
+        </div>
+      </div>
+
+      <!-- Big Calendar + Appointment side panel -->
+      <div class="kal-main-grid">
+
+        <!-- Big Calendar -->
+        <div class="card fade-in-left">
+          <div class="big-cal-nav">
+            <button class="big-cal-btn">‹</button>
+            <div class="big-cal-month">April 2026</div>
+            <button class="big-cal-btn">›</button>
+          </div>
+          <div class="big-cal-head">
+            <div class="big-cal-day-label">Mo</div>
+            <div class="big-cal-day-label">Di</div>
+            <div class="big-cal-day-label">Mi</div>
+            <div class="big-cal-day-label">Do</div>
+            <div class="big-cal-day-label">Fr</div>
+            <div class="big-cal-day-label">Sa</div>
+            <div class="big-cal-day-label">So</div>
+          </div>
+          <div class="big-cal-grid">
+            <!-- Week 1: 30.Mar – 5.Apr -->
+            <div class="bcd other"><div class="bcd-num">30</div></div>
+            <div class="bcd other"><div class="bcd-num">31</div></div>
+            <div class="bcd"><div class="bcd-num">1</div><div class="cal-event ev-green">Erstgespräch</div></div>
+            <div class="bcd"><div class="bcd-num">2</div></div>
+            <div class="bcd"><div class="bcd-num">3</div><div class="cal-event ev-purple">Demo</div><div class="cal-event ev-green">Follow-up</div></div>
+            <div class="bcd"><div class="bcd-num">4</div></div>
+            <div class="bcd"><div class="bcd-num">5</div></div>
+            <!-- Week 2: 6–12.Apr -->
+            <div class="bcd"><div class="bcd-num">6</div></div>
+            <div class="bcd"><div class="bcd-num">7</div><div class="cal-event ev-blue">Analyse</div><div class="cal-event ev-green">Termin</div></div>
+            <div class="bcd"><div class="bcd-num">8</div><div class="cal-event ev-green">Erstgespräch</div></div>
+            <div class="bcd"><div class="bcd-num">9</div></div>
+            <div class="bcd"><div class="bcd-num">10</div><div class="cal-event ev-purple">Demo</div><div class="cal-event ev-amber">Follow-up</div><div class="cal-event ev-green">Abschluss</div></div>
+            <div class="bcd"><div class="bcd-num">11</div><div class="cal-event ev-green">Termin</div></div>
+            <div class="bcd"><div class="bcd-num">12</div></div>
+            <!-- Week 3: 13–19.Apr -->
+            <div class="bcd"><div class="bcd-num">13</div></div>
+            <div class="bcd"><div class="bcd-num">14</div><div class="cal-event ev-blue">Erstgespräch</div><div class="cal-event ev-green">Demo</div></div>
+            <div class="bcd"><div class="bcd-num">15</div><div class="cal-event ev-green">Analyse</div><div class="cal-event ev-purple">Termin</div><div class="cal-event ev-amber">Follow-up</div></div>
+            <div class="bcd"><div class="bcd-num">16</div><div class="cal-event ev-green">Termin</div></div>
+            <div class="bcd"><div class="bcd-num">17</div><div class="cal-event ev-green">Erstgespräch</div><div class="cal-event ev-blue">Demo</div></div>
+            <div class="bcd"><div class="bcd-num">18</div></div>
+            <div class="bcd"><div class="bcd-num">19</div></div>
+            <!-- Week 4: 20–26.Apr -->
+            <div class="bcd"><div class="bcd-num">20</div></div>
+            <div class="bcd"><div class="bcd-num">21</div><div class="cal-event ev-green">Erstgespräch</div></div>
+            <div class="bcd today"><div class="bcd-num today-n">22</div><div class="cal-event ev-green">T. Müller 09:00</div><div class="cal-event ev-blue">S. Hoffmann 11:30</div><div class="cal-event ev-amber">K. Weber 15:00</div></div>
+            <div class="bcd"><div class="bcd-num">23</div><div class="cal-event ev-green">M. Schmidt</div><div class="cal-event ev-green">J. Becker</div><div class="cal-event ev-blue">P. Lang</div></div>
+            <div class="bcd"><div class="bcd-num">24</div><div class="cal-event ev-purple">Demo</div><div class="cal-event ev-green">Termin</div></div>
+            <div class="bcd"><div class="bcd-num">25</div></div>
+            <div class="bcd"><div class="bcd-num">26</div></div>
+            <!-- Week 5: 27–30.Apr + 1–3.Mai -->
+            <div class="bcd"><div class="bcd-num">27</div></div>
+            <div class="bcd"><div class="bcd-num">28</div><div class="cal-event ev-green">Erstgespräch</div></div>
+            <div class="bcd"><div class="bcd-num">29</div><div class="cal-event ev-blue">Analyse</div><div class="cal-event ev-amber">Follow-up</div></div>
+            <div class="bcd"><div class="bcd-num">30</div><div class="cal-event ev-green">Abschluss</div></div>
+            <div class="bcd other"><div class="bcd-num">1</div></div>
+            <div class="bcd other"><div class="bcd-num">2</div></div>
+            <div class="bcd other"><div class="bcd-num">3</div></div>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--card-border);">
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-3);"><span class="cal-event ev-green" style="margin:0;padding:1px 6px;">Bestätigt</span></div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-3);"><span class="cal-event ev-blue" style="margin:0;padding:1px 6px;">Aktiv</span></div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-3);"><span class="cal-event ev-amber" style="margin:0;padding:1px 6px;">Ausstehend</span></div>
+          </div>
+        </div>
+
+        <!-- Side panel: Today's 3 appointments + next slot -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <!-- Today's appointments -->
+          <div class="card fade-in-right">
+            <div class="section-header">
+              <div>
+                <div class="section-title">Heute · 22. April</div>
+                <div class="section-sub">3 Termine</div>
+              </div>
+              <span class="section-badge" style="background:rgba(34,197,94,.08);color:#16a34a;border-color:rgba(34,197,94,.15);">live</span>
+            </div>
+            <div class="appt-list">
+              <div class="appt-item">
+                <div class="appt-time">09:00</div>
+                <div class="appt-dot" style="background:var(--green);"></div>
+                <div>
+                  <div class="appt-name">Thomas Müller</div>
+                  <div class="appt-service">Erstgespräch · 45 Min</div>
+                </div>
+                <span class="appt-badge badge-ok">✓</span>
+              </div>
+              <div class="appt-item active-now">
+                <div class="appt-time">11:30</div>
+                <div class="appt-dot" style="background:var(--blue);animation:livePulse 1.5s infinite;"></div>
+                <div>
+                  <div class="appt-name">Sandra Hoffmann</div>
+                  <div class="appt-service" style="color:var(--blue);font-weight:600;">läuft gerade · 60 Min</div>
+                </div>
+                <span class="appt-badge badge-active">Live</span>
+              </div>
+              <div class="appt-item">
+                <div class="appt-time">15:00</div>
+                <div class="appt-dot" style="background:var(--amber);"></div>
+                <div>
+                  <div class="appt-name">Klaus Weber</div>
+                  <div class="appt-service">Follow-up · 30 Min</div>
+                </div>
+                <span class="appt-badge badge-pending">Offen</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next free slot -->
+          <div class="card fade-in-right" style="transition-delay:.08s;">
+            <div class="section-title" style="margin-bottom:12px;">Nächster freier Slot</div>
+            <div class="next-slot">
+              <div class="next-slot-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <div class="next-slot-time">Mo, 23. April</div>
+                <div class="next-slot-sub">14:30 Uhr · 60 Min verfügbar</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--card-border);display:flex;gap:8px;">
+              <button style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--card-border);background:var(--bg);font-size:12px;font-weight:600;color:var(--text-2);cursor:pointer;font-family:var(--font-b);">Link kopieren</button>
+              <button style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--blue);font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font-b);">Buchen</button>
+            </div>
+          </div>
+
+          <!-- Woche-Übersicht mini -->
+          <div class="card fade-in-right" style="transition-delay:.16s;">
+            <div class="section-title" style="margin-bottom:12px;">Woche im Überblick</div>
+            <div style="display:flex;align-items:flex-end;gap:6px;height:64px;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:rgba(47,92,255,.15);height:30px;"></div>
+                <div style="font-size:10px;color:var(--text-3);">Mo</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:rgba(47,92,255,.15);height:46px;"></div>
+                <div style="font-size:10px;color:var(--text-3);">Di</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:rgba(47,92,255,.15);height:20px;"></div>
+                <div style="font-size:10px;color:var(--text-3);">Mi</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:var(--blue);height:54px;position:relative;">
+                  <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--blue);white-space:nowrap;">heute</div>
+                </div>
+                <div style="font-size:10px;color:var(--text);font-weight:700;">Do</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:rgba(47,92,255,.15);height:46px;"></div>
+                <div style="font-size:10px;color:var(--text-3);">Fr</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="width:100%;border-radius:4px;background:rgba(47,92,255,.06);height:14px;"></div>
+                <div style="font-size:10px;color:var(--text-3);">Sa</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Termin-Funnel Chart ── -->
+      <div class="card chart-card fade-in" style="margin-top:14px;">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Termin-Funnel</div>
+            <div class="chart-sub">Vom Kontakt bis zum erschienenen Kunden</div>
+          </div>
+          <div class="period-selector" data-chart="kalFunnel">
+            <button class="period-btn" data-period="7d">7 Tage</button>
+            <button class="period-btn active" data-period="30d">30 Tage</button>
+            <button class="period-btn" data-period="90d">90 Tage</button>
+          </div>
+        </div>
+        <div class="chart-mini-stats">
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#a0b4ff;"></span>Anfragen</div><div class="chart-mini-stat-val">412</div><div class="chart-mini-stat-trend up">↑ +18%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#5278ff;"></span>Termine</div><div class="chart-mini-stat-val">287</div><div class="chart-mini-stat-trend up">↑ +12%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#2F5CFF;"></span>Erschienen</div><div class="chart-mini-stat-val">241</div><div class="chart-mini-stat-trend up">↑ +9%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#1a3dd9;"></span>Wiederkehrend</div><div class="chart-mini-stat-val">94</div><div class="chart-mini-stat-trend up">↑ +24%</div></div>
+        </div>
+        <div class="chart-canvas-wrap"><canvas id="kalFunnelChart"></canvas></div>
+      </div>
+
+      <!-- ── Heatmap + Donut Row ── -->
+      <div class="content-grid" style="margin-top:14px;">
+
+        <div class="card chart-card fade-in-left">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Buchungs-Heatmap</div>
+              <div class="chart-sub">Wann buchen deine Kunden — Wochentag × Uhrzeit</div>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="kalHeatmap"></div>
+          <div class="heatmap-hours" id="kalHeatmapHours"></div>
+          <div class="heatmap-legend">
+            <span>Weniger</span>
+            <div class="heatmap-legend-scale">
+              <span style="background:rgba(47,92,255,.06);"></span>
+              <span style="background:rgba(47,92,255,.20);"></span>
+              <span style="background:rgba(47,92,255,.40);"></span>
+              <span style="background:rgba(47,92,255,.65);"></span>
+              <span style="background:#2F5CFF;"></span>
+            </div>
+            <span>Mehr</span>
+          </div>
+        </div>
+
+        <div class="card chart-card fade-in-right">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Buchungsquellen</div>
+              <div class="chart-sub">Woher kommen Termine — diese Woche</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="160" height="160" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(47,92,255,.08)" stroke-width="6"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#2F5CFF" stroke-width="6" stroke-dasharray="48 52" stroke-dashoffset="25" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a78bfa" stroke-width="6" stroke-dasharray="28 72" stroke-dashoffset="-23" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#22c55e" stroke-width="6" stroke-dasharray="16 84" stroke-dashoffset="-51" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" stroke-width="6" stroke-dasharray="8 92" stroke-dashoffset="-67" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <text x="21" y="20" text-anchor="middle" font-family="Geist" font-size="6" font-weight="800" fill="var(--text)">287</text>
+              <text x="21" y="25" text-anchor="middle" font-family="Geist" font-size="2.5" fill="var(--text-3)">Termine</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#2F5CFF;"></span><span class="donut-legend-label">Website</span><span class="donut-legend-val">48%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#a78bfa;"></span><span class="donut-legend-label">Voice Agent</span><span class="donut-legend-val">28%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#22c55e;"></span><span class="donut-legend-label">Direkt-Anruf</span><span class="donut-legend-val">16%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#f59e0b;"></span><span class="donut-legend-label">Empfehlung</span><span class="donut-legend-val">8%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-kalender -->
+
+    <!-- ════════ TAB: VOICE AGENT ════════ -->
+    <div class="tab-content" id="tab-voice">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="card stat-card fade-in">
+          <div class="stat-header">
+            <div class="stat-label">Anrufe heute</div>
+            <div class="stat-icon stat-icon-blue">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.8 19.79 19.79 0 0 1 1.62 1.13 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 7.91a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="24">0</div>
+          <div class="stat-sub">Anrufe heute gesamt</div>
+          <div class="stat-trend trend-up">↑ +7 ggü. gestern</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.07s">
+          <div class="stat-header">
+            <div class="stat-label">Auto-gelöst</div>
+            <div class="stat-icon stat-icon-green">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="79">0</div>
+          <div class="stat-sub">% ohne Weiterleitung</div>
+          <div class="stat-trend trend-up">↑ Sehr gut</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.14s">
+          <div class="stat-header">
+            <div class="stat-label">Ø Dauer</div>
+            <div class="stat-icon stat-icon-purple">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" style="font-size:24px;padding-top:5px;">2:18</div>
+          <div class="stat-sub">Minuten pro Gespräch</div>
+          <div class="stat-trend trend-neu">→ Stabil</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.21s">
+          <div class="stat-header">
+            <div class="stat-label">Zeit gespart</div>
+            <div class="stat-icon stat-icon-amber">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" style="font-size:24px;padding-top:5px;">~3h</div>
+          <div class="stat-sub">heute eingespart</div>
+          <div class="stat-trend trend-up">↑ vs. manuell</div>
+        </div>
+      </div>
+
+      <!-- 2 columns: Calls + FAQ -->
+      <div class="content-grid">
+
+        <!-- 3 Recent Calls -->
+        <div class="card fade-in-left">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Aktuelle Anrufe</div>
+              <div class="section-sub">Letzte 3 Gespräche</div>
+            </div>
+            <span class="section-badge">24 heute</span>
+          </div>
+          <div class="call-list" id="voiceCallList">
+            <div class="call-item live-call">
+              <div class="call-icon call-icon-in">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.8 19.79 19.79 0 0 1 1.62 1.13 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div class="call-num">+49 151 23456789</div>
+                <div class="call-topic call-live">Termin buchen für nächste Woche</div>
+              </div>
+              <div class="call-meta">
+                <div class="call-time">gerade eben</div>
+                <div class="call-dur" style="color:var(--green);animation:livePulse 1.5s infinite;">● Live</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-icon call-icon-in">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.8 19.79 19.79 0 0 1 1.62 1.13 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div class="call-num">+49 89 44556677</div>
+                <div class="call-topic">Öffnungszeiten anfragen</div>
+              </div>
+              <div class="call-meta">
+                <div class="call-time">11:34 Uhr</div>
+                <div class="call-dur">1:45 Min</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-icon call-icon-fwd">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div class="call-num">+49 30 12345678</div>
+                <div class="call-topic">Komplexe Anfrage → Weitergeleitet</div>
+              </div>
+              <div class="call-meta">
+                <div class="call-time">11:12 Uhr</div>
+                <div class="call-dur">3:22 Min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Bars -->
+        <div class="card fade-in-right">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Häufigste Fragen</div>
+              <div class="section-sub">Letzte 7 Tage</div>
+            </div>
+          </div>
+          <div class="faq-list">
+            <div>
+              <div class="faq-head"><span class="faq-q">Termin buchen / Verfügbarkeit</span><span class="faq-n">38×</span></div>
+              <div class="faq-track"><div class="faq-fill" data-w="100" style="background:linear-gradient(90deg,#2F5CFF,#8B83F0);"></div></div>
+            </div>
+            <div>
+              <div class="faq-head"><span class="faq-q">Preise &amp; Konditionen</span><span class="faq-n">27×</span></div>
+              <div class="faq-track"><div class="faq-fill" data-w="71" style="background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div></div>
+            </div>
+            <div>
+              <div class="faq-head"><span class="faq-q">Öffnungszeiten / Erreichbarkeit</span><span class="faq-n">21×</span></div>
+              <div class="faq-track"><div class="faq-fill" data-w="55" style="background:linear-gradient(90deg,#22c55e,#4ade80);"></div></div>
+            </div>
+            <div>
+              <div class="faq-head"><span class="faq-q">Termin absagen / verschieben</span><span class="faq-n">16×</span></div>
+              <div class="faq-track"><div class="faq-fill" data-w="42" style="background:linear-gradient(90deg,#f59e0b,#fcd34d);"></div></div>
+            </div>
+            <div>
+              <div class="faq-head"><span class="faq-q">Adresse &amp; Anfahrt</span><span class="faq-n">11×</span></div>
+              <div class="faq-track"><div class="faq-fill" data-w="29" style="background:linear-gradient(90deg,#ef4444,#f87171);"></div></div>
+            </div>
+          </div>
+
+          <!-- Einfacher Tages-Chart -->
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border);">
+            <div style="font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">Anrufe nach Uhrzeit</div>
+            <div style="display:flex;align-items:flex-end;gap:4px;height:56px;">
+              <!-- 8h-19h bar chart -->
+              <div style="flex:1;background:rgba(47,92,255,.1);border-radius:3px 3px 0 0;height:10%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.2);border-radius:3px 3px 0 0;height:35%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.35);border-radius:3px 3px 0 0;height:65%;"></div>
+              <div style="flex:1;background:var(--blue);border-radius:3px 3px 0 0;height:100%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.3);border-radius:3px 3px 0 0;height:58%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.15);border-radius:3px 3px 0 0;height:25%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.25);border-radius:3px 3px 0 0;height:50%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.4);border-radius:3px 3px 0 0;height:75%;"></div>
+              <div style="flex:1;background:var(--blue);border-radius:3px 3px 0 0;height:90%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.35);border-radius:3px 3px 0 0;height:65%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.18);border-radius:3px 3px 0 0;height:32%;"></div>
+              <div style="flex:1;background:rgba(47,92,255,.1);border-radius:3px 3px 0 0;height:15%;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span style="font-size:9px;color:var(--text-3);">8 Uhr</span>
+              <span style="font-size:9px;color:var(--text-3);">13 Uhr</span>
+              <span style="font-size:9px;color:var(--text-3);">19 Uhr</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Anrufe-Verlauf Stacked Area ── -->
+      <div class="card chart-card fade-in" style="margin-top:14px;">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Anrufe-Verlauf</div>
+            <div class="chart-sub">Wie viele Anrufe + wie sie gelöst wurden</div>
+          </div>
+          <div class="period-selector" data-chart="voiceFunnel">
+            <button class="period-btn" data-period="7d">7 Tage</button>
+            <button class="period-btn active" data-period="30d">30 Tage</button>
+            <button class="period-btn" data-period="90d">90 Tage</button>
+          </div>
+        </div>
+        <div class="chart-mini-stats">
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#22c55e;"></span>Auto-gelöst</div><div class="chart-mini-stat-val">628</div><div class="chart-mini-stat-trend up">↑ +21%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#2F5CFF;"></span>Termin gebucht</div><div class="chart-mini-stat-val">184</div><div class="chart-mini-stat-trend up">↑ +14%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#f59e0b;"></span>Weitergeleitet</div><div class="chart-mini-stat-val">86</div><div class="chart-mini-stat-trend down">↓ -7%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#94a3b8;"></span>Verpasst</div><div class="chart-mini-stat-val">12</div><div class="chart-mini-stat-trend down">↓ -32%</div></div>
+        </div>
+        <div class="chart-canvas-wrap"><canvas id="voiceFunnelChart"></canvas></div>
+      </div>
+
+      <!-- ── Sentiment Donut + Stunden Heatmap ── -->
+      <div class="content-grid" style="margin-top:14px;">
+
+        <div class="card chart-card fade-in-left">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Sentiment-Analyse</div>
+              <div class="chart-sub">Stimmung der Anrufer — letzte 7 Tage</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="160" height="160" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(47,92,255,.08)" stroke-width="6"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#22c55e" stroke-width="6" stroke-dasharray="68 32" stroke-dashoffset="25" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a0b4ff" stroke-width="6" stroke-dasharray="22 78" stroke-dashoffset="-43" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" stroke-width="6" stroke-dasharray="7 93" stroke-dashoffset="-65" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#ef4444" stroke-width="6" stroke-dasharray="3 97" stroke-dashoffset="-72" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <text x="21" y="20" text-anchor="middle" font-family="Geist" font-size="6" font-weight="800" fill="var(--text)">68%</text>
+              <text x="21" y="25" text-anchor="middle" font-family="Geist" font-size="2.5" fill="var(--text-3)">positiv</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#22c55e;"></span><span class="donut-legend-label">Positiv</span><span class="donut-legend-val">68%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#a0b4ff;"></span><span class="donut-legend-label">Neutral</span><span class="donut-legend-val">22%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#f59e0b;"></span><span class="donut-legend-label">Unsicher</span><span class="donut-legend-val">7%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#ef4444;"></span><span class="donut-legend-label">Frustriert</span><span class="donut-legend-val">3%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card chart-card fade-in-right">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Spitzenzeiten</div>
+              <div class="chart-sub">Anrufaufkommen — Wochentag × Uhrzeit</div>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="voiceHeatmap"></div>
+          <div class="heatmap-hours" id="voiceHeatmapHours"></div>
+          <div class="heatmap-legend">
+            <span>Weniger</span>
+            <div class="heatmap-legend-scale">
+              <span style="background:rgba(47,92,255,.06);"></span>
+              <span style="background:rgba(47,92,255,.20);"></span>
+              <span style="background:rgba(47,92,255,.40);"></span>
+              <span style="background:rgba(47,92,255,.65);"></span>
+              <span style="background:#2F5CFF;"></span>
+            </div>
+            <span>Mehr</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-voice -->
+
+    <!-- ════════ TAB: WEBSITE ════════ -->
+    <div class="tab-content" id="tab-website">
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="card stat-card fade-in">
+          <div class="stat-header">
+            <div class="stat-label">Aufrufe heute</div>
+            <div class="stat-icon stat-icon-blue">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="847">0</div>
+          <div class="stat-sub">Besucher heute</div>
+          <div class="stat-trend trend-up">↑ +18% ggü. gestern</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.07s">
+          <div class="stat-header">
+            <div class="stat-label">Diese Woche</div>
+            <div class="stat-icon stat-icon-green">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="5234">0</div>
+          <div class="stat-sub">Aufrufe gesamt</div>
+          <div class="stat-trend trend-up">↑ +12% ggü. Vorwoche</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.14s">
+          <div class="stat-header">
+            <div class="stat-label">Ø Verweildauer</div>
+            <div class="stat-icon stat-icon-purple">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" style="font-size:24px;padding-top:5px;">2:47</div>
+          <div class="stat-sub">Min:Sek pro Sitzung</div>
+          <div class="stat-trend trend-up">↑ Sehr gut</div>
+        </div>
+        <div class="card stat-card fade-in" style="transition-delay:.21s">
+          <div class="stat-header">
+            <div class="stat-label">Conversion</div>
+            <div class="stat-icon stat-icon-amber">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value ticker" data-target="42">0</div>
+          <div class="stat-sub">Termine aus Website</div>
+          <div class="stat-trend trend-up">↑ 4,9% Conv-Rate</div>
+        </div>
+      </div>
+
+      <!-- Two-column: Traffic chart + Top Pages -->
+      <div class="content-grid">
+
+        <!-- Traffic Chart -->
+        <div class="card fade-in-left" style="padding:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div>
+              <div style="font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--text);">Besucher-Verlauf</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Letzte 14 Tage</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <span style="font-size:10px;font-weight:600;color:var(--text-3);background:rgba(47,92,255,.08);border-radius:6px;padding:4px 10px;">14 Tage</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 4px;">
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:42%;" title="320"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:55%;" title="425"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:48%;" title="370"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:62%;" title="490"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:58%;" title="455"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:71%;" title="560"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:68%;" title="535"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:78%;" title="615"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:74%;" title="585"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:85%;" title="670"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:80%;" title="630"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:92%;" title="725"></div>
+            <div style="flex:1;background:linear-gradient(180deg,rgba(47,92,255,.6),rgba(47,92,255,.3));border-radius:4px 4px 0 0;height:88%;" title="690"></div>
+            <div style="flex:1;background:linear-gradient(180deg,#2F5CFF,#5278FF);border-radius:4px 4px 0 0;height:100%;box-shadow:0 0 12px rgba(47,92,255,.4);" title="847 (heute)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text-3);">
+            <span>14.04.</span>
+            <span>21.04.</span>
+            <span>Heute</span>
+          </div>
+        </div>
+
+        <!-- Top Pages -->
+        <div class="card fade-in-right" style="padding:24px;">
+          <div style="font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;">Top Seiten</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:18px;">Aufrufe letzte 7 Tage</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>/ (Startseite)</span><span style="color:var(--text-2);">2.184</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2F5CFF,#5278FF);height:100%;width:100%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>/voice-agent</span><span style="color:var(--text-2);">1.420</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2F5CFF,#5278FF);height:100%;width:65%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>/kalender</span><span style="color:var(--text-2);">876</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2F5CFF,#5278FF);height:100%;width:40%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>/wissensdatenbank</span><span style="color:var(--text-2);">498</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2F5CFF,#5278FF);height:100%;width:23%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>/websitebuilder</span><span style="color:var(--text-2);">256</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:linear-gradient(90deg,#2F5CFF,#5278FF);height:100%;width:12%;border-radius:4px;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Three-column: Sources, Devices, Live -->
+      <div class="content-grid" style="grid-template-columns:1fr 1fr 1fr;margin-top:14px;">
+
+        <!-- Traffic Sources -->
+        <div class="card fade-in" style="padding:24px;">
+          <div style="font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Traffic-Quellen</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:3px;background:#2F5CFF;"></span><span style="flex:1;font-size:13px;font-weight:600;">Google Suche</span><span style="font-size:13px;color:var(--text-2);font-weight:600;">52%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:3px;background:#a78bfa;"></span><span style="flex:1;font-size:13px;font-weight:600;">Direkt</span><span style="font-size:13px;color:var(--text-2);font-weight:600;">23%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:3px;background:#22c55e;"></span><span style="flex:1;font-size:13px;font-weight:600;">LinkedIn</span><span style="font-size:13px;color:var(--text-2);font-weight:600;">15%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:3px;background:#f59e0b;"></span><span style="flex:1;font-size:13px;font-weight:600;">Empfehlung</span><span style="font-size:13px;color:var(--text-2);font-weight:600;">7%</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="width:10px;height:10px;border-radius:3px;background:#94a3b8;"></span><span style="flex:1;font-size:13px;font-weight:600;">Sonstige</span><span style="font-size:13px;color:var(--text-2);font-weight:600;">3%</span></div>
+          </div>
+        </div>
+
+        <!-- Devices -->
+        <div class="card fade-in" style="padding:24px;transition-delay:.07s;">
+          <div style="font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;">Geräte</div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>📱 Mobile</span><span style="color:var(--text-2);">61%</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:#2F5CFF;height:100%;width:61%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>💻 Desktop</span><span style="color:var(--text-2);">34%</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:#a78bfa;height:100%;width:34%;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;"><span>📟 Tablet</span><span style="color:var(--text-2);">5%</span></div>
+              <div style="background:rgba(47,92,255,.08);border-radius:4px;height:6px;overflow:hidden;"><div style="background:#22c55e;height:100%;width:5%;border-radius:4px;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Visitors -->
+        <div class="card fade-in" style="padding:24px;transition-delay:.14s;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:livePulse 2s infinite;"></span>
+            <div style="font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--text);">Live</div>
+          </div>
+          <div style="font-family:var(--font-d);font-size:36px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.02em;">23</div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px;margin-bottom:16px;">Besucher gerade online</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+            <div style="display:flex;justify-content:space-between;color:var(--text-2);"><span>München</span><span style="font-weight:600;">8</span></div>
+            <div style="display:flex;justify-content:space-between;color:var(--text-2);"><span>Berlin</span><span style="font-weight:600;">5</span></div>
+            <div style="display:flex;justify-content:space-between;color:var(--text-2);"><span>Hamburg</span><span style="font-weight:600;">4</span></div>
+            <div style="display:flex;justify-content:space-between;color:var(--text-2);"><span>Köln</span><span style="font-weight:600;">3</span></div>
+            <div style="display:flex;justify-content:space-between;color:var(--text-2);"><span>Sonstige</span><span style="font-weight:600;">3</span></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ── Conversion-Funnel Stacked Area ── -->
+      <div class="card chart-card fade-in" style="margin-top:14px;">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Conversion-Funnel</div>
+            <div class="chart-sub">Vom Aufruf zum gebuchten Termin</div>
+          </div>
+          <div class="period-selector" data-chart="webFunnel">
+            <button class="period-btn" data-period="7d">7 Tage</button>
+            <button class="period-btn active" data-period="30d">30 Tage</button>
+            <button class="period-btn" data-period="90d">90 Tage</button>
+          </div>
+        </div>
+        <div class="chart-mini-stats">
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#a0b4ff;"></span>Aufrufe</div><div class="chart-mini-stat-val">5.234</div><div class="chart-mini-stat-trend up">↑ +12%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#5278ff;"></span>Engagement</div><div class="chart-mini-stat-val">2.184</div><div class="chart-mini-stat-trend up">↑ +18%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#2F5CFF;"></span>CTA-Klicks</div><div class="chart-mini-stat-val">387</div><div class="chart-mini-stat-trend up">↑ +9%</div></div>
+          <div class="chart-mini-stat"><div class="chart-mini-stat-label"><span class="chart-mini-stat-dot" style="background:#1a3dd9;"></span>Termin gebucht</div><div class="chart-mini-stat-val">42</div><div class="chart-mini-stat-trend up">↑ +21%</div></div>
+        </div>
+        <div class="chart-canvas-wrap"><canvas id="webFunnelChart"></canvas></div>
+      </div>
+
+      <!-- ── Geräte Donut + Wochentag Heatmap ── -->
+      <div class="content-grid" style="margin-top:14px;">
+
+        <div class="card chart-card fade-in-left">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Geräte-Verteilung</div>
+              <div class="chart-sub">Womit Besucher die Site öffnen</div>
+            </div>
+          </div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="160" height="160" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(47,92,255,.08)" stroke-width="6"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#2F5CFF" stroke-width="6" stroke-dasharray="61 39" stroke-dashoffset="25" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a78bfa" stroke-width="6" stroke-dasharray="34 66" stroke-dashoffset="-36" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#22c55e" stroke-width="6" stroke-dasharray="5 95" stroke-dashoffset="-70" stroke-linecap="butt" transform="rotate(-90 21 21)"/>
+              <text x="21" y="20" text-anchor="middle" font-family="Geist" font-size="6" font-weight="800" fill="var(--text)">61%</text>
+              <text x="21" y="25" text-anchor="middle" font-family="Geist" font-size="2.5" fill="var(--text-3)">mobile</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#2F5CFF;"></span><span class="donut-legend-label">Mobile</span><span class="donut-legend-val">61%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#a78bfa;"></span><span class="donut-legend-label">Desktop</span><span class="donut-legend-val">34%</span></div>
+              <div class="donut-legend-row"><span class="donut-legend-dot" style="background:#22c55e;"></span><span class="donut-legend-label">Tablet</span><span class="donut-legend-val">5%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card chart-card fade-in-right">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Besucher-Heatmap</div>
+              <div class="chart-sub">Wann ist Traffic am höchsten — Wochentag × Uhrzeit</div>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="webHeatmap"></div>
+          <div class="heatmap-hours" id="webHeatmapHours"></div>
+          <div class="heatmap-legend">
+            <span>Weniger</span>
+            <div class="heatmap-legend-scale">
+              <span style="background:rgba(47,92,255,.06);"></span>
+              <span style="background:rgba(47,92,255,.20);"></span>
+              <span style="background:rgba(47,92,255,.40);"></span>
+              <span style="background:rgba(47,92,255,.65);"></span>
+              <span style="background:#2F5CFF;"></span>
+            </div>
+            <span>Mehr</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-website -->
+
+  </main>
+</div>
+
+<script>
+'use strict';
+
+// ── CLOCK ──
+(function(){
+  function tick(){
+    var n=new Date(), p=function(x){return x<10?'0'+x:x;};
+    document.getElementById('liveClock').textContent = p(n.getDate())+'.'+p(n.getMonth()+1)+'.'+n.getFullYear()+' · '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+  }
+  tick(); setInterval(tick,1000);
+})();
+
+// ── TAB SWITCH ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab===name); });
+  document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.toggle('active', c.id==='tab-'+name); });
+  document.querySelector('.nav-item[onclick*="kalender"]').classList.toggle('active', name==='kalender');
+  document.querySelector('.nav-item[onclick*="voice"]').classList.toggle('active', name==='voice');
+  document.querySelector('.nav-item[onclick*="website"]').classList.toggle('active', name==='website');
+  var titles = { kalender:'Kalender-System', voice:'Voice Agent', website:'Website-Analytics' };
+  document.getElementById('topbarTitle').textContent = titles[name] || '';
+  setTimeout(triggerReveal, 50);
+  // Resize Chart.js instances after tab becomes visible (canvases need re-layout)
+  setTimeout(function(){
+    if(!window.Chart) return;
+    ['kalFunnelChart','voiceFunnelChart','webFunnelChart'].forEach(function(id){
+      var c = Chart.getChart(id); if(c) try{ c.resize(); }catch(e){}
+    });
+  }, 80);
+}
+// livePulse keyframe (used in website tab)
+(function(){
+  var s=document.createElement('style');
+  s.textContent='@keyframes livePulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5);}70%{box-shadow:0 0 0 8px rgba(34,197,94,0);}100%{box-shadow:0 0 0 0 rgba(34,197,94,0);}}';
+  document.head.appendChild(s);
+})();
+
+// ── REVEAL ──
+function triggerReveal(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);} });
+  },{threshold:0.05});
+  document.querySelectorAll('.fade-in:not(.visible),.fade-in-left:not(.visible),.fade-in-right:not(.visible)').forEach(function(el){io.observe(el);});
+}
+triggerReveal();
+
+// ── NUMBER TICKER ──
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return; io.unobserve(e.target);
+      var el=e.target, t=parseInt(el.dataset.target)||0, dur=1400, start=performance.now();
+      (function step(now){ var prog=Math.min((now-start)/dur,1), ease=1-Math.pow(1-prog,3); el.textContent=Math.round(ease*t); if(prog<1)requestAnimationFrame(step); })(start);
+    });
+  },{threshold:0.3});
+  document.querySelectorAll('.ticker').forEach(function(el){io.observe(el);});
+})();
+
+// ── FAQ BARS ──
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return; io.unobserve(e.target);
+      e.target.querySelectorAll('.faq-fill').forEach(function(f,i){
+        setTimeout(function(){f.style.width=f.dataset.w+'%';},i*130);
+      });
+    });
+  },{threshold:0.2});
+  var fl=document.querySelector('.faq-list'); if(fl) io.observe(fl);
+})();
+
+// ── LIVE CALL SIMULATION (max 3 items) ──
+(function(){
+  var numbers=['+49 172 3456789','+49 89 12398765','+49 30 98765432','+49 211 45678'];
+  var topics=['Termin anfragen','Öffnungszeiten','Preis-Info anfragen','Termin verschieben'];
+  function addCall(){
+    var list=document.getElementById('voiceCallList'); if(!list)return;
+    var num=numbers[Math.floor(Math.random()*numbers.length)];
+    var topic=topics[Math.floor(Math.random()*topics.length)];
+    var item=document.createElement('div');
+    item.className='call-item live-call';
+    item.style.cssText='opacity:0;transform:translateY(-8px);transition:all .4s;';
+    item.innerHTML='<div class="call-icon call-icon-in"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.8 19.79 19.79 0 0 1 1.62 1.13 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72"/></svg></div><div style="flex:1;min-width:0;"><div class="call-num">'+num+'</div><div class="call-topic call-live">'+topic+'</div></div><div class="call-meta"><div class="call-time">gerade eben</div><div class="call-dur" style="color:var(--green);">● Live</div></div>';
+    // Remove oldest if >3
+    while(list.children.length>=3){ list.removeChild(list.lastChild); }
+    list.insertBefore(item,list.firstChild);
+    setTimeout(function(){item.style.opacity='1';item.style.transform='none';},50);
+    setTimeout(function(){item.classList.remove('live-call');},8000);
+  }
+  setInterval(addCall,22000);
+})();
+
+// ── CARD HOVER TILT ──
+document.querySelectorAll('.card').forEach(function(c){
+  c.addEventListener('mousemove',function(e){
+    var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    c.style.transform='perspective(900px) rotateY('+(x*3)+'deg) rotateX('+(-y*2)+'deg)';
+  });
+  c.addEventListener('mouseleave',function(){ c.style.transform=''; });
+});
+
+// ════════════════════════════════════════════
+//  CHART.JS — Stacked Area Funnel Charts
+// ════════════════════════════════════════════
+(function(){
+  if(!window.Chart) return;
+
+  // Default styling
+  Chart.defaults.font.family = "'Geist', system-ui, sans-serif";
+  Chart.defaults.color = '#9B9B9B';
+  Chart.defaults.borderColor = 'rgba(0,0,0,.06)';
+
+  // Helper: build dataset arrays for given period
+  function genFunnelData(period, base){
+    var labels, mult;
+    if(period==='7d'){ labels=['Mo','Di','Mi','Do','Fr','Sa','So']; mult=1; }
+    else if(period==='30d'){ labels=['W1','W2','W3','W4','W5']; mult=5.5; }
+    else { labels=['Jan','Feb','Mär','Apr','Mai','Jun']; mult=24; }
+    var fns = base.map(function(b){
+      var arr=[]; for(var i=0;i<labels.length;i++){
+        var noise = .85 + Math.sin(i*1.3+b.seed)*.12 + Math.random()*.08;
+        arr.push(Math.round(b.base * mult * noise));
+      } return arr;
+    });
+    return { labels: labels, sets: fns };
+  }
+
+  // Gradient builder
+  function mkGradient(ctx, area, hex){
+    var g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+    g.addColorStop(0, hex+'b3'); g.addColorStop(.7, hex+'33'); g.addColorStop(1, hex+'08');
+    return g;
+  }
+
+  var FUNNEL_CONFIGS = {
+    kalFunnel: {
+      colors: ['#a0b4ff','#5278ff','#2F5CFF','#1a3dd9'],
+      labels: ['Anfragen','Termine','Erschienen','Wiederkehrend'],
+      bases: [{seed:.1, base:14},{seed:.7, base:10},{seed:1.2, base:8.4},{seed:1.9, base:3.2}],
+    },
+    voiceFunnel: {
+      colors: ['#22c55e','#2F5CFF','#f59e0b','#94a3b8'],
+      labels: ['Auto-gelöst','Termin gebucht','Weitergeleitet','Verpasst'],
+      bases: [{seed:.2, base:21},{seed:.9, base:6.2},{seed:1.4, base:2.9},{seed:2.1, base:.4}],
+    },
+    webFunnel: {
+      colors: ['#a0b4ff','#5278ff','#2F5CFF','#1a3dd9'],
+      labels: ['Aufrufe','Engagement','CTA-Klicks','Termin gebucht'],
+      bases: [{seed:.1, base:175},{seed:.6, base:73},{seed:1.1, base:13},{seed:1.7, base:1.4}],
+    },
+  };
+
+  var instances = {};
+
+  function buildChart(canvasId, cfg, period){
+    var canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var data = genFunnelData(period, cfg.bases);
+
+    var datasets = cfg.labels.map(function(lab, i){
+      return {
+        label: lab,
+        data: data.sets[i],
+        borderColor: cfg.colors[i],
+        backgroundColor: function(c){
+          var chart = c.chart, area = chart.chartArea;
+          if(!area) return cfg.colors[i]+'33';
+          return mkGradient(c.chart.ctx, area, cfg.colors[i]);
+        },
+        borderWidth: 2,
+        fill: true,
+        tension: .42,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: cfg.colors[i],
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2,
+      };
+    });
+
+    if(instances[canvasId]) instances[canvasId].destroy();
+
+    instances[canvasId] = new Chart(ctx, {
+      type: 'line',
+      data: { labels: data.labels, datasets: datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,15,15,.96)', titleColor:'#fff', bodyColor:'#e5e5e5',
+            padding: 12, cornerRadius: 10, borderColor: 'rgba(255,255,255,.08)', borderWidth: 1,
+            titleFont: { size: 12, weight: '700' }, bodyFont: { size: 12, weight: '500' }, boxPadding: 6,
+            callbacks: {
+              label: function(ctx){ return ' '+ctx.dataset.label+': '+ctx.parsed.y.toLocaleString('de-DE'); }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: 'rgba(0,0,0,.05)' }, border: { display: false }, ticks: { font: { size: 11 }, callback: function(v){ return v>=1000?(v/1000).toFixed(1)+'k':v; } } }
+        },
+        elements: { line: { capBezierPoints: true } }
+      }
+    });
+  }
+
+  // Init all charts
+  Object.keys(FUNNEL_CONFIGS).forEach(function(id){ buildChart(id+'Chart', FUNNEL_CONFIGS[id], '30d'); });
+
+  // Period selector handlers
+  document.querySelectorAll('.period-selector').forEach(function(sel){
+    var key = sel.dataset.chart;
+    sel.querySelectorAll('.period-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        sel.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        buildChart(key+'Chart', FUNNEL_CONFIGS[key], btn.dataset.period);
+      });
+    });
+  });
+})();
+
+// ════════════════════════════════════════════
+//  HEATMAPS — Wochentag × Uhrzeit
+// ════════════════════════════════════════════
+(function(){
+  var DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  var HOURS = ['8','9','10','11','12','13','14','15','16','17','18','19'];
+
+  // Different patterns per heatmap
+  var SEEDS = {
+    kalHeatmap:   { peak: 4, peakHour: 5, weekendDamp: .35 },  // peak Wed afternoon
+    voiceHeatmap: { peak: 1, peakHour: 3, weekendDamp: .55 },  // peak Tue morning
+    webHeatmap:   { peak: 2, peakHour: 8, weekendDamp: .85 },  // peak evenings, more weekend traffic
+  };
+
+  function genCell(d, h, s){
+    // Distance from peak day/hour, small noise
+    var dDist = Math.abs(d - s.peak), hDist = Math.abs(h - s.peakHour);
+    var v = Math.max(0, 1 - (dDist*.18 + hDist*.13));
+    if(d>=5) v *= s.weekendDamp; // weekend dampening
+    v = v * (.85 + Math.sin(d*1.3+h*.7)*.1 + Math.random()*.1);
+    return Math.max(0, Math.min(1, v));
+  }
+
+  function colorFor(v){
+    if(v<.08) return 'rgba(47,92,255,.04)';
+    if(v<.22) return 'rgba(47,92,255,.14)';
+    if(v<.42) return 'rgba(47,92,255,.30)';
+    if(v<.65) return 'rgba(47,92,255,.50)';
+    if(v<.85) return 'rgba(47,92,255,.75)';
+    return '#2F5CFF';
+  }
+
+  function buildHeatmap(gridId, hoursId){
+    var grid = document.getElementById(gridId); if(!grid) return;
+    var hoursEl = document.getElementById(hoursId);
+    var seed = SEEDS[gridId];
+    grid.innerHTML = '';
+    DAYS.forEach(function(day, d){
+      var lab = document.createElement('div'); lab.className='heatmap-label'; lab.textContent=day; grid.appendChild(lab);
+      HOURS.forEach(function(_, h){
+        var v = genCell(d, h, seed);
+        var cell = document.createElement('div'); cell.className='heatmap-cell';
+        cell.style.background = colorFor(v);
+        cell.title = day+' '+HOURS[h]+':00 — Intensität '+Math.round(v*100)+'%';
+        grid.appendChild(cell);
+      });
+    });
+    if(hoursEl){
+      hoursEl.innerHTML = '<span></span>' + HOURS.map(function(h){ return '<span>'+h+'</span>'; }).join('');
+    }
+  }
+
+  Object.keys(SEEDS).forEach(function(id){ buildHeatmap(id, id+'Hours'); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#F5F5F5;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --error:#b83a2c;--dark:#111111;
+  --font-d:'Geist',system-ui,sans-serif;
+  --font-b:'Geist',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{-webkit-font-smoothing:antialiased;font-family:var(--font-b);background:transparent;color:var(--text);font-size:14px;line-height:1.6;}
+body{padding:40px 24px 48px;}
+.embed-wrap{max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start;}
+.book-card{background:var(--white);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-lg);overflow:hidden;}
+.steps-bar{display:flex;align-items:center;gap:0;padding:16px 20px;border-bottom:1px solid var(--border);}
+.step-node{display:flex;align-items:center;gap:6px;}
+.step-circle{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--white);color:var(--text-3);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.step-circle.done{background:var(--gold);border-color:var(--gold);color:#fff;}
+.step-circle.active{background:var(--dark);border-color:var(--dark);color:#fff;}
+.step-lbl{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.03em;transition:color .3s;}
+.step-lbl.active{color:var(--text);}
+.step-lbl.done{color:var(--gold);}
+.step-sep{flex:1;height:2px;background:var(--border);margin:0 8px;transition:background .3s;}
+.step-sep.done{background:var(--gold);}
+.stage{display:none;animation:fu .25s var(--ease);}
+.stage.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.cal-wrap{padding:16px 20px 20px;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:14px;}
+.cal-nav-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.cal-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.cal-month{font-family:var(--font-d);font-size:15px;font-weight:700;color:var(--text);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:6px;}
+.cal-wd{font-size:10px;font-weight:600;color:var(--text-3);padding:3px 0;}
+.cal-wd.we{color:#f87171;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day{aspect-ratio:1;border-radius:8px;border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;position:relative;transition:all .15s;}
+.cal-day.past{color:var(--text-3);opacity:.35;}
+.cal-day.avail{cursor:pointer;color:var(--text);border-color:var(--border);background:var(--white);}
+.cal-day.avail:hover{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);transform:scale(1.05);}
+.cal-day.avail::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:.6;}
+.cal-day.selected{border-color:var(--gold)!important;background:var(--gold)!important;color:#fff!important;}
+.cal-day.selected::after{background:#fff;}
+.cal-day.today-ring{box-shadow:0 0 0 2px var(--gold);}
+.time-wrap{padding:16px 20px 20px;}
+.time-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.btn-back-sm{background:none;border:1.5px solid var(--border);color:var(--text-2);padding:6px 12px;border-radius:7px;font-family:var(--font-b);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-back-sm:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.time-lbl{font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--text);}
+.time-hint{font-size:11px;color:var(--text-3);margin-bottom:12px;}
+.time-group{margin-bottom:14px;}
+.time-group-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;}
+.time-btn{padding:10px 6px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
+.time-btn:hover{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);transform:translateY(-1px);box-shadow:0 3px 10px rgba(47,92,255,.1);}
+.time-btn.selected{border-color:var(--gold);background:var(--gold);color:#fff;}
+.form-wrap{padding:16px 20px 20px;}
+.slot-pill{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:12px;font-weight:600;color:var(--gold);}
+.fgroup{display:flex;flex-direction:column;gap:11px;}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.f{display:flex;flex-direction:column;gap:4px;}
+.f label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;gap:4px;}
+.req{color:var(--gold);}
+.opt{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);}
+input,select,textarea{width:100%;padding:9px 11px;font-family:var(--font-b);font-size:13px;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;outline:none;transition:all .2s;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(47,92,255,.08);}
+input.error,select.error,textarea.error{border-color:var(--error);}
+textarea{min-height:64px;resize:vertical;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%232F5CFF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px;cursor:pointer;}
+.ferr{font-size:10px;color:var(--error);font-weight:600;display:none;margin-top:1px;}
+.ferr.v{display:block;}
+.yn-row{display:flex;gap:6px;}
+.yn-btn{padding:8px 16px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-2);font-family:var(--font-b);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.yn-btn.yes-on{border-color:var(--gold);background:var(--gold);color:#fff;}
+.yn-btn.no-on{border-color:var(--border);background:var(--dark);color:#fff;}
+.yn-slide{max-height:0;overflow:hidden;transition:max-height .3s var(--ease),opacity .25s;opacity:0;margin-top:6px;}
+.yn-slide.open{max-height:80px;opacity:1;}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.chip-item{position:relative;}
+.chip-item input{position:absolute;opacity:0;width:0;height:0;}
+.chip-lbl{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-2);background:var(--bg);transition:all .15s;user-select:none;}
+.chip-lbl:hover{border-color:var(--gold);background:var(--gold-bg);color:var(--text);}
+.chip-item input:checked+.chip-lbl{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);box-shadow:0 0 0 1px var(--gold);}
+.chip-dot{width:11px;height:11px;border-radius:3px;border:1.5px solid currentColor;flex-shrink:0;position:relative;}
+.chip-dot::after{content:'';position:absolute;inset:2px;border-radius:1px;background:currentColor;opacity:0;transform:scale(.3);transition:all .15s;}
+.chip-item input:checked+.chip-lbl .chip-dot::after{opacity:1;transform:scale(1);}
+.form-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.btn-submit{background:var(--dark);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;}
+.btn-submit:hover{background:var(--gold);transform:translateY(-1px);}
+.btn-submit.loading{opacity:.7;cursor:not-allowed;}
+.form-note{font-size:10px;color:var(--text-3);margin-top:8px;}
+.spin{display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;}
+.loading .spin{display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.success-wrap{padding:40px 20px;text-align:center;display:none;}
+.success-wrap.visible{display:block;animation:fu .4s var(--ease);}
+.suc-icon{width:56px;height:56px;border-radius:50%;background:#f0faf4;border:2px solid #b7e4c7;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.suc-title{font-family:var(--font-d);font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.suc-msg{font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:14px;}
+.suc-slot{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--gold);}
+.embed-sidebar{display:flex;flex-direction:column;gap:14px;}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.sc-title{font-family:var(--font-d);font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.avail-card{background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:14px;padding:16px 18px;}
+.ar{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(47,92,255,.12);font-size:12px;}
+.ar:last-child{border-bottom:none;padding-bottom:0;}
+.ad{font-weight:600;color:var(--text-2);}
+.at{font-weight:700;color:var(--gold);}
+.plist{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.plist li{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text-2);line-height:1.5;}
+.plist li svg{color:var(--gold);flex-shrink:0;margin-top:2px;}
+.cta-full{display:block;text-align:center;padding:10px;background:var(--gold);color:#fff;border-radius:10px;font-family:var(--font-b);font-size:12px;font-weight:700;text-decoration:none;margin-top:10px;transition:background .2s;}
+.cta-full:hover{background:#5278ff;}
+@media(max-width:640px){
+  .embed-wrap{grid-template-columns:1fr;}
+  .embed-sidebar{display:none;}
+  .frow2,.chip-grid{grid-template-columns:1fr;}
+  body{padding:24px 16px 32px;}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="embed-wrap">
+  <div>
+    <div class="book-card">
+      <div class="steps-bar">
+        <div class="step-node"><div class="step-circle active" id="sc1">1</div><div class="step-lbl active" id="sl1">Tag</div></div>
+        <div class="step-sep" id="sep1"></div>
+        <div class="step-node"><div class="step-circle" id="sc2">2</div><div class="step-lbl" id="sl2">Uhrzeit</div></div>
+        <div class="step-sep" id="sep2"></div>
+        <div class="step-node"><div class="step-circle" id="sc3">3</div><div class="step-lbl" id="sl3">Angaben</div></div>
+        <div class="step-sep" id="sep3"></div>
+        <div class="step-node"><div class="step-circle" id="sc4">4</div><div class="step-lbl" id="sl4">Fertig</div></div>
+      </div>
+      <div class="stage active" id="stageCalendar">
+        <div class="cal-wrap">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">&#8592;</button>
+            <div class="cal-month" id="calMonth"></div>
+            <button class="cal-nav-btn" id="calNext" onclick="calChangeMonth(1)">&#8594;</button>
+          </div>
+          <div class="cal-weekdays">
+            <div class="cal-wd">Mo</div><div class="cal-wd">Di</div><div class="cal-wd">Mi</div>
+            <div class="cal-wd">Do</div><div class="cal-wd">Fr</div>
+            <div class="cal-wd we">Sa</div><div class="cal-wd we">So</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+      <div class="stage" id="stageTime">
+        <div class="time-wrap">
+          <div class="time-header">
+            <button class="btn-back-sm" onclick="goStage(1)">&#8592; Zurück</button>
+            <div class="time-lbl" id="timeLbl"></div>
+          </div>
+          <div class="time-hint" id="timeHint"></div>
+          <div id="timeGroups"></div>
+        </div>
+      </div>
+      <div class="stage" id="stageForm">
+        <div class="form-wrap">
+          <div class="slot-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="slotText">—</span>
+          </div>
+          <div class="fgroup">
+            <div class="frow2">
+              <div class="f"><label>Name <span class="req">*</span></label><input id="fName" type="text" placeholder="Vollständiger Name" required><span class="ferr" id="errName">Pflichtfeld</span></div>
+              <div class="f"><label>Telefon <span class="req">*</span></label><input id="fPhone" type="tel" placeholder="+49 …" required><span class="ferr" id="errPhone">Pflichtfeld</span></div>
+            </div>
+            <div class="frow2">
+              <div class="f"><label>E-Mail <span class="req">*</span></label><input id="fEmail" type="email" placeholder="deine@email.de" required><span class="ferr" id="errEmail">Gültige E-Mail</span></div>
+              <div class="f"><label>Firmenname <span class="req">*</span></label><input id="fCompany" type="text" placeholder="Dein Unternehmen" required><span class="ferr" id="errCompany">Pflichtfeld</span></div>
+            </div>
+            <div class="frow2">
+              <div class="f"><label>Branche <span class="req">*</span></label><input id="fIndustry" type="text" placeholder="z. B. Handwerk …" required><span class="ferr" id="errIndustry">Pflichtfeld</span></div>
+              <div class="f"><label>Teamgröße</label><select id="fTeam"><option value="" disabled selected>Wählen …</option><option>Nur ich</option><option>2–5</option><option>6–20</option><option>21–50</option><option>50+</option></select></div>
+            </div>
+            <div class="f">
+              <label>Website vorhanden?</label>
+              <div class="yn-row">
+                <button type="button" class="yn-btn" id="ynY" onclick="toggleWeb(true)">Ja</button>
+                <button type="button" class="yn-btn" id="ynN" onclick="toggleWeb(false)">Nein</button>
+              </div>
+              <div class="yn-slide" id="webSlide"><input id="fWeb" type="url" placeholder="https://…"></div>
+            </div>
+            <div class="f">
+              <label>Worum geht es? <span class="req">*</span></label>
+              <div class="chip-grid">
+                <div class="chip-item"><input type="checkbox" id="s1" name="svc" value="KI Voice Agent"><label class="chip-lbl" for="s1"><span class="chip-dot"></span>KI Voice Agent</label></div>
+                <div class="chip-item"><input type="checkbox" id="s2" name="svc" value="Kalender-System"><label class="chip-lbl" for="s2"><span class="chip-dot"></span>Kalender-System</label></div>
+                <div class="chip-item"><input type="checkbox" id="s3" name="svc" value="RAG / Wissensdatenbank"><label class="chip-lbl" for="s3"><span class="chip-dot"></span>RAG / Wissensdatenbank</label></div>
+                <div class="chip-item"><input type="checkbox" id="s4" name="svc" value="Website Builder"><label class="chip-lbl" for="s4"><span class="chip-dot"></span>KI-Website Builder</label></div>
+                <div class="chip-item"><input type="checkbox" id="s5" name="svc" value="n8n"><label class="chip-lbl" for="s5"><span class="chip-dot"></span>n8n-Automatisierung</label></div>
+                <div class="chip-item"><input type="checkbox" id="s6" name="svc" value="Mehreres"><label class="chip-lbl" for="s6"><span class="chip-dot"></span>Noch offen</label></div>
+              </div>
+              <span class="ferr" id="errSvc">Bitte wählen</span>
+            </div>
+            <div class="f"><label>Was kostet euch am meisten Zeit? <span class="req">*</span></label><textarea id="fPain" placeholder="z. B. Telefon-Terminbuchung, manuelle E-Mails …" required></textarea><span class="ferr" id="errPain">Bitte kurz beschreiben</span></div>
+            <div class="frow2">
+              <div class="f"><label>Budget <span class="opt">(opt.)</span></label><select id="fBudget"><option value="" disabled selected>Wählen …</option><option>Unter 500 €</option><option>500 – 1.500 €</option><option>1.500 – 3.000 €</option><option>3.000 € +</option><option>Monatliche Betreuung</option></select></div>
+              <div class="f"><label>Wie gefunden? <span class="opt">(opt.)</span></label><select id="fSource"><option value="" disabled selected>Wählen …</option><option>LinkedIn</option><option>Google</option><option>Empfehlung</option><option>Social Media</option><option>Sonstiges</option></select></div>
+            </div>
+            <div class="f"><label>Weitere Infos <span class="opt">(opt.)</span></label><textarea id="fNote" placeholder="Alles, was ich vorher wissen sollte …" style="min-height:52px;"></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-back-sm" onclick="goStage(2)">&#8592; Zurück</button>
+            <button class="btn-submit" id="subBtn" onclick="doSubmit()">
+              <span class="spin"></span>Termin bestätigen
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+          <p class="form-note">&#128274; DSGVO-konform · Vertraulich · keine Weitergabe</p>
+        </div>
+      </div>
+      <div class="success-wrap" id="successWrap">
+        <div class="suc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">Termin bestätigt!</div>
+        <p class="suc-msg">Ich melde mich pünktlich zu deinem Termin.</p>
+        <div class="suc-slot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="sucSlot"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="embed-sidebar">
+    <div class="avail-card">
+      <div class="sc-title" style="margin-bottom:10px;">Verfügbare Zeiten</div>
+      <div class="ar"><span class="ad">Mo – Mi</span><span class="at">15:00 – 20:00</span></div>
+      <div class="ar"><span class="ad">Do – Fr</span><span class="at">18:00 – 20:00</span></div>
+      <div class="ar"><span class="ad">Sa – So</span><span class="at">ganzer Tag</span></div>
+    </div>
+    <div class="sc">
+      <div class="sc-title">Warum M&amp;H Assistenz?</div>
+      <ul class="plist">
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Maßgeschneidert · keine Standardlösung</li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>DSGVO-konform · EU-Hosting</li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Du sprichst direkt mit dem Entwickler</li>
+        <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Erstberatung kostenlos &amp; unverbindlich</li>
+      </ul>
+      <a href="index.html#formular" target="_parent" class="cta-full">Vollansicht öffnen &#8599;</a>
+    </div>
+  </div>
+</div>
+<script>
+const MN=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DN=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const today=new Date();today.setHours(0,0,0,0);
+let calY=today.getFullYear(),calM=today.getMonth(),selDate=null,selTime=null;
+function getSlots(d){const w=d.getDay();let s,e;if(w>=1&&w<=3){s=15*60;e=20*60;}else if(w===4||w===5){s=18*60;e=20*60;}else{s=10*60;e=19*60;}const r=[];for(let m=s;m<e;m+=30)r.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));return r;}
+function updateSteps(n){for(let i=1;i<=4;i++){const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i);c.className='step-circle'+(i<n?' done':i===n?' active':'');l.className='step-lbl'+(i<n?' done':i===n?' active':'');if(i<n)c.innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';else c.textContent=i;if(i<4)document.getElementById('sep'+i).className='step-sep'+(i<n?' done':'');}notifyH();}
+function goStage(n){document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));if(n===1){document.getElementById('stageCalendar').classList.add('active');updateSteps(1);}if(n===2){buildTime();document.getElementById('stageTime').classList.add('active');updateSteps(2);}if(n===3){document.getElementById('stageForm').classList.add('active');updateSteps(3);}}
+function calRender(){document.getElementById('calMonth').textContent=MN[calM]+' '+calY;document.getElementById('calPrev').disabled=(calY===today.getFullYear()&&calM===today.getMonth());const grid=document.getElementById('calGrid');grid.innerHTML='';const first=new Date(calY,calM,1);const off=(first.getDay()+6)%7,days=new Date(calY,calM+1,0).getDate();for(let i=0;i<off;i++){const e=document.createElement('div');e.className='cal-day';grid.appendChild(e);}for(let d=1;d<=days;d++){const date=new Date(calY,calM,d),el=document.createElement('div');el.textContent=d;if(date<today){el.className='cal-day past';}else{el.className='cal-day avail';if(date.toDateString()===today.toDateString())el.classList.add('today-ring');if(selDate&&date.toDateString()===selDate.toDateString())el.classList.add('selected');el.onclick=()=>{selDate=date;document.querySelectorAll('.cal-day.selected').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');setTimeout(()=>goStage(2),160);};}grid.appendChild(el);}notifyH();}
+function calChangeMonth(dir){calM+=dir;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}calRender();}
+function buildTime(){if(!selDate)return;const lbl=DN[selDate.getDay()]+', '+selDate.getDate()+'. '+MN[selDate.getMonth()];document.getElementById('timeLbl').textContent=lbl;const w=selDate.getDay();document.getElementById('timeHint').textContent=w>=1&&w<=3?'15:00 – 20:00 Uhr':w===4||w===5?'18:00 – 20:00 Uhr':'10:00 – 19:00 Uhr (ganzer Tag)';const slots=getSlots(selDate),wrap=document.getElementById('timeGroups');wrap.innerHTML='';const groups={Vormittag:[],Nachmittag:[],Abend:[]};slots.forEach(t=>{const h=parseInt(t);if(h<13)groups.Vormittag.push(t);else if(h<17)groups.Nachmittag.push(t);else groups.Abend.push(t);});Object.entries(groups).forEach(([name,times])=>{if(!times.length)return;const g=document.createElement('div');g.className='time-group';g.innerHTML='<div class="time-group-lbl">'+name+'</div><div class="time-grid"></div>';wrap.appendChild(g);const grid=g.querySelector('.time-grid');times.forEach(t=>{const btn=document.createElement('button');btn.className='time-btn'+(selTime===t?' selected':'');btn.textContent=t;btn.onclick=()=>{selTime=t;document.querySelectorAll('.time-btn.selected').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const full=lbl+' · '+t+' Uhr';document.getElementById('slotText').textContent=full;document.getElementById('sucSlot').textContent=full;setTimeout(()=>goStage(3),180);};grid.appendChild(btn);});});notifyH();}
+function toggleWeb(yes){document.getElementById('ynY').className='yn-btn'+(yes?' yes-on':'');document.getElementById('ynN').className='yn-btn'+(!yes?' no-on':'');document.getElementById('webSlide').className='yn-slide'+(yes?' open':'');}
+function doSubmit(){let ok=true;[['fName','errName',v=>v.trim()],['fPhone','errPhone',v=>v.trim()],['fEmail','errEmail',v=>/\S+@\S+\.\S+/.test(v)],['fCompany','errCompany',v=>v.trim()],['fIndustry','errIndustry',v=>v.trim()],['fPain','errPain',v=>v.trim()]].forEach(([id,eid,fn])=>{const el=document.getElementById(id),err=document.getElementById(eid);if(!fn(el.value)){el.classList.add('error');err.classList.add('v');ok=false;}else{el.classList.remove('error');err.classList.remove('v');}});if(!document.querySelectorAll('input[name=svc]:checked').length){document.getElementById('errSvc').classList.add('v');ok=false;}else document.getElementById('errSvc').classList.remove('v');if(!ok)return;const btn=document.getElementById('subBtn');btn.classList.add('loading');setTimeout(()=>{btn.classList.remove('loading');document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));document.getElementById('successWrap').style.display='block';document.getElementById('successWrap').classList.add('visible');updateSteps(4);},1200);}
+function notifyH(){setTimeout(()=>{const h=document.body.scrollHeight;window.parent.postMessage({type:'embed-resize',height:h+32},'*');},100);}
+calRender();
+</script>
+</body>
+</html>
