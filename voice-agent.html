@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Agent – M&amp;H Assistenz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-l:#5278FF;--gold-ll:#A0B4FF;
+  --gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#F5F5F5;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --dark:#080c14;--dark-2:#111827;--dark-3:#1a2235;
+  --font-d:'Geist',system-ui,sans-serif;
+  --font-b:'Geist',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-b);background:var(--white);color:var(--text);font-size:15px;line-height:1.65;padding-top:68px;}
+
+/* HEADER */
+.site-header{background:rgba(255,255,255,.88);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,.08);padding:0 40px;display:flex;align-items:center;position:fixed;top:0;left:0;right:0;z-index:999;height:68px;}
+.site-header nav{display:flex;align-items:center;justify-content:space-between;width:100%;}
+.header-logo{height:52px;width:auto;object-fit:contain;display:block;padding:6px 0;}
+#headerFallback{font-family:var(--font-d)!important;font-size:18px!important;color:var(--text)!important;font-weight:800!important;}
+.header-nav-links{display:flex;align-items:center;gap:0;background:transparent;border-radius:10px;padding:2px;position:relative;}
+.header-nav-links a{font-family:var(--font-b);font-size:13px;font-weight:600;color:rgba(15,23,42,.6);text-decoration:none;padding:5px 13px;border-radius:8px;position:relative;z-index:1;transition:color .2s;white-space:nowrap;}
+.header-nav-links a:hover,.header-nav-links a.active{color:#0f172a;}
+.nav-pill{position:absolute;top:2px;left:0;height:calc(100% - 4px);border-radius:8px;background:rgba(0,0,0,.05);pointer-events:none;transition:transform .3s cubic-bezier(0.16,1,0.3,1),width .3s cubic-bezier(0.16,1,0.3,1);will-change:transform,width;}
+.header-cta{display:inline-flex;align-items:center;font-family:var(--font-b);font-size:13px;font-weight:600;color:#0f172a;border:1.5px solid rgba(15,23,42,.2);border-radius:999px;padding:9px 22px;text-decoration:none;cursor:pointer;background:rgba(0,0,0,.05);transition:all .2s var(--ease);white-space:nowrap;}
+.header-cta:hover{border-color:var(--gold);background:rgba(47,92,255,.1);color:#2F5CFF;}
+
+/* CURSOR GLOW */
+#cursor-glow{position:fixed;width:320px;height:320px;pointer-events:none;z-index:9998;border-radius:50%;background:radial-gradient(circle,rgba(47,92,255,.09) 0%,transparent 70%);transform:translate(-50%,-50%);mix-blend-mode:screen;will-change:left,top;}
+
+/* SCROLL REVEAL */
+.sr{opacity:0;transform:translateY(32px);transition:opacity .75s cubic-bezier(.4,0,.2,1),transform .75s cubic-bezier(.4,0,.2,1);}
+.sr.sr-left{transform:translateX(-48px) translateY(0);}
+.sr.sr-right{transform:translateX(48px) translateY(0);}
+.sr.sr-scale{transform:scale(.88);}
+.sr.visible{opacity:1!important;transform:none!important;}
+.sd1{transition-delay:.1s!important;}.sd2{transition-delay:.2s!important;}.sd3{transition-delay:.3s!important;}.sd4{transition-delay:.4s!important;}.sd5{transition-delay:.5s!important;}
+
+/* ─── HERO ─── */
+.va-hero{
+  position:relative;min-height:100vh;background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;padding:80px 24px 60px;
+  border-bottom:1px solid var(--border);
+}
+#heroCanvas{display:none;}
+.va-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(47,92,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(47,92,255,.025) 1px,transparent 1px);background-size:60px 60px;z-index:0;}
+.va-hero-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(47,92,255,.07) 0%,transparent 65%);z-index:0;pointer-events:none;}
+.va-hero-inner{max-width:1100px;width:100%;margin:0 auto;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.va-hero-text{}
+.va-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:999px;padding:7px 18px;margin-bottom:32px;}
+.va-badge-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:livePulse 2s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5);opacity:1;}50%{box-shadow:0 0 0 6px rgba(34,197,94,0);opacity:.7;}}
+.va-h1{font-family:var(--font-d);font-size:clamp(44px,5.5vw,76px);font-weight:800;line-height:1.0;letter-spacing:-.04em;color:var(--text);margin-bottom:24px;}
+.va-h1 .accent{background:linear-gradient(135deg,#2F5CFF 0%,#a78bfa 50%,#4ade80 100%);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:gradShift 4s ease infinite;}
+@keyframes gradShift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.va-sub{font-size:17px;color:var(--text-2);max-width:440px;line-height:1.75;margin-bottom:40px;}
+.va-cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-b);font-size:14px;font-weight:700;color:#fff;background:var(--gold);border:none;border-radius:12px;padding:15px 30px;text-decoration:none;cursor:pointer;transition:all .25s var(--ease);box-shadow:0 4px 20px rgba(47,92,255,.3);}
+.btn-primary:hover{background:#4a70ff;transform:translateY(-2px);box-shadow:0 8px 32px rgba(47,92,255,.4);}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-b);font-size:14px;font-weight:600;color:var(--text-2);background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:14px 24px;text-decoration:none;transition:all .22s var(--ease);}
+.btn-ghost:hover{color:var(--text);border-color:rgba(47,92,255,.3);}
+
+/* ─── REALISTIC iPHONE ─── */
+.va-phone-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
+
+/* Titanium outer frame */
+.iphone-frame{
+  width:258px;
+  background:linear-gradient(160deg,#b0b0b0 0%,#787878 25%,#909090 45%,#6e6e6e 65%,#9c9c9c 85%,#b4b4b4 100%);
+  border-radius:52px;
+  padding:3px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    inset 0 2px 3px rgba(255,255,255,.12),
+    0 0 0 .5px rgba(0,0,0,.4),
+    0 40px 100px rgba(0,0,0,.75),
+    0 0 70px rgba(47,92,255,.12);
+  position:relative;
+  animation:phoneFloat 4.5s ease-in-out infinite;
+}
+@keyframes phoneFloat{0%,100%{transform:translateY(0) rotate(.3deg);}50%{transform:translateY(-10px) rotate(-.3deg);}}
+
+/* Screen bezel (inner black ring) */
+.iphone-bezel{
+  width:100%;
+  background:#000;
+  border-radius:50px;
+  padding:0;
+  overflow:hidden;
+  position:relative;
+}
+/* Aspect ratio: iPhone 15 Pro = 393×852 ≈ 2.168, so height = 258*2.168 ≈ 559 */
+.iphone-screen{
+  width:100%;
+  height:558px;
+  background:#000;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Dynamic Island */
+.dyn-island{
+  position:absolute;
+  top:10px;left:50%;transform:translateX(-50%);
+  width:110px;height:32px;
+  background:#000;
+  border-radius:20px;
+  z-index:30;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 10px;
+  transition:all .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.dyn-island.ringing{width:180px;height:38px;}
+.dyn-island .di-cam{width:11px;height:11px;border-radius:50%;background:#0a0a1a;border:1.5px solid #1a1a2e;}
+.dyn-island .di-bar{width:42px;height:5px;background:#111;border-radius:3px;}
+
+/* ── STATE 1: Incoming call (iOS style) ── */
+.ios-incoming{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#000 0%,#0d1a0d 35%,#081208 100%);
+  display:flex;flex-direction:column;align-items:center;
+  padding:60px 20px 28px;z-index:5;
+}
+.ios-incoming-type{font-size:11px;color:rgba(255,255,255,.5);font-family:-apple-system,sans-serif;margin-bottom:10px;}
+.ios-avatar{
+  width:76px;height:76px;border-radius:50%;
+  background:linear-gradient(135deg,#1f6634,#34c759);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:400;color:#fff;
+  font-family:-apple-system,sans-serif;
+  margin-bottom:14px;position:relative;
+}
+.ios-avatar::before,.ios-avatar::after{
+  content:'';position:absolute;border-radius:50%;
+  border:1.5px solid rgba(52,199,89,.22);
+  animation:iosRing 2.2s ease-out infinite;
+}
+.ios-avatar::before{inset:-14px;}
+.ios-avatar::after{inset:-28px;border-color:rgba(52,199,89,.1);animation-delay:.7s;}
+@keyframes iosRing{0%{transform:scale(1);opacity:1;}100%{transform:scale(1.15);opacity:0;}}
+.ios-caller-name{font-size:24px;font-weight:300;color:#fff;font-family:-apple-system,sans-serif;letter-spacing:-.01em;margin-bottom:5px;}
+.ios-caller-sub{font-size:12px;color:rgba(255,255,255,.45);font-family:-apple-system,sans-serif;margin-bottom:auto;}
+.ios-actions{display:flex;gap:28px;margin-top:auto;}
+.ios-btn{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.ios-btn-circle{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.ios-btn-label{font-size:10px;color:rgba(15,23,42,.6);font-family:-apple-system,sans-serif;}
+.ios-decline .ios-btn-circle{background:#ff3b30;}
+.ios-accept .ios-btn-circle{background:#34c759;box-shadow:0 0 24px rgba(52,199,89,.5);animation:gPulse 1.8s ease-in-out infinite;}
+@keyframes gPulse{0%,100%{box-shadow:0 0 20px rgba(52,199,89,.4);}50%{box-shadow:0 0 40px rgba(52,199,89,.8);}}
+
+/* ── STATE 2: Active call ── */
+.ios-active{
+  position:absolute;inset:0;background:#000;
+  display:none;flex-direction:column;z-index:6;
+}
+.ios-active.show{display:flex;}
+.ios-call-header{
+  background:#000;
+  padding:52px 20px 12px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.ios-call-status{font-size:11px;color:#34c759;font-family:-apple-system,sans-serif;font-weight:500;margin-bottom:3px;animation:statusPulse 2s ease-in-out infinite;}
+@keyframes statusPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+.ios-call-name-active{font-size:20px;font-weight:300;color:#fff;font-family:-apple-system,sans-serif;margin-bottom:2px;}
+.ios-timer{font-size:12px;color:rgba(255,255,255,.45);font-family:-apple-system,sans-serif;font-feature-settings:'tnum';}
+/* wave in active call */
+.ios-wave-active{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;padding:4px 20px;background:rgba(52,199,89,.04);}
+.ios-wave-active span{display:block;width:2.5px;border-radius:2px;background:rgba(52,199,89,.7);animation:wvBar .7s ease-in-out infinite alternate;}
+.ios-wave-active span:nth-child(1){height:4px;animation-delay:0s;}
+.ios-wave-active span:nth-child(2){height:12px;animation-delay:.06s;}
+.ios-wave-active span:nth-child(3){height:20px;animation-delay:.12s;}
+.ios-wave-active span:nth-child(4){height:24px;animation-delay:.18s;}
+.ios-wave-active span:nth-child(5){height:16px;animation-delay:.24s;}
+.ios-wave-active span:nth-child(6){height:22px;animation-delay:.10s;}
+.ios-wave-active span:nth-child(7){height:12px;animation-delay:.08s;}
+.ios-wave-active span:nth-child(8){height:6px;animation-delay:.20s;}
+@keyframes wvBar{from{transform:scaleY(.25);}to{transform:scaleY(1);}}
+/* Live transcript scroll */
+.ios-live-transcript{
+  flex:1;overflow:hidden;
+  padding:10px 14px;
+  display:flex;flex-direction:column;
+  gap:7px;
+}
+.ios-tr-label{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);font-family:-apple-system,sans-serif;margin-bottom:2px;}
+.ios-tr-msg{display:flex;flex-direction:column;max-width:88%;}
+.ios-tr-msg.agent{align-self:flex-start;}
+.ios-tr-msg.caller{align-self:flex-end;align-items:flex-end;}
+.ios-tr-bubble{font-size:10.5px;line-height:1.4;padding:6px 10px;border-radius:11px;font-family:-apple-system,sans-serif;}
+.ios-tr-msg.agent .ios-tr-bubble{background:rgba(52,199,89,.15);color:rgba(180,240,200,.9);border-bottom-left-radius:3px;}
+.ios-tr-msg.caller .ios-tr-bubble{background:rgba(255,255,255,.09);color:rgba(255,255,255,.7);border-bottom-right-radius:3px;}
+.ios-tr-who{font-size:7.5px;color:rgba(255,255,255,.22);margin-bottom:2px;font-family:-apple-system,sans-serif;}
+.ios-tr-cursor{display:inline-block;width:1.5px;height:9px;background:rgba(180,240,200,.8);margin-left:1.5px;animation:blinkC .7s step-end infinite;vertical-align:middle;}
+@keyframes blinkC{0%,100%{opacity:1;}50%{opacity:0;}}
+/* End call button */
+.ios-end-row{padding:12px 20px;display:flex;justify-content:center;}
+.ios-end-btn{width:62px;height:62px;border-radius:50%;background:#ff3b30;display:flex;align-items:center;justify-content:center;}
+
+/* ── STATE 3: Summary ── */
+.ios-summary{
+  position:absolute;inset:0;background:#000;
+  display:none;flex-direction:column;z-index:7;
+}
+.ios-summary.show{display:flex;}
+.ios-sum-header{background:#000;padding:52px 20px 14px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06);}
+.ios-sum-status{font-size:11px;color:rgba(255,255,255,.4);font-family:-apple-system,sans-serif;margin-bottom:3px;}
+.ios-sum-caller{font-size:19px;font-weight:300;color:#fff;font-family:-apple-system,sans-serif;margin-bottom:2px;}
+.ios-sum-dur{font-size:12px;color:rgba(255,255,255,.35);font-family:-apple-system,sans-serif;}
+.ios-sum-body{flex:1;padding:12px 16px;overflow:hidden;}
+.ios-sum-tag{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.25);font-family:-apple-system,sans-serif;margin-bottom:8px;}
+.ios-sum-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.ios-sum-bullet{width:5px;height:5px;border-radius:50%;background:#34c759;flex-shrink:0;margin-top:3.5px;}
+.ios-sum-text{font-size:10.5px;color:rgba(255,255,255,.7);line-height:1.4;font-family:-apple-system,sans-serif;}
+.ios-sum-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(47,92,255,.18);border:1px solid rgba(47,92,255,.28);border-radius:999px;padding:3px 9px;font-size:9px;font-weight:600;color:#a0b4ff;font-family:-apple-system,sans-serif;margin:4px 2px 0;}
+
+/* Floating badges */
+.va-float-badge{position:absolute;right:-28px;top:70px;background:#fff;border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,0,0,.1);border-radius:14px;padding:12px 16px;animation:floatBadge 3s ease-in-out infinite;white-space:nowrap;z-index:10;}
+@keyframes floatBadge{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.va-float-badge .vfb-label{font-size:10px;color:var(--text-3);margin-bottom:2px;}
+.va-float-badge .vfb-val{font-size:17px;font-weight:800;color:#22c55e;font-family:var(--font-d);}
+.va-float-badge2{top:auto;bottom:90px;right:-36px;animation-delay:.9s;}
+
+/* ─── ANIMATED WHITE BACKGROUNDS ─── */
+.va-features,.va-today,.va-faq,.va-how{position:relative;overflow:hidden;}
+.va-features::before,.va-today::before,.va-how::before{
+  content:'';position:absolute;pointer-events:none;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(47,92,255,.04) 0%,transparent 68%);
+  animation:blobDrift 16s ease-in-out infinite;
+  top:-200px;left:-100px;z-index:0;
+}
+.va-features::after,.va-today::after{
+  content:'';position:absolute;pointer-events:none;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,.035) 0%,transparent 70%);
+  animation:blobDrift 20s ease-in-out infinite reverse;
+  bottom:-150px;right:-80px;z-index:0;
+}
+.va-features>*,.va-today>*,.va-how>*{position:relative;z-index:1;}
+@keyframes blobDrift{
+  0%{transform:translate(0,0) scale(1);}
+  25%{transform:translate(40px,-30px) scale(1.06);}
+  50%{transform:translate(20px,40px) scale(.96);}
+  75%{transform:translate(-30px,20px) scale(1.04);}
+  100%{transform:translate(0,0) scale(1);}
+}
+
+/* ─── TODAY STATS ─── */
+.va-today{background:var(--white);padding:80px 24px;border-top:1px solid var(--border);}
+.va-today-inner{max-width:1000px;margin:0 auto;}
+.va-today-head{text-align:center;margin-bottom:48px;}
+.va-today-head .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.va-today-head .sec-label::before,.va-today-head .sec-label::after{content:'';flex:0 0 16px;height:1px;background:var(--gold);opacity:.4;}
+.va-today-head h2{font-family:var(--font-d);font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:8px;}
+.va-today-head h2 em{font-style:normal;color:var(--gold);}
+.va-today-head p{font-size:14px;color:var(--text-3);}
+/* 4 big stat counters */
+.va-today-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+.vtn-card{background:var(--dark);border-radius:20px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;}
+.vtn-card::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:120px;height:120px;background:radial-gradient(circle,rgba(47,92,255,.2) 0%,transparent 70%);pointer-events:none;}
+.vtn-num{font-family:var(--font-d);font-size:42px;font-weight:800;line-height:1;color:#fff;margin-bottom:8px;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.7) 100%);-webkit-background-clip:text;background-clip:text;}
+.vtn-label{font-size:12px;color:rgba(255,255,255,.4);line-height:1.4;}
+/* Two panel grid */
+.va-today-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.vt-panel{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:20px;}
+.vt-panel-head{display:flex;align-items:center;gap:8px;font-family:var(--font-d);font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.vt-live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:livePulse 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5);opacity:1;}50%{box-shadow:0 0 0 6px rgba(34,197,94,0);opacity:.7;}}
+.vt-panel-count{margin-left:auto;font-size:11px;font-weight:700;background:rgba(47,92,255,.1);color:var(--gold);border-radius:999px;padding:2px 10px;border:1px solid rgba(47,92,255,.15);}
+/* Call list */
+.vt-call-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--white);border:1px solid var(--border);margin-bottom:6px;transition:border-color .2s;}
+.vt-call-item:hover{border-color:rgba(47,92,255,.3);}
+.vt-call-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.vt-call-name{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.vt-call-topic{font-size:11px;color:var(--text-3);}
+.vt-call-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+.vt-badge-auto{background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.2);}
+.vt-badge-fwd{background:rgba(245,158,11,.1);color:#d97706;border:1px solid rgba(245,158,11,.2);}
+.vt-badge-book{background:rgba(47,92,255,.1);color:var(--gold);border:1px solid rgba(47,92,255,.2);}
+/* FAQ bars */
+.vt-faq-item{margin-bottom:12px;}
+.vt-faq-q{display:flex;justify-content:space-between;font-size:12px;font-weight:500;color:var(--text-2);margin-bottom:5px;}
+.vt-faq-count{font-size:12px;font-weight:700;color:var(--text);}
+.vt-faq-track{height:5px;background:var(--border);border-radius:999px;overflow:hidden;}
+.vt-faq-fill{height:100%;background:linear-gradient(90deg,#2F5CFF,#a78bfa);border-radius:999px;width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+/* Summary card */
+.vt-summary{background:var(--dark);border-radius:20px;padding:24px;display:flex;gap:20px;align-items:flex-start;}
+.vt-sum-icon{width:44px;height:44px;border-radius:12px;background:rgba(47,92,255,.2);border:1px solid rgba(47,92,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vt-sum-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;}
+.vt-sum-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;}
+
+/* ─── STATS ─── */
+.va-stats{background:#111827;padding:60px 24px;border-top:1px solid rgba(255,255,255,.06);}
+.va-stats-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden;}
+.va-stat{background:#0d1526;padding:32px 20px;text-align:center;transition:background .25s;}
+.va-stat:hover{background:#111f38;}
+.va-stat-val{font-family:var(--font-d);font-size:40px;font-weight:800;line-height:1;background:linear-gradient(135deg,#2F5CFF,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:8px;}
+.va-stat-label{font-size:12px;color:rgba(255,255,255,.4);line-height:1.4;}
+
+/* ─── FEATURES ALTERNATING ─── */
+.va-features{padding:100px 24px;background:var(--white);}
+.va-feat-head{text-align:center;max-width:600px;margin:0 auto 80px;}
+.va-feat-head .sec-label{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.va-feat-head .sec-label::before,.va-feat-head .sec-label::after{content:'';flex:0 0 16px;height:1px;background:var(--gold);opacity:.4;}
+.va-feat-head h2{font-family:var(--font-d);font-size:clamp(30px,4vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--text);margin-bottom:14px;}
+.va-feat-head h2 em{font-style:normal;color:var(--gold);}
+.va-feat-head p{font-size:15px;color:var(--text-2);line-height:1.7;}
+
+.va-feat-row{max-width:1000px;margin:0 auto 60px;display:flex;align-items:center;gap:60px;}
+.va-feat-row:nth-child(even){flex-direction:row-reverse;}
+.va-feat-visual{flex:0 0 320px;height:220px;border-radius:24px;background:var(--dark);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.va-feat-visual::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(47,92,255,.12) 0%,transparent 60%);}
+.va-feat-icon-big{width:80px;height:80px;border-radius:20px;background:rgba(47,92,255,.15);border:1px solid rgba(47,92,255,.3);display:flex;align-items:center;justify-content:center;color:#5278FF;position:relative;z-index:1;}
+.va-feat-icon-big svg{width:38px;height:38px;stroke:currentColor;fill:none;stroke-width:1.5;}
+/* Orbiting ring */
+.va-feat-ring{position:absolute;width:160px;height:160px;border:1px dashed rgba(47,92,255,.2);border-radius:50%;animation:spin 12s linear infinite;}
+.va-feat-ring2{width:220px;height:220px;border-color:rgba(47,92,255,.1);animation:spin 18s linear infinite reverse;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.va-feat-content{flex:1;}
+.va-feat-tag{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;display:block;}
+.va-feat-title{font-family:var(--font-d);font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.02em;color:var(--text);margin-bottom:14px;}
+.va-feat-desc{font-size:15px;color:var(--text-2);line-height:1.75;}
+
+/* ─── LIVE DEMO ─── */
+.va-demo{background:var(--dark);padding:100px 24px;position:relative;overflow:hidden;}
+.va-demo::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(47,92,255,.12) 0%,transparent 65%);pointer-events:none;}
+.va-demo-inner{max-width:820px;margin:0 auto;position:relative;z-index:1;}
+.va-demo-head{text-align:center;margin-bottom:56px;}
+.va-demo-head h2{font-family:var(--font-d);font-size:clamp(28px,3.5vw,46px);font-weight:800;letter-spacing:-.03em;color:#fff;margin-bottom:12px;}
+.va-demo-head h2 em{font-style:normal;background:linear-gradient(135deg,#2F5CFF,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.va-demo-head p{font-size:15px;color:rgba(255,255,255,.45);}
+.demo-card{background:#0f1629;border:1px solid rgba(255,255,255,.08);border-radius:24px;overflow:hidden;}
+.demo-topbar{background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06);padding:14px 20px;display:flex;align-items:center;gap:12px;}
+.demo-dot{width:10px;height:10px;border-radius:50%;background:#34c759;box-shadow:0 0 8px rgba(52,199,89,.5);animation:livePulse 2s ease-in-out infinite;}
+.demo-topbar-label{font-size:12px;color:rgba(255,255,255,.4);font-family:-apple-system,sans-serif;}
+.demo-topbar-label strong{color:#fff;font-weight:600;}
+.demo-body{padding:28px 24px;min-height:320px;display:flex;flex-direction:column;gap:16px;}
+.demo-msg{display:flex;flex-direction:column;max-width:82%;}
+.demo-msg.agent{align-self:flex-start;}
+.demo-msg.caller{align-self:flex-end;align-items:flex-end;}
+.demo-who{font-size:11px;font-weight:600;margin-bottom:5px;letter-spacing:.04em;}
+.demo-msg.agent .demo-who{color:#5278FF;}
+.demo-msg.caller .demo-who{color:rgba(255,255,255,.4);}
+.demo-bubble{padding:12px 18px;border-radius:18px;font-size:14px;line-height:1.6;font-family:var(--font-b);}
+.demo-msg.agent .demo-bubble{background:rgba(47,92,255,.15);border:1px solid rgba(47,92,255,.2);color:rgba(255,255,255,.88);border-bottom-left-radius:4px;}
+.demo-msg.caller .demo-bubble{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.65);border-bottom-right-radius:4px;}
+#demoOutput{display:flex;flex-direction:column;gap:16px;}
+.demo-footer{padding:0 24px 20px;display:flex;align-items:center;gap:8px;}
+.demo-wv{display:flex;align-items:center;gap:2px;height:20px;}
+.demo-wv span{display:block;width:2px;background:#2F5CFF;border-radius:1px;animation:wvBar .6s ease-in-out infinite alternate;}
+.demo-wv span:nth-child(1){height:5px;animation-delay:0s;}
+.demo-wv span:nth-child(2){height:12px;animation-delay:.1s;}
+.demo-wv span:nth-child(3){height:18px;animation-delay:.2s;}
+.demo-wv span:nth-child(4){height:10px;animation-delay:.3s;}
+.demo-wv span:nth-child(5){height:15px;animation-delay:.15s;}
+.demo-wv-label{font-size:11px;color:rgba(255,255,255,.35);}
+
+/* ─── HOW ─── */
+.va-how{padding:100px 24px;background:var(--bg);}
+.va-how-inner{max-width:960px;margin:0 auto;}
+.va-how-head{text-align:center;margin-bottom:72px;}
+.va-how-head h2{font-family:var(--font-d);font-size:clamp(28px,4vw,48px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--text);margin-bottom:12px;}
+.va-how-head h2 em{font-style:normal;color:var(--gold);}
+.va-how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;}
+.va-how-steps::before{content:'';position:absolute;top:40px;left:16.67%;right:16.67%;height:2px;background:linear-gradient(90deg,var(--gold) 0%,#a78bfa 100%);z-index:0;}
+.va-how-step{padding:0 28px;text-align:center;position:relative;z-index:1;}
+.va-step-num{width:80px;height:80px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;border:3px solid var(--gold);font-family:var(--font-d);font-size:28px;font-weight:800;color:#fff;position:relative;z-index:2;}
+.va-step-num::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1px dashed rgba(47,92,255,.3);}
+.va-step-title{font-family:var(--font-d);font-size:19px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.va-step-desc{font-size:13.5px;color:var(--text-2);line-height:1.7;}
+
+/* ─── DASHBOARD TEASER ─── */
+.va-dashboard{padding:80px 24px;background:#f6f8fc;position:relative;overflow:hidden;border-top:1px solid #e8e8e8;}
+.va-dashboard-inner{max-width:900px;margin:0 auto;text-align:center;}
+.va-dashboard-inner h2{font-family:var(--font-d);font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:14px;}
+.va-dashboard-inner h2 em{font-style:normal;background:linear-gradient(135deg,#2F5CFF,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.va-dashboard-inner p{font-size:16px;color:var(--text-2);max-width:500px;margin:0 auto 40px;}
+.va-db-preview{background:#fff;border:1px solid #e8e8e8;border-radius:20px;overflow:hidden;margin-bottom:32px;position:relative;box-shadow:0 4px 24px rgba(0,0,0,.07);}
+.va-db-preview::after{content:'DEMO VORSCHAU';position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;letter-spacing:.1em;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:999px;padding:4px 12px;}
+.va-db-topbar{background:#f6f8fc;border-bottom:1px solid #e8e8e8;padding:12px 20px;display:flex;align-items:center;gap:8px;}
+.va-db-tb-dot{width:8px;height:8px;border-radius:50%;}
+.va-db-stats-row{display:grid;grid-template-columns:repeat(4,1fr);padding:24px;gap:16px;}
+.va-db-stat{background:#f6f8fc;border:1px solid #e8e8e8;border-radius:12px;padding:16px;text-align:left;}
+.va-db-stat-label{font-size:11px;color:rgba(15,23,42,.4);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.va-db-stat-val{font-family:var(--font-d);font-size:24px;font-weight:800;color:var(--text);}
+.va-db-stat-val.green{color:#16a34a;}
+.va-db-stat-val.blue{color:#2F5CFF;}
+.va-db-calls{padding:0 24px 24px;display:flex;flex-direction:column;gap:8px;}
+.va-db-call-row{display:flex;align-items:center;gap:12px;background:#f6f8fc;border:1px solid #e8e8e8;border-radius:10px;padding:10px 14px;}
+.va-db-call-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.va-db-call-name{font-size:13px;color:var(--text);flex:1;font-weight:500;}
+.va-db-call-dur{font-size:12px;color:rgba(15,23,42,.4);font-weight:600;}
+.va-db-call-tag{font-size:11px;font-weight:600;padding:2px 10px;border-radius:999px;}
+.tag-auto{background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.2);}
+.tag-fwd{background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.2);}
+
+/* ─── FAQ ─── */
+.va-faq{max-width:680px;margin:0 auto;padding:80px 24px;}
+.va-faq-head{text-align:center;margin-bottom:48px;}
+.va-faq-head h2{font-family:var(--font-d);font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:8px;}
+.va-faq-head h2 em{font-style:normal;color:var(--gold);}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0;}
+.faq-q{font-family:var(--font-d);font-size:16px;font-weight:700;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;list-style:none;}
+.faq-q::-webkit-details-marker{display:none;}
+details[open] .faq-q svg{transform:rotate(180deg);}
+.faq-q svg{flex-shrink:0;transition:transform .2s;color:var(--text-3);}
+.faq-a{font-size:14px;color:var(--text-2);line-height:1.75;padding-top:14px;}
+
+/* FOOTER */
+.site-footer{position:relative;width:100%;overflow:hidden;border-top:1px solid var(--border);background:var(--white);}
+.site-footer-inner{max-width:820px;margin:0 auto;min-height:340px;position:relative;padding:60px 24px 120px;display:flex;flex-direction:column;align-items:center;}
+.footer-brand-name{font-family:var(--font-d);font-size:30px;font-weight:800;letter-spacing:-.035em;color:var(--text);margin-bottom:10px;}
+.footer-brand-desc{font-size:14px;color:var(--text-2);text-align:center;max-width:400px;line-height:1.65;}
+.footer-socials{display:flex;gap:12px;margin:24px 0 0;}
+.footer-social-link{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--text-3);text-decoration:none;transition:all .2s var(--ease);}
+.footer-social-link:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);transform:scale(1.08);}
+.footer-social-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.footer-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 20px;font-size:13px;font-weight:500;color:var(--text-3);margin-top:22px;}
+.footer-nav a{color:var(--text-3);text-decoration:none;transition:color .2s var(--ease),font-weight .2s;}
+.footer-nav a:hover{color:var(--gold);font-weight:600;}
+.footer-bottom{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--text-3);text-align:center;margin-top:auto;}
+.footer-bg-text{position:absolute;left:50%;bottom:88px;transform:translateX(-50%);font-family:var(--font-d);font-weight:800;letter-spacing:-.04em;white-space:nowrap;pointer-events:none;user-select:none;background:linear-gradient(to bottom,rgba(15,15,15,.13),rgba(15,15,15,.04),transparent);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:clamp(40px,10.5vw,92px);line-height:1;}
+.footer-divider{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:100%;height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);pointer-events:none;}
+.footer-fade{position:absolute;bottom:44px;left:0;right:0;height:60px;background:linear-gradient(to top,var(--white) 30%,rgba(255,255,255,.5),transparent);pointer-events:none;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .va-hero-inner{grid-template-columns:1fr;gap:48px;text-align:center;}
+  .va-sub{max-width:100%;margin-left:auto;margin-right:auto;}
+  .va-cta-row{justify-content:center;}
+  .va-phone-wrap{order:-1;}
+  .va-phone-wrap{order:-1;}
+  .va-float-badge,.va-float-badge2{display:none;}
+  .va-feat-row,.va-feat-row:nth-child(even){flex-direction:column;}
+  .va-feat-visual{width:100%;flex:none;}
+  .va-how-steps::before{display:none;}
+  .va-how-steps{grid-template-columns:1fr;}
+  .va-stats-inner{grid-template-columns:repeat(2,1fr);}
+  .va-db-stats-row{grid-template-columns:repeat(2,1fr);}
+  .va-today-nums{grid-template-columns:repeat(2,1fr);}
+  .va-today-grid{grid-template-columns:1fr;}
+}
+@media(max-width:600px){
+  .site-header{padding:0 20px;}
+  .header-nav-links{display:none;}
+  .va-h1{font-size:38px;}
+  .iphone-frame{width:220px;}
+  .iphone-screen{height:476px;}
+}
+/* CPU architecture form background */
+.form-bg-section{position:relative;isolation:isolate;overflow:hidden;}
+.form-bg-section>.form-bg-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.9;color:#c8cee0;}
+.form-bg-section>div{position:relative;z-index:1;}
+.cpu-architecture{offset-anchor:10px 0;animation-name:animation-path;animation-iteration-count:infinite;animation-timing-function:cubic-bezier(.75,-.01,0,.99);}
+.cpu-line-1{offset-path:path("M 10 20 h 79.5 q 5 0 5 5 v 30");animation-duration:1.8s;animation-delay:.3s;}
+.cpu-line-2{offset-path:path("M 180 10 h -69.7 q -5 0 -5 5 v 40");animation-delay:1.5s;animation-duration:.8s;}
+.cpu-line-3{offset-path:path("M 130 20 v 21.8 q 0 5 -5 5 h -25");animation-delay:1s;animation-duration:2s;}
+.cpu-line-4{offset-path:path("M 170 80 v -21.8 q 0 -5 -5 -5 h -65");animation-delay:.8s;animation-duration:1.1s;}
+.cpu-line-5{offset-path:path("M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -35");animation-delay:2.2s;animation-duration:1.4s;}
+.cpu-line-6{offset-path:path("M 94.8 95 v -46");animation-delay:.9s;animation-duration:2.4s;}
+.cpu-line-7{offset-path:path("M 88 88 v -15 q 0 -5 -5 -5 h -10 q -5 0 -5 -5 v -5 q 0 -5 5 -5 h 28");animation-delay:1.2s;animation-duration:1.4s;}
+.cpu-line-8{offset-path:path("M 30 30 h 25 q 5 0 5 5 v 6.5 q 0 5 5 5 h 35");animation-delay:.8s;animation-duration:1.1s;}
+@keyframes animation-path{0%{offset-distance:0%;}100%{offset-distance:100%;}}
+
+/* ============================================
+   RESPONSIVE — Tablet & Mobile
+   ============================================ */
+@media(max-width:1024px){
+  .site-header{padding:0 20px!important;}
+  .header-nav-links a{padding:5px 9px!important;font-size:12px!important;}
+  .va-hero-inner{gap:48px!important;}
+  .va-today-grid,.va-stats-inner,.va-db-stats-row,.va-today-nums{}
+}
+@media(max-width:900px){
+  .header-nav-links{display:none!important;}
+  .nav-pill{display:none!important;}
+  .header-logo{height:56px!important;padding:6px 0!important;}
+  .header-cta{padding:8px 14px!important;font-size:11px!important;}
+  .mobile-burger{display:flex!important;}
+  .va-hero{min-height:auto!important;padding:90px 20px 60px!important;}
+  .va-hero-inner{grid-template-columns:1fr!important;gap:48px!important;text-align:center;}
+  .va-sub{max-width:100%;margin-left:auto;margin-right:auto;}
+  .va-cta-row{justify-content:center;}
+  .va-phone-wrap{order:-1;}
+  .va-float-badge,.va-float-badge2{display:none!important;}
+  .va-feat-row,.va-feat-row:nth-child(even){flex-direction:column!important;}
+  .va-feat-visual{width:100%!important;flex:none!important;}
+  .va-how-steps::before{display:none!important;}
+  .va-how-steps{grid-template-columns:1fr!important;}
+  .va-stats-inner{grid-template-columns:repeat(2,1fr)!important;}
+  .va-db-stats-row{grid-template-columns:repeat(2,1fr)!important;}
+  .va-today-nums{grid-template-columns:repeat(2,1fr)!important;}
+  .va-today-grid{grid-template-columns:1fr!important;}
+}
+@media(max-width:600px){
+  body{padding-top:60px!important;font-size:14px;}
+  .site-header{padding:0 14px!important;height:60px!important;}
+  .header-logo{height:48px!important;}
+  .header-cta{padding:7px 12px!important;font-size:11px!important;}
+  .va-hero{padding:80px 16px 50px!important;}
+  .va-h1{font-size:clamp(34px,8vw,52px)!important;}
+  .va-sub{font-size:15px!important;}
+  .iphone-frame{width:220px!important;}
+  .iphone-screen{height:476px!important;}
+  .va-stats-inner,.va-db-stats-row,.va-today-nums{grid-template-columns:1fr!important;}
+  .btn-primary,.btn-ghost{width:100%;justify-content:center;}
+}
+@media(max-width:400px){
+  .va-h1{font-size:32px!important;}
+  .iphone-frame{width:200px!important;}
+  .iphone-screen{height:430px!important;}
+}
+
+/* MOBILE BURGER */
+.mobile-burger{display:none;width:40px;height:40px;border-radius:10px;border:1.5px solid rgba(0,0,0,.1);background:#fff;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;}
+.mobile-burger span,.mobile-burger span::before,.mobile-burger span::after{display:block;width:18px;height:2px;background:#0f0f0f;border-radius:1px;transition:all .3s var(--ease);}
+.mobile-burger span{position:relative;}
+.mobile-burger span::before,.mobile-burger span::after{content:'';position:absolute;left:0;}
+.mobile-burger span::before{top:-6px;}
+.mobile-burger span::after{top:6px;}
+.mobile-burger.open span{background:transparent;}
+.mobile-burger.open span::before{top:0;transform:rotate(45deg);}
+.mobile-burger.open span::after{top:0;transform:rotate(-45deg);}
+.mobile-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998;}
+.mobile-nav-overlay.open{display:block;}
+.mobile-nav-panel{position:fixed;top:68px;left:14px;right:14px;background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.22);z-index:999;padding:14px;display:none;}
+.mobile-nav-panel.open{display:block;}
+.mobile-nav-panel a{display:block;padding:13px 16px;border-radius:12px;font-family:var(--font-b);font-size:15px;font-weight:600;color:#0f0f0f;text-decoration:none;}
+.mobile-nav-panel a:hover,.mobile-nav-panel a.active{background:rgba(47,92,255,.08);color:var(--gold);}
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<header class="site-header">
+  <nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img src="logo.png" alt="M&H Assistenz" class="header-logo" onerror="this.style.display='none';document.getElementById('headerFallback').style.display='inline-block';">
+      <span id="headerFallback" style="display:none;">M&amp;H Assistenz</span>
+    </div>
+    <div class="header-nav-links">
+      <a href="index.html">Startseite</a>
+      <a href="websitebuilder.html">Websitebuilder</a>
+      <a href="kalender.html">Kalender-System</a>
+      <a href="voice-agent.html" class="active">Voice Agent</a>
+      <a href="wissensdatenbank.html">Wissensdatenbank</a>
+      <a href="#formular">Termin buchen</a>
+      
+    </div>
+    <a href="#formular" class="header-cta">Kostenloses Erstgespräch</a>
+  </nav>
+</header>
+
+<!-- ─── HERO ─── -->
+<section class="va-hero">
+  <div class="va-hero-grid"></div>
+  <div class="va-hero-glow"></div>
+  <canvas id="heroCanvas"></canvas>
+
+  <div class="va-hero-inner">
+    <div class="va-hero-text">
+      <div class="va-badge"><span class="va-badge-dot"></span>24/7 aktiv · Kein Anruf geht verloren</div>
+      <h1 class="va-h1">Dein KI-Assistent.<br><span class="accent">Immer am Telefon.</span></h1>
+      <p class="va-sub">Kein Anruf landet mehr in der Warteschleife. Der Voice Agent nimmt ab, antwortet, bucht Termine — rund um die Uhr.</p>
+      <div class="va-cta-row">
+        <a href="#formular" class="btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.33 2 2 0 0 1 3.6 1.29h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-.94a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Jetzt anfragen
+        </a>
+        <a href="#wie-es-funktioniert" class="btn-ghost">
+          So funktioniert's
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="va-phone-wrap">
+      <!-- Realistic iPhone Frame -->
+      <div class="iphone-frame">
+        <div class="iphone-bezel">
+          <div class="iphone-screen" id="iphoneScreen">
+
+            <!-- Dynamic Island -->
+            <div class="dyn-island" id="dynIsland">
+              <div class="di-cam"></div>
+              <div class="di-bar"></div>
+              <div class="di-cam"></div>
+            </div>
+
+            <!-- STATE 1: Incoming Call -->
+            <div class="ios-incoming" id="iosIncoming">
+              <div class="ios-incoming-type">Eingehender Anruf</div>
+              <div class="ios-avatar">MK</div>
+              <div class="ios-caller-name">Maria Koch</div>
+              <div class="ios-caller-sub">KI-Assistent verbindet...</div>
+              <div class="ios-actions">
+                <div class="ios-btn ios-decline">
+                  <div class="ios-btn-circle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </div>
+                  <span class="ios-btn-label">Ablehnen</span>
+                </div>
+                <div class="ios-btn ios-accept">
+                  <div class="ios-btn-circle">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.33 2 2 0 0 1 3.6 1.29h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-.94a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  </div>
+                  <span class="ios-btn-label">Annehmen</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STATE 2: Active Call with live transcript -->
+            <div class="ios-active" id="iosActive">
+              <div class="ios-call-header">
+                <div class="ios-call-status">Aktiver Anruf · KI-Agent</div>
+                <div class="ios-call-name-active">Maria Koch</div>
+                <div class="ios-timer" id="callTimer">0:00</div>
+              </div>
+              <div class="ios-wave-active">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="ios-live-transcript" id="iosTranscript">
+                <div class="ios-tr-label">Live-Transkript</div>
+              </div>
+              <div class="ios-end-row">
+                <div class="ios-end-btn">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.42 19.42 0 0 1 3.07 9.5 2 2 0 0 1 5 7.32l3-.1"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- STATE 3: Call Summary -->
+            <div class="ios-summary" id="iosSummary">
+              <div class="ios-sum-header">
+                <div class="ios-sum-status">Anruf beendet · 2:14</div>
+                <div class="ios-sum-caller">Maria Koch</div>
+                <div class="ios-sum-dur">KI-Zusammenfassung</div>
+              </div>
+              <div class="ios-sum-body">
+                <div class="ios-sum-tag">Was besprochen wurde</div>
+                <div class="ios-sum-item"><div class="ios-sum-bullet"></div><div class="ios-sum-text">Terminbuchung für Donnerstag, 10:00 Uhr bestätigt</div></div>
+                <div class="ios-sum-item"><div class="ios-sum-bullet"></div><div class="ios-sum-text">Frage zu Öffnungszeiten beantwortet</div></div>
+                <div class="ios-sum-item"><div class="ios-sum-bullet"></div><div class="ios-sum-text">Bestätigung per E-Mail wurde automatisch verschickt</div></div>
+                <div style="margin-top:10px;">
+                  <span class="ios-sum-pill">📅 Termin eingetragen</span>
+                  <span class="ios-sum-pill">✉️ E-Mail gesendet</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /iphone-screen -->
+        </div><!-- /iphone-bezel -->
+      </div><!-- /iphone-frame -->
+
+      <!-- Floating badges -->
+      <div class="va-float-badge">
+        <div class="vfb-label">Heute automatisch gelöst</div>
+        <div class="vfb-val">79%</div>
+      </div>
+      <div class="va-float-badge va-float-badge2">
+        <div class="vfb-label">Verpasste Anrufe</div>
+        <div class="vfb-val" style="color:#5278FF;">0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ─── -->
+<div class="va-stats">
+  <div class="va-stats-inner">
+    <div class="va-stat sr"><span class="va-stat-val" data-target="100">0</span><div class="va-stat-label">Erreichbarkeit<br>rund um die Uhr</div></div>
+    <div class="va-stat sr sd1"><span class="va-stat-val" data-target="0" data-suffix="">0</span><div class="va-stat-label">Verpasste Anrufe<br>im Durchschnitt</div></div>
+    <div class="va-stat sr sd2"><span class="va-stat-val" data-target="2" data-prefix="<" data-suffix="s">&lt;2s</span><div class="va-stat-label">Reaktionszeit<br>bei Anrufeingang</div></div>
+    <div class="va-stat sr sd3"><span class="va-stat-val" data-target="30" data-prefix="–" data-suffix="%">–30%</span><div class="va-stat-label">No-Show-Rate<br>(Branchenrichtwert)</div></div>
+  </div>
+</div>
+
+<!-- ─── FEATURES ─── -->
+<section class="va-features" id="wie-es-funktioniert">
+  <div class="va-feat-head sr">
+    <div class="sec-label">Was der Voice Agent kann</div>
+    <h2>Mehr als nur<br>ein <em>Anrufbeantworter</em></h2>
+    <p>Spricht natürlich, versteht Kontext, erledigt konkrete Aufgaben — ohne menschliche Nachbearbeitung.</p>
+  </div>
+
+  <!-- Row 1: links -->
+  <div class="va-feat-row sr sr-left">
+    <div class="va-feat-visual">
+      <div class="va-feat-ring"></div>
+      <div class="va-feat-ring va-feat-ring2"></div>
+      <div class="va-feat-icon-big">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.33 2 2 0 0 1 3.6 1.29h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-.94a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </div>
+    </div>
+    <div class="va-feat-content">
+      <span class="va-feat-tag">01 — Erreichbarkeit</span>
+      <div class="va-feat-title">Kein Anruf<br>geht verloren</div>
+      <p class="va-feat-desc">Besetzt, Feierabend, Urlaub — der Voice Agent nimmt trotzdem ab. Sofort, ohne Warteschleife, ohne Ansage.</p>
+    </div>
+  </div>
+
+  <!-- Row 2: rechts -->
+  <div class="va-feat-row sr sr-right">
+    <div class="va-feat-visual">
+      <div class="va-feat-ring"></div>
+      <div class="va-feat-ring va-feat-ring2"></div>
+      <div class="va-feat-icon-big">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+    </div>
+    <div class="va-feat-content">
+      <span class="va-feat-tag">02 — Terminbuchung</span>
+      <div class="va-feat-title">Termine direkt<br>im Kalender</div>
+      <p class="va-feat-desc">Prüft Verfügbarkeit, trägt Termine ein, schickt Bestätigung per SMS oder E-Mail — vollautomatisch.</p>
+    </div>
+  </div>
+
+  <!-- Row 3: links -->
+  <div class="va-feat-row sr sr-left">
+    <div class="va-feat-visual">
+      <div class="va-feat-ring"></div>
+      <div class="va-feat-ring va-feat-ring2"></div>
+      <div class="va-feat-icon-big">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+    </div>
+    <div class="va-feat-content">
+      <span class="va-feat-tag">03 — FAQ</span>
+      <div class="va-feat-title">Weiß alles über<br>dein Unternehmen</div>
+      <p class="va-feat-desc">Preise, Öffnungszeiten, Angebote — der Agent kennt die Antworten und gibt sie sofort. Ohne Wartezeit.</p>
+    </div>
+  </div>
+
+  <!-- Row 4: rechts -->
+  <div class="va-feat-row sr sr-right" style="margin-bottom:0;">
+    <div class="va-feat-visual">
+      <div class="va-feat-ring"></div>
+      <div class="va-feat-ring va-feat-ring2"></div>
+      <div class="va-feat-icon-big">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2 15 22 11 13 2 9l20-7z"/></svg>
+      </div>
+    </div>
+    <div class="va-feat-content">
+      <span class="va-feat-tag">04 — Weiterleitung</span>
+      <div class="va-feat-title">Dringendes sofort<br>an dein Team</div>
+      <p class="va-feat-desc">Erkennt kritische Anliegen und leitet per WhatsApp oder E-Mail sofort weiter. Nichts fällt durch den Rost.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TODAY'S STATS ─── -->
+<section class="va-today" id="va-today-section">
+  <div class="va-today-inner">
+    <div class="va-today-head sr">
+      <div class="sec-label">Was der Agent heute getan hat</div>
+      <h2>Zahlen vom <em>heutigen Tag</em></h2>
+      <p>Simulierte Branchenrichtwerte — so könnte dein Dashboard aussehen</p>
+    </div>
+
+    <!-- 4 counters -->
+    <div class="va-today-nums">
+      <div class="vtn-card sr"><div class="vtn-num" data-target="24">0</div><div class="vtn-label">Anrufe<br>beantwortet</div></div>
+      <div class="vtn-card sr sd1"><div class="vtn-num" data-target="8">0</div><div class="vtn-label">Termine<br>gebucht</div></div>
+      <div class="vtn-card sr sd2"><div class="vtn-num" data-target="79" data-suffix="%">0%</div><div class="vtn-label">Automatisch<br>gelöst</div></div>
+      <div class="vtn-card sr sd3"><div class="vtn-num">~3h</div><div class="vtn-label">Zeit<br>gespart</div></div>
+    </div>
+
+    <!-- Two panels -->
+    <div class="va-today-grid">
+      <!-- Calls panel -->
+      <div class="vt-panel sr sr-left">
+        <div class="vt-panel-head">
+          <div class="vt-live-dot"></div>
+          Heutige Anrufe
+          <span class="vt-panel-count">24 heute</span>
+        </div>
+        <div class="vt-call-item"><div class="vt-call-dot" style="background:#22c55e;"></div><div><div class="vt-call-name">Maria Koch</div><div class="vt-call-topic">Terminbuchung · 2:14</div></div><div class="vt-call-badge vt-badge-book">Gebucht</div></div>
+        <div class="vt-call-item"><div class="vt-call-dot" style="background:#22c55e;"></div><div><div class="vt-call-name">Klaus Weber</div><div class="vt-call-topic">Öffnungszeiten · 0:42</div></div><div class="vt-call-badge vt-badge-auto">Automatisch</div></div>
+        <div class="vt-call-item"><div class="vt-call-dot" style="background:#f59e0b;"></div><div><div class="vt-call-name">Sandra H.</div><div class="vt-call-topic">Rückruf angefragt · 1:05</div></div><div class="vt-call-badge vt-badge-fwd">Weitergeleitet</div></div>
+        <div class="vt-call-item"><div class="vt-call-dot" style="background:#22c55e;"></div><div><div class="vt-call-name">Thomas Bauer</div><div class="vt-call-topic">Preisfrage · 1:18</div></div><div class="vt-call-badge vt-badge-auto">Automatisch</div></div>
+        <div class="vt-call-item"><div class="vt-call-dot" style="background:#22c55e;"></div><div><div class="vt-call-name">Petra Mayer</div><div class="vt-call-topic">Termin verschoben · 1:48</div></div><div class="vt-call-badge vt-badge-book">Umgebucht</div></div>
+      </div>
+
+      <!-- FAQ panel -->
+      <div class="vt-panel sr sr-right">
+        <div class="vt-panel-head">Häufigste Fragen</div>
+        <div class="vt-faq-item">
+          <div class="vt-faq-q"><span>Terminbuchung</span><span class="vt-faq-count">9×</span></div>
+          <div class="vt-faq-track"><div class="vt-faq-fill" data-w="88"></div></div>
+        </div>
+        <div class="vt-faq-item">
+          <div class="vt-faq-q"><span>Öffnungszeiten</span><span class="vt-faq-count">7×</span></div>
+          <div class="vt-faq-track"><div class="vt-faq-fill" data-w="68"></div></div>
+        </div>
+        <div class="vt-faq-item">
+          <div class="vt-faq-q"><span>Preisfrage</span><span class="vt-faq-count">4×</span></div>
+          <div class="vt-faq-track"><div class="vt-faq-fill" data-w="40"></div></div>
+        </div>
+        <div class="vt-faq-item">
+          <div class="vt-faq-q"><span>Stornierung / Umbuchung</span><span class="vt-faq-count">3×</span></div>
+          <div class="vt-faq-track"><div class="vt-faq-fill" data-w="30"></div></div>
+        </div>
+        <div class="vt-faq-item">
+          <div class="vt-faq-q"><span>Anfahrt / Adresse</span><span class="vt-faq-count">1×</span></div>
+          <div class="vt-faq-track"><div class="vt-faq-fill" data-w="10"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Summary -->
+    <div class="vt-summary sr sd1">
+      <div class="vt-sum-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5278FF" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div>
+        <div class="vt-sum-label">KI-Tagesauswertung</div>
+        <div class="vt-sum-text">Heute wurden 24 Anrufe bearbeitet — 19 vollautomatisch gelöst, 8 Termine direkt gebucht. Häufigste Anliegen: Terminvereinbarung und Öffnungszeiten. 5 Anrufe wurden mit vollständiger Notiz an das Team weitergeleitet. Geschätzte Zeitersparnis: ~3 Stunden.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="va-how" id="wie-es-funktioniert-steps">
+  <div class="va-how-inner">
+    <div class="va-how-head sr">
+      <div class="sec-label" style="display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">
+        <span style="flex:0 0 16px;height:1px;background:var(--gold);opacity:.4;display:block;"></span>
+        So läuft es ab
+        <span style="flex:0 0 16px;height:1px;background:var(--gold);opacity:.4;display:block;"></span>
+      </div>
+      <h2>In 3 Schritten<br><em>live schalten</em></h2>
+    </div>
+    <div class="va-how-steps">
+      <div class="va-how-step sr sr-left">
+        <div class="va-step-num">01</div>
+        <div class="va-step-title">Erstgespräch &amp; Setup</div>
+        <p class="va-step-desc">Wir erfassen deine Abläufe, typischen Anrufe und trainieren den Agenten auf dein Unternehmen — in wenigen Tagen einsatzbereit.</p>
+      </div>
+      <div class="va-how-step sr sd2">
+        <div class="va-step-num">02</div>
+        <div class="va-step-title">Integration</div>
+        <p class="va-step-desc">Deine Telefonnummer wird weitergeleitet. Verbindung zu Kalender, CRM oder n8n auf Wunsch inklusive.</p>
+      </div>
+      <div class="va-how-step sr sr-right">
+        <div class="va-step-num">03</div>
+        <div class="va-step-title">Live &amp; optimiert</div>
+        <p class="va-step-desc">Du bekommst tägliche Gesprächszusammenfassungen. Wir passen den Agenten laufend an — damit er immer besser wird.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DASHBOARD TEASER ─── -->
+<section class="va-dashboard">
+  <div class="va-dashboard-inner">
+    <h2 class="sr">Alles auf einen Blick<br><em>im Dashboard</em></h2>
+    <p class="sr sd1">Sieh live, welche Anrufe eingingen, was besprochen wurde und was automatisch erledigt wurde.</p>
+    <div class="va-db-preview sr sd2">
+      <div class="va-db-topbar">
+        <div class="va-db-tb-dot" style="background:#ff5f57;"></div>
+        <div class="va-db-tb-dot" style="background:#febc2e;margin-left:6px;"></div>
+        <div class="va-db-tb-dot" style="background:#28c840;margin-left:6px;"></div>
+        <span style="font-size:12px;color:rgba(15,23,42,.3);margin-left:auto;">M&amp;H Dashboard — Voice Agent</span>
+      </div>
+      <div class="va-db-stats-row">
+        <div class="va-db-stat">
+          <div class="va-db-stat-label">Anrufe heute</div>
+          <div class="va-db-stat-val blue">24</div>
+        </div>
+        <div class="va-db-stat">
+          <div class="va-db-stat-label">Auto-gelöst</div>
+          <div class="va-db-stat-val green">79%</div>
+        </div>
+        <div class="va-db-stat">
+          <div class="va-db-stat-label">Ø Gesprächsdauer</div>
+          <div class="va-db-stat-val">2:18</div>
+        </div>
+        <div class="va-db-stat">
+          <div class="va-db-stat-label">Weitergeleitet</div>
+          <div class="va-db-stat-val">5</div>
+        </div>
+      </div>
+      <div class="va-db-calls">
+        <div class="va-db-call-row">
+          <div class="va-db-call-dot" style="background:#22c55e;"></div>
+          <div class="va-db-call-name">Maria Koch — Terminbuchung</div>
+          <div class="va-db-call-dur">2:14</div>
+          <div class="va-db-call-tag tag-auto">Automatisch</div>
+        </div>
+        <div class="va-db-call-row">
+          <div class="va-db-call-dot" style="background:#f59e0b;"></div>
+          <div class="va-db-call-name">Thomas W. — Rückruf angefragt</div>
+          <div class="va-db-call-dur">1:42</div>
+          <div class="va-db-call-tag tag-fwd">Weitergeleitet</div>
+        </div>
+        <div class="va-db-call-row">
+          <div class="va-db-call-dot" style="background:#22c55e;"></div>
+          <div class="va-db-call-name">Sandra H. — Öffnungszeiten</div>
+          <div class="va-db-call-dur">0:38</div>
+          <div class="va-db-call-tag tag-auto">Automatisch</div>
+        </div>
+      </div>
+    </div>
+    <a href="dashboard.html" class="btn-primary sr sd3" style="margin:0 auto;display:inline-flex;">
+      Dashboard ansehen
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- CTA EMBED -->
+<section id="formular" class="form-bg-section" style="position:relative;background:#ffffff;padding:80px 24px;overflow:hidden;scroll-margin-top:80px;">
+<svg class="form-bg-svg" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <g stroke="currentColor" fill="none" stroke-width="0.3" stroke-dasharray="100 100" pathLength="100" marker-start="url(#cpu-circle-marker)">
+    <path stroke-dasharray="100 100" pathLength="100" d="M 10 20 h 79.5 q 5 0 5 5 v 30"/>
+    <path stroke-dasharray="100 100" pathLength="100" d="M 180 10 h -69.7 q -5 0 -5 5 v 30"/>
+    <path d="M 130 20 v 21.8 q 0 5 -5 5 h -10"/>
+    <path d="M 170 80 v -21.8 q 0 -5 -5 -5 h -50"/>
+    <path stroke-dasharray="100 100" pathLength="100" d="M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -20"/>
+    <path d="M 94.8 95 v -36"/>
+    <path d="M 88 88 v -15 q 0 -5 -5 -5 h -10 q -5 0 -5 -5 v -5 q 0 -5 5 -5 h 14"/>
+    <path d="M 30 30 h 25 q 5 0 5 5 v 6.5 q 0 5 5 5 h 20"/>
+    <animate attributeName="stroke-dashoffset" from="100" to="0" dur="1s" fill="freeze" calcMode="spline" keySplines="0.25,0.1,0.5,1" keyTimes="0; 1"/>
+  </g>
+  <g mask="url(#cpu-mask-1)"><circle class="cpu-architecture cpu-line-1" cx="0" cy="0" r="8" fill="url(#cpu-blue-grad)"/></g>
+  <g mask="url(#cpu-mask-2)"><circle class="cpu-architecture cpu-line-2" cx="0" cy="0" r="8" fill="url(#cpu-yellow-grad)"/></g>
+  <g mask="url(#cpu-mask-3)"><circle class="cpu-architecture cpu-line-3" cx="0" cy="0" r="8" fill="url(#cpu-pinkish-grad)"/></g>
+  <g mask="url(#cpu-mask-4)"><circle class="cpu-architecture cpu-line-4" cx="0" cy="0" r="8" fill="url(#cpu-white-grad)"/></g>
+  <g mask="url(#cpu-mask-5)"><circle class="cpu-architecture cpu-line-5" cx="0" cy="0" r="8" fill="url(#cpu-green-grad)"/></g>
+  <g mask="url(#cpu-mask-6)"><circle class="cpu-architecture cpu-line-6" cx="0" cy="0" r="8" fill="url(#cpu-orange-grad)"/></g>
+  <g mask="url(#cpu-mask-7)"><circle class="cpu-architecture cpu-line-7" cx="0" cy="0" r="8" fill="url(#cpu-cyan-grad)"/></g>
+  <g mask="url(#cpu-mask-8)"><circle class="cpu-architecture cpu-line-8" cx="0" cy="0" r="8" fill="url(#cpu-rose-grad)"/></g>
+  <g>
+    <g fill="url(#cpu-connection-gradient)">
+      <rect x="93" y="37" width="2.5" height="5" rx="0.7"/>
+      <rect x="104" y="37" width="2.5" height="5" rx="0.7"/>
+      <rect x="116.3" y="44" width="2.5" height="5" rx="0.7" transform="rotate(90 116.25 45.5)"/>
+      <rect x="122.8" y="44" width="2.5" height="5" rx="0.7" transform="rotate(90 116.25 45.5)"/>
+      <rect x="104" y="16" width="2.5" height="5" rx="0.7" transform="rotate(180 105.25 39.5)"/>
+      <rect x="114.5" y="16" width="2.5" height="5" rx="0.7" transform="rotate(180 105.25 39.5)"/>
+      <rect x="80" y="-13.6" width="2.5" height="5" rx="0.7" transform="rotate(270 115.25 19.5)"/>
+      <rect x="87" y="-13.6" width="2.5" height="5" rx="0.7" transform="rotate(270 115.25 19.5)"/>
+    </g>
+    <rect x="85" y="40" width="30" height="20" rx="2" fill="#181818" filter="url(#cpu-light-shadow)"/>
+    <text x="92" y="52.5" font-size="7" fill="url(#cpu-text-gradient)" font-weight="600" letter-spacing="0.05em">M&amp;H</text>
+  </g>
+  <defs>
+    <mask id="cpu-mask-1"><path d="M 10 20 h 79.5 q 5 0 5 5 v 24" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-2"><path d="M 180 10 h -69.7 q -5 0 -5 5 v 24" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-3"><path d="M 130 20 v 21.8 q 0 5 -5 5 h -10" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-4"><path d="M 170 80 v -21.8 q 0 -5 -5 -5 h -50" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-5"><path d="M 135 65 h 15 q 5 0 5 5 v 10 q 0 5 -5 5 h -39.8 q -5 0 -5 -5 v -20" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-6"><path d="M 94.8 95 v -36" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-7"><path d="M 88 88 v -15 q 0 -5 -5 -5 h -10 q -5 0 -5 -5 v -5 q 0 -5 5 -5 h 14" stroke-width="0.5" stroke="white"/></mask>
+    <mask id="cpu-mask-8"><path d="M 30 30 h 25 q 5 0 5 5 v 6.5 q 0 5 5 5 h 20" stroke-width="0.5" stroke="white"/></mask>
+    <radialGradient id="cpu-blue-grad" fx="1"><stop offset="0%" stop-color="#00E8ED"/><stop offset="50%" stop-color="#08F"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-yellow-grad" fx="1"><stop offset="0%" stop-color="#FFD800"/><stop offset="50%" stop-color="#FFD800"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-pinkish-grad" fx="1"><stop offset="0%" stop-color="#830CD1"/><stop offset="50%" stop-color="#FF008B"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-white-grad" fx="1"><stop offset="0%" stop-color="white"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-green-grad" fx="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-orange-grad" fx="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-cyan-grad" fx="1"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="cpu-rose-grad" fx="1"><stop offset="0%" stop-color="#f43f5e"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <filter id="cpu-light-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="1.5" dy="1.5" stdDeviation="1" flood-color="black" flood-opacity="0.1"/>
+    </filter>
+    <marker id="cpu-circle-marker" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="18" markerHeight="18">
+      <circle cx="5" cy="5" r="2" fill="black" stroke="#232323" stroke-width="0.5">
+        <animate attributeName="r" values="0; 3; 2" dur="0.5s"/>
+      </circle>
+    </marker>
+    <linearGradient id="cpu-connection-gradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4F4F4F"/><stop offset="60%" stop-color="#121214"/>
+    </linearGradient>
+    <linearGradient id="cpu-text-gradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#666666"><animate attributeName="offset" values="-2; -1; 0" dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 0.5; 1" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></stop>
+      <stop offset="25%" stop-color="white"><animate attributeName="offset" values="-1; 0; 1" dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 0.5; 1" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></stop>
+      <stop offset="50%" stop-color="#666666"><animate attributeName="offset" values="0; 1; 2;" dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0; 0.5; 1" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></stop>
+    </linearGradient>
+  </defs>
+</svg>
+  <div style="max-width:900px;margin:0 auto;">
+    <iframe id="formEmbed" src="formular-embed.html" style="width:100%;border:none;display:block;" scrolling="no" height="900"></iframe>
+    <script>window.addEventListener('message',function(e){if(e.data&&e.data.type==='embed-resize'){document.getElementById('formEmbed').style.height=e.data.height+'px';}});</script>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-brand-name">M&amp;H Assistenz</div>
+    <p class="footer-brand-desc">KI-Automatisierung für deutsche KMUs · DSGVO-konform · Made in Germany</p>
+    <div class="footer-socials">
+      <a href="https://www.linkedin.com/in/matthias-9021263b4/" target="_blank" rel="noopener noreferrer" class="footer-social-link" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a href="mailto:mh.ai.assistenz@gmail.com" class="footer-social-link" aria-label="E-Mail">
+        <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,4 12,13 2,4"/></svg>
+      </a>
+    </div>
+    <nav class="footer-nav">
+      <a href="index.html">Startseite</a>
+      <a href="websitebuilder.html">Websitebuilder</a>
+      <a href="kalender.html">Kalender-System</a>
+      <a href="voice-agent.html">Voice Agent</a>
+      <a href="wissensdatenbank.html">Wissensdatenbank</a>
+      <a href="dsgvo.html">DSGVO</a>
+      
+    </nav>
+    <div class="footer-bg-text" aria-hidden="true">M&amp;H ASSISTENZ</div>
+    <div class="footer-divider" aria-hidden="true"></div>
+    <div class="footer-fade" aria-hidden="true"></div>
+    <div class="footer-bottom">
+      <p>&copy; <script>document.write(new Date().getFullYear())</script> M&amp;H Assistenz. Alle Rechte vorbehalten.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── NAV PILL ── */
+(function(){
+  var nav=document.querySelector('.header-nav-links');if(!nav)return;
+  var pill=document.createElement('div');pill.className='nav-pill';nav.insertBefore(pill,nav.firstChild);
+  var links=nav.querySelectorAll('a');
+  var activeLink=nav.querySelector('a.active')||links[0];
+  function movePill(el){var nr=nav.getBoundingClientRect(),er=el.getBoundingClientRect();pill.style.width=er.width+'px';pill.style.transform='translateX('+(er.left-nr.left)+'px)';}
+  movePill(activeLink);
+  links.forEach(function(l){l.addEventListener('mouseenter',function(){movePill(l);});});
+  nav.addEventListener('mouseleave',function(){movePill(activeLink);});
+  window.addEventListener('resize',function(){movePill(activeLink);});
+})();
+
+/* ── CURSOR GLOW ── */
+(function(){
+  var g=document.getElementById('cursor-glow');
+  var tx=0,ty=0,cx=0,cy=0;
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY;});
+  document.addEventListener('mouseleave',function(){g.style.opacity='0';});
+  document.addEventListener('mouseenter',function(){g.style.opacity='1';});
+  (function loop(){cx+=(tx-cx)*.12;cy+=(ty-cy)*.12;g.style.left=cx+'px';g.style.top=cy+'px';requestAnimationFrame(loop);})();
+})();
+
+/* ── HERO PARTICLE CANVAS ── */
+(function(){
+  var cv=document.getElementById('heroCanvas');if(!cv)return;
+  var ctx=cv.getContext('2d'),pts=[],W,H;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  function mkP(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4};}
+  resize();window.addEventListener('resize',resize);
+  for(var i=0;i<70;i++)pts.push(mkP());
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(47,92,255,.5)';ctx.fill();
+    });
+    for(var i=0;i<pts.length;i++)for(var j=i+1;j<pts.length;j++){
+      var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle='rgba(47,92,255,'+(0.12*(1-d/110))+')';ctx.lineWidth=.6;ctx.stroke();}
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ── iPHONE CALL SIMULATION ── */
+(function(){
+  var incoming=document.getElementById('iosIncoming');
+  var active=document.getElementById('iosActive');
+  var summary=document.getElementById('iosSummary');
+  var transcript=document.getElementById('iosTranscript');
+  var timerEl=document.getElementById('callTimer');
+  var dynIsland=document.getElementById('dynIsland');
+
+  var msgs=[
+    {who:'agent',text:'Guten Tag! M&H Assistenz, wie kann ich helfen?'},
+    {who:'caller',text:'Ich möchte einen Termin buchen.'},
+    {who:'agent',text:'Natürlich! Wann passt es Ihnen?'},
+    {who:'caller',text:'Donnerstag um 10 Uhr wäre ideal.'},
+    {who:'agent',text:'Donnerstag 10:00 ist frei. Soll ich buchen?'},
+    {who:'caller',text:'Ja, bitte!'},
+    {who:'agent',text:'Termin gebucht. Bestätigung folgt per E-Mail!'},
+  ];
+
+  var secs=0,timerIv=null,msgIdx=0,running=false;
+
+  function startTimer(){
+    timerIv=setInterval(function(){
+      secs++;
+      var m=Math.floor(secs/60),s=secs%60;
+      timerEl.textContent=m+':'+(s<10?'0':'')+s;
+    },1000);
+  }
+
+  function appendTr(msg){
+    var div=document.createElement('div');
+    div.className='ios-tr-msg '+msg.who;
+    var who=document.createElement('div');
+    who.className='ios-tr-who';
+    who.textContent=msg.who==='agent'?'KI Agent':'Maria Koch';
+    var bubble=document.createElement('div');bubble.className='ios-tr-bubble';
+    div.appendChild(who);div.appendChild(bubble);
+    transcript.appendChild(div);
+    transcript.scrollTop=transcript.scrollHeight;
+    return bubble;
+  }
+
+  function typeNext(){
+    if(msgIdx>=msgs.length){
+      clearInterval(timerIv);
+      setTimeout(showSummary,1000);return;
+    }
+    var msg=msgs[msgIdx++];
+    var bubble=appendTr(msg);
+    var text=msg.text,ci=0;
+    var cur=document.createElement('span');cur.className='ios-tr-cursor';
+    bubble.appendChild(cur);
+    var iv=setInterval(function(){
+      if(ci<text.length){
+        bubble.textContent=text.slice(0,++ci);
+        bubble.appendChild(cur);
+        transcript.scrollTop=transcript.scrollHeight;
+      } else {
+        clearInterval(iv);cur.remove();
+        setTimeout(typeNext,800);
+      }
+    },30);
+  }
+
+  function showSummary(){
+    active.style.transition='opacity .4s';active.style.opacity='0';
+    setTimeout(function(){
+      active.classList.remove('show');
+      summary.classList.add('show');
+      dynIsland.classList.remove('ringing');
+    },400);
+  }
+
+  /* Phase 1: incoming → after 2.5s go to active */
+  dynIsland.classList.add('ringing');
+  setTimeout(function(){
+    incoming.style.transition='opacity .45s';incoming.style.opacity='0';
+    setTimeout(function(){
+      incoming.style.display='none';
+      active.classList.add('show');
+      startTimer();
+      setTimeout(function(){typeNext();running=true;},600);
+    },450);
+  },2600);
+})();
+
+/* ── SCROLL REVEAL ── */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){if(!e.isIntersecting)return;e.target.classList.add('visible');io.unobserve(e.target);});
+  },{threshold:0.1});
+  document.querySelectorAll('.sr').forEach(function(el){io.observe(el);});
+})();
+
+/* ── STAT COUNTERS (hero stats bar) ── */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return;io.unobserve(e.target);
+      var el=e.target.querySelector('.va-stat-val');if(!el||el.dataset.done)return;
+      el.dataset.done='1';
+      var target=+el.dataset.target||0;
+      var prefix=el.dataset.prefix||'';
+      var suffix=el.dataset.suffix!==undefined?el.dataset.suffix:'%';
+      if(el.dataset.target==='0'){el.textContent='0';return;}
+      var dur=1400,t0=null;
+      (function step(ts){
+        if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1);
+        var v=Math.round(p*p*(3-2*p)*target);
+        el.textContent=prefix+v+suffix;
+        if(p<1)requestAnimationFrame(step);
+      })(performance.now());
+    });
+  },{threshold:0.4});
+  document.querySelectorAll('.va-stat').forEach(function(el){io.observe(el);});
+})();
+
+/* ── TODAY-SECTION COUNTERS ── */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return;io.unobserve(e.target);
+      var el=e.target.querySelector('.vtn-num[data-target]');if(!el||el.dataset.done)return;
+      el.dataset.done='1';
+      var target=+el.dataset.target;
+      var suffix=el.dataset.suffix||'';
+      var dur=1200,t0=null;
+      (function step(ts){
+        if(!t0)t0=ts;var p=Math.min((ts-t0)/dur,1);
+        var v=Math.round(p*p*(3-2*p)*target);
+        el.textContent=v+suffix;
+        if(p<1)requestAnimationFrame(step);
+      })(performance.now());
+    });
+  },{threshold:0.4});
+  document.querySelectorAll('.vtn-card').forEach(function(el){io.observe(el);});
+})();
+
+/* ── FAQ BARS (today section) ── */
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting)return;io.unobserve(e.target);
+      e.target.querySelectorAll('.vt-faq-fill').forEach(function(bar){
+        setTimeout(function(){bar.style.width=bar.dataset.w+'%';},100);
+      });
+    });
+  },{threshold:0.3});
+  var sec=document.getElementById('va-today-section');
+  if(sec)io.observe(sec);
+})();
+
+/* ── DEMO TRANSCRIPT (lower section) ── */
+(function(){
+  var out=document.getElementById('demoOutput');
+  var status=document.getElementById('demoStatus');
+  if(!out)return;
+  var msgs=[
+    {who:'agent',name:'KI Voice Agent',text:'Guten Tag! Hier ist M&H Assistenz. Wie kann ich Ihnen helfen?'},
+    {who:'caller',name:'Anrufer',text:'Hallo, ich hätte gerne Informationen zu Ihren Öffnungszeiten.'},
+    {who:'agent',name:'KI Voice Agent',text:'Gerne! Wir sind montags bis freitags von 9 bis 18 Uhr erreichbar. Kann ich noch etwas für Sie tun?'},
+    {who:'caller',name:'Anrufer',text:'Ja, ich würde gerne einen Termin für nächste Woche buchen.'},
+    {who:'agent',name:'KI Voice Agent',text:'Natürlich! Welcher Tag passt Ihnen am besten — Dienstag oder Donnerstag?'},
+    {who:'caller',name:'Anrufer',text:'Donnerstag wäre super.'},
+    {who:'agent',name:'KI Voice Agent',text:'Perfekt. Donnerstag, 10:30 Uhr ist frei. Darf ich Ihren Namen notieren?'},
+  ];
+  var idx=0,running=false;
+
+  function appendDemoMsg(msg){
+    var div=document.createElement('div');div.className='demo-msg '+msg.who;
+    var who=document.createElement('div');who.className='demo-who';who.textContent=msg.name;
+    var bubble=document.createElement('div');bubble.className='demo-bubble';
+    div.appendChild(who);div.appendChild(bubble);
+    out.appendChild(div);out.scrollTop=out.scrollHeight;
+    return bubble;
+  }
+
+  function typeDemoMsg(){
+    if(idx>=msgs.length){status.textContent='Gespräch abgeschlossen ✓';running=false;return;}
+    var msg=msgs[idx];
+    var bubble=appendDemoMsg(msg);
+    var text=msg.text,ci=0;
+    var iv=setInterval(function(){
+      if(ci<text.length){bubble.textContent=text.slice(0,++ci);out.scrollTop=out.scrollHeight;}
+      else{clearInterval(iv);idx++;setTimeout(typeDemoMsg,800);}
+    },28);
+  }
+
+  var demoIO=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting||running)return;
+      running=true;demoIO.unobserve(e.target);
+      setTimeout(typeDemoMsg,600);
+    });
+  },{threshold:0.3});
+  demoIO.observe(out);
+})();
+
+/* ── 3D TILT ── */
+(function(){
+  document.querySelectorAll('.va-feat-visual,.va-stat,.va-db-stat').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+      c.style.transform='perspective(600px) rotateY('+(x*8)+'deg) rotateX('+(-y*6)+'deg) scale(1.02)';
+    });
+    c.addEventListener('mouseleave',function(){c.style.transform='';});
+  });
+})();
+
+/* Mobile burger menu */
+(function(){
+  var navWrap = document.querySelector('.site-header nav');
+  var navLinks = document.querySelector('.header-nav-links');
+  if(!navWrap || !navLinks) return;
+  var burger = document.createElement('button');
+  burger.className = 'mobile-burger';
+  burger.setAttribute('aria-label','Menü');
+  burger.innerHTML = '<span></span>';
+  navWrap.insertBefore(burger, navLinks);
+  var overlay = document.createElement('div');
+  overlay.className = 'mobile-nav-overlay';
+  var panel = document.createElement('div');
+  panel.className = 'mobile-nav-panel';
+  navLinks.querySelectorAll('a').forEach(function(a){
+    var l = document.createElement('a');
+    l.href = a.getAttribute('href');
+    l.textContent = a.textContent;
+    if(a.classList.contains('active')) l.classList.add('active');
+    panel.appendChild(l);
+  });
+  document.body.appendChild(overlay);
+  document.body.appendChild(panel);
+  function tog(o){
+    burger.classList.toggle('open', o);
+    overlay.classList.toggle('open', o);
+    panel.classList.toggle('open', o);
+    document.body.style.overflow = o ? 'hidden' : '';
+  }
+  burger.addEventListener('click', function(){ tog(!burger.classList.contains('open')); });
+  overlay.addEventListener('click', function(){ tog(false); });
+  panel.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ tog(false); }); });
+})();
+</script>
+</body>
+</html>
