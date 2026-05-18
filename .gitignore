@@ -1,0 +1,61 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Lokale Dashboard-Entwicklungsdateien (enthalten Credentials)
+M&H Assistenz/Dahsboar M_H/
+M&H Assistenz/M&H Kurz _files/
+M&H Assistenz/M_H Website (1)/
+M&H Assistenz/M_H Website (2)/
+M&H Assistenz/Neuer Ordner/
+M&H Assistenz/Hintergrund M&H_files/
+M&H Assistenz/n8n_email_crm_workflow.json
+M&H Assistenz/n8n_email_sent_poll.json
+M&H Assistenz/supabase_messages_migration.sql
+M&H Assistenz/Download.png
+M&H Assistenz/Hintergrund M&H.html
+M&H Assistenz/M&H Kurz .html
+html/
+JSON/
+Website in bilder/
+blumenhaus-frings-redesign/
+docs/
+nextjs-website/
