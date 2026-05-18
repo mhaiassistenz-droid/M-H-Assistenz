@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impressum — M&amp;H Assistenz</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=geist:300,400,500,600,700,800,900|geist-mono:400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-l:#5278FF;--gold-ll:#A0B4FF;
+  --gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#F5F5F5;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --dark:#111111;--dark-2:#1C1C1E;
+  --font-d:'Geist',system-ui,sans-serif;
+  --font-b:'Geist',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);--max:760px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.05);
+  --shadow-md:0 6px 24px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-b);background:var(--white);color:var(--text);font-size:15px;line-height:1.7;padding-top:72px;}
+
+/* Header */
+.site-header{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  position:fixed;top:0;left:0;right:0;z-index:999;height:72px;
+}
+.header-logo{height:52px;width:auto;object-fit:contain;display:block;padding:6px 0;}
+.header-back{
+  display:inline-flex;align-items:center;gap:7px;font-family:var(--font-b);
+  font-size:13px;font-weight:600;color:var(--text-2);
+  border:1.5px solid var(--border);border-radius:999px;padding:9px 20px;
+  text-decoration:none;cursor:pointer;background:var(--white);
+  transition:all .2s var(--ease);
+}
+.header-back:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.header-back svg{width:14px;height:14px;}
+
+/* Content */
+.legal-wrap{max-width:var(--max);margin:0 auto;padding:64px 24px 96px;}
+.legal-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-2);background:var(--bg);border:1px solid var(--border);
+  border-radius:999px;padding:6px 18px;margin-bottom:32px;
+}
+.legal-title{
+  font-family:var(--font-d);font-size:clamp(32px,5vw,52px);font-weight:800;
+  line-height:1.05;letter-spacing:-.035em;color:var(--text);margin-bottom:12px;
+}
+.legal-title em{font-style:normal;color:var(--gold);}
+.legal-meta{font-size:13px;color:var(--text-3);margin-bottom:52px;}
+
+.legal-block{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:16px;padding:32px;margin-bottom:16px;
+  box-shadow:var(--shadow-sm);
+}
+.legal-block:hover{box-shadow:var(--shadow-md);transition:box-shadow .2s var(--ease);}
+.block-label{
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+}
+.block-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px;letter-spacing:-.02em;}
+.block-body{font-size:14px;color:var(--text-2);line-height:1.75;}
+.block-body p{margin-bottom:10px;}
+.block-body p:last-child{margin-bottom:0;}
+.block-body strong{color:var(--text);font-weight:600;}
+.block-body a{color:var(--gold);text-decoration:none;}
+.block-body a:hover{text-decoration:underline;}
+
+.notice-box{
+  background:var(--gold-bg);border:1px solid var(--gold-border);
+  border-radius:10px;padding:16px 20px;margin-bottom:32px;
+  font-size:13px;color:var(--text-2);line-height:1.6;
+}
+.notice-box strong{color:var(--gold);}
+
+/* Footer */
+.site-footer{background:var(--dark);padding:40px 24px;margin-top:80px;text-align:center;}
+.footer-inner{max-width:var(--max);margin:0 auto;}
+.footer-copy{font-size:12px;color:#555;margin-bottom:16px;}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+.footer-links a{font-size:12px;color:#555;text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:#888;}
+.footer-links a.active{color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html">
+    <img src="logo.png" alt="M&amp;H Assistenz" class="header-logo" id="headerLogo">
+  </a>
+  <a href="index.html" class="header-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Zurück zur Website
+  </a>
+</header>
+
+<main class="legal-wrap">
+
+  <div class="legal-badge">Rechtliches</div>
+  <h1 class="legal-title">Impressum</h1>
+  <p class="legal-meta">Angaben gemäß § 5 TMG / § 18 Abs. 2 MStV</p>
+
+  <div class="legal-block">
+    <div class="block-label">Anbieter</div>
+    <div class="block-title">M&amp;H Assistenz</div>
+    <div class="block-body">
+      <p><strong>Inhaber:</strong> Matthias Heuchemer</p>
+      <p>
+        Tannenbergstraße 53<br>
+        56564 Neuwied<br>
+        Deutschland
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Kontakt</div>
+    <div class="block-title">Erreichbarkeit</div>
+    <div class="block-body">
+      <p><strong>Telefon:</strong> +49 172 1505142</p>
+      <p><strong>E-Mail:</strong> <a href="mailto:mh.ai.assistenz@gmail.com">mh.ai.assistenz@gmail.com</a></p>
+      <p><strong>Website:</strong> <a href="https://www.mhassistenz.de">www.mhassistenz.de</a></p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Steuerliche Angaben</div>
+    <div class="block-title">Umsatzsteuer</div>
+    <div class="block-body">
+      <p>Kleinunternehmer gemäß <strong>§ 19 UStG</strong>.</p>
+      <p>Es wird keine Umsatzsteuer ausgewiesen und keine Umsatzsteuer-Identifikationsnummer erteilt.</p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Inhaltlich verantwortlich</div>
+    <div class="block-title">Verantwortlich nach § 18 Abs. 2 MStV</div>
+    <div class="block-body">
+      <p>Matthias Heuchemer<br>Tannenbergstraße 53<br>56564 Neuwied</p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Haftungsausschluss</div>
+    <div class="block-title">Haftung für Inhalte</div>
+    <div class="block-body">
+      <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+      <p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Haftungsausschluss</div>
+    <div class="block-title">Haftung für Links</div>
+    <div class="block-body">
+      <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+      <p>Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
+    </div>
+  </div>
+
+  <div class="legal-block">
+    <div class="block-label">Urheberrecht</div>
+    <div class="block-title">Schutz der Inhalte</div>
+    <div class="block-body">
+      <p>Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+      <p>Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-copy">© <script>document.write(new Date().getFullYear())</script> M&amp;H Assistenz · Matthias Heuchemer · Neuwied</p>
+    <nav class="footer-links">
+      <a href="index.html">Startseite</a>
+      <a href="impressum.html" class="active">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

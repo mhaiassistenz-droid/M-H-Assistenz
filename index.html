@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<!-- saved from url=(0148)https://019e08f1-42cb-7ca9-ac2f-e8190f85636e.claudeusercontent.com/v1/design/projects/019e08f1-42cb-7ca9-ac2f-e8190f85636e/serve/index.html?srcmap=1 -->
-<html data-src-ver="ab1b7f4c" lang="de" data-om-id="ab1b7f4c:0"><head data-om-id="ab1b7f4c:1"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="de">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://ajloxsiyevauwyxfpepn.supabase.co https://umami.srv1419118.hstgr.cloud https://n8n.srv1419118.hstgr.cloud https://claude.ai; frame-ancestors 'none'; form-action 'self' https://ajloxsiyevauwyxfpepn.supabase.co;">
-<style data-omelette-injected="">html,body{background:transparent}</style><script data-omelette-injected="">(()=>{var j=["https://claude.ai","https://preview.claude.ai"];var x=true;var S=30000;var f=3000;document.addEventListener("DOMContentLoaded",()=>{const H=window.Babel;const G="om-src-id";if(H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[G])){H.registerPlugin(G,({types:Y})=>({visitor:{JSXOpeningElement(U,Q){const J=U.node;if(J.name&&J.name.type==="JSXMemberExpression")return;for(let V=0;V<J.attributes.length;V++){const L=J.attributes[V];if(L.type==="JSXAttribute"&&L.name&&L.name.name==="data-om-id")return}const W=Q.file&&Q.file.opts&&Q.file.opts.filename||"?";const Z=J.loc&&J.loc.start;const z=`jsx:${W}:${J.start??0}:${Z?Z.line:0}:${Z?Z.column+1:0}`;J.attributes.push(Y.jsxAttribute(Y.jsxIdentifier("data-om-id"),Y.stringLiteral(z)))}}}))}const k="om-text-extract";let A=false;if(x&&H&&H.registerPlugin&&!(H.availablePlugins&&H.availablePlugins[k])){const Y=window.React;if(Y&&Y.useSyncExternalStore&&Y.createElement){A=true;const U={};const Q=new Set;let J=0;window.__omTextO=U;window.__omTextSet=(z)=>{for(const V in z){const L=z[V];if(L==null)delete U[V];else U[V]=L}J++;Q.forEach((V)=>V())};const W=(z)=>{Q.add(z);return()=>Q.delete(z)};const Z=()=>J;window.__OmT=function z(V){Y.useSyncExternalStore(W,Z,Z);return Y.createElement("span",{"data-om-text":V.i,className:"__om-t"},V.i in U?U[V.i]:V.children)};H.registerPlugin(k,({types:z})=>{const V={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const L={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const _=($,C)=>z.logicalExpression("??",z.memberExpression(z.logicalExpression("||",z.memberExpression(z.identifier("window"),z.identifier("__omTextO")),z.objectExpression([])),z.stringLiteral($),true),C);const E=($)=>$.file&&$.file.opts&&$.file.opts.filename||"?";const B=($)=>$.file&&$.file.code||"";const b=($,C)=>{const X=(F)=>F&&F.start!=null&&F.end!=null&&(F.type==="StringLiteral"||F.type==="TemplateLiteral"&&F.expressions.length===0)?[F.start,F.end]:null;const N=X(C);if(N)return N;if(C&&C.type==="Identifier"){const F=$.scope.getBinding(C.name);if(F&&F.constant&&F.path.node.type==="VariableDeclarator"){return X(F.path.node.init)}}return null};const M=($,C,X)=>{const N=$.node;let F=false;const w=(K,q)=>{F=true;return z.jsxElement(z.jsxOpeningElement(z.jsxIdentifier("__OmT"),[z.jsxAttribute(z.jsxIdentifier("i"),z.stringLiteral(K))],false),z.jsxClosingElement(z.jsxIdentifier("__OmT")),[q],false)};const D=N.children.map((K)=>{if(K.type==="JSXText"){if(K.start==null||K.end==null)return K;const q=X.slice(K.start,K.end);const R=q.length-q.trimStart().length;const m=q.length-q.trimEnd().length;if(R+m>=q.length)return K;return w(`txt:${C}:${K.start+R}:${K.end-m}`,K)}if(K.type==="JSXExpressionContainer"){const q=b($,K.expression);if(q)return w(`str:${C}:${q[0]}:${q[1]}`,K)}return K});if(F)N.children=D};return{visitor:{JSXOpeningElement($,C){const X=$.node;const N=E(C);const F={};for(let w=0;w<X.attributes.length;w++){const D=X.attributes[w];if(D.type!=="JSXAttribute"||!D.name)continue;const K=D.name.name;if(!L[K])continue;if(!D.value||D.value.type!=="StringLiteral")continue;if(D.value.start==null||D.value.end==null)continue;const q=`txt:${N}:${D.value.start}:${D.value.end}`;F[K]=q;D.value=z.jsxExpressionContainer(_(q,z.stringLiteral(D.value.value)))}if(Object.keys(F).length){X.attributes.push(z.jsxAttribute(z.jsxIdentifier("data-om-text-attrs"),z.stringLiteral(JSON.stringify(F))))}},JSXElement($,C){const X=$.node.openingElement;const N=X&&X.name&&X.name.name;if(N==="__OmT")return;if(typeof N==="string"&&V[N])return;M($,E(C),B(C))},JSXFragment($,C){M($,E(C),B(C))}}}})}}const u=A?["transform-react-jsx-source",G,k]:["transform-react-jsx-source",G];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((Y,U)=>{const Q=Y.getAttribute("data-plugins")||"";const J=u.filter((W)=>Q.indexOf(W)<0);if(J.length){Y.setAttribute("data-plugins",Q?`${Q},${J.join(",")}`:J.join(","))}if(!Y.hasAttribute("data-filename")){Y.setAttribute("data-filename",Y.getAttribute("src")||`inline-${U}`)}})});var y=window.parent;if(y&&y!==window){const H=(Q,J)=>{try{y.postMessage({__omelette_log:true,type:Q,data:J},"*")}catch{}};["log","warn","error"].forEach((Q)=>{const J=console[Q];console[Q]=(...W)=>{const Z=W.map((z)=>{try{return typeof z==="object"?JSON.stringify(z):String(z)}catch{try{return String(z)}catch{return"[unstringifiable]"}}}).join(" ");H(Q,Z);J.apply(console,W)}});window.addEventListener("error",(Q)=>{const J=Q.target;if(J&&J!==window&&J.tagName){const W=J.src||J.href||"";H("resource_error",`${J.tagName} failed to load: ${W}`)}else{H("error",`${Q.message||"Unknown error"} at ${Q.filename||"?"}:${Q.lineno||0}:${Q.colno||0}`)}},true);window.addEventListener("unhandledrejection",(Q)=>{const J=Q.reason;const W=J instanceof Error?`${J.message} ${J.stack}`:String(J);H("error",`Unhandled rejection: ${W}`)});const G=()=>{try{y.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(document.readyState==="complete")G();else window.addEventListener("load",G);if(window.ResizeObserver)new ResizeObserver(G).observe(document.documentElement);const k={};let A=0;window.claude={complete(Q){return new Promise((J,W)=>{if(!j.length){W(new Error("claude.complete: no parent origin"));return}const Z=`c${++A}`;const z=()=>setTimeout(()=>{delete k[Z];W(new Error(`claude.complete: no data for ${S/1000}s`))},S);const V=z();k[Z]={resolve:J,reject:W,text:"",t:V,arm:z};try{for(const L of j){y.postMessage({__om_api:true,id:Z,body:Q},L)}}catch(L){clearTimeout(V);delete k[Z];W(L)}})}};const u={};let Y=0;window.omelette={writeFile:(Q,J)=>new Promise((W,Z)=>{if(!j.length){W();return}const z=`f${++Y}`;const V=setTimeout(()=>{delete u[z];W()},f);u[z]={resolve:W,reject:Z,t:V};try{for(const L of j){y.postMessage({__om_file:true,id:z,op:"write",path:Q,content:J},L)}}catch{clearTimeout(V);delete u[z];W()}})};const U=(Q)=>{try{return JSON.stringify(Q)}catch{return JSON.stringify(String(Q))}};window.addEventListener("message",(Q)=>{if(j.indexOf(Q.origin)<0)return;if(Q.source!==y)return;const J=Q.data;if(!J)return;if(J.type==="omelette-preview-refresh"){if(typeof J.token!=="string"||!/^[0-9a-f.-]+$/.test(J.token))return;const z=Math.max(1,Math.floor((J.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+J.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+z;return}if(J.__om_file_r){const z=u[J.id];if(!z)return;clearTimeout(z.t);delete u[J.id];if(J.ok)z.resolve();else z.reject(new Error(J.error||"write failed"));return}if(J.__om_api_r){const z=k[J.id];if(!z)return;if(J.error!=null){clearTimeout(z.t);delete k[J.id];z.reject(new Error(J.error));return}if(J.chunk!=null){clearTimeout(z.t);z.t=z.arm();z.text+=J.chunk;return}if(J.done){clearTimeout(z.t);delete k[J.id];z.resolve(J.text!=null?J.text:z.text);return}return}if(!J.__om_eval)return;const W=J;const Z=(z)=>{Q.source.postMessage({...z,__om_eval_r:1,id:W.id},Q.origin)};try{const z=(0,eval)(W.code);if(z&&typeof z.then==="function"){z.then((V)=>Z({ok:1,v:U(V)}),(V)=>Z({ok:0,e:String(V)}))}else{Z({ok:1,v:U(z)})}}catch(z){Z({ok:0,e:String(z)})}})}})();
-</script>
-
-
-<meta name="viewport" content="width=device-width,initial-scale=1" data-om-id="ab1b7f4c:3">
-<title>M&amp;H Assistenz — KI-Infrastruktur für Unternehmen</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com/" data-om-id="ab1b7f4c:4">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" data-om-id="ab1b7f4c:5">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" data-om-id="ab1b7f4c:6">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data: https:; connect-src 'self' https://ajloxsiyevauwyxfpepn.supabase.co https://umami.srv1419118.hstgr.cloud https://n8n.srv1419118.hstgr.cloud https://claude.ai; frame-ancestors 'none'; form-action 'self' https://ajloxsiyevauwyxfpepn.supabase.co;">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M&amp;H Assistenz</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=geist:300,400,500,600,700,800,900|geist-mono:400,500,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --blue:#2F5CFF; --blue-2:#5278FF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
@@ -615,102 +610,102 @@ section{padding:120px 24px;position:relative}
 
 </style>
 <style data-designer-overlay="1"></style></head>
-<body data-om-id="ab1b7f4c:7">
+<body>
 
 <!-- ═════ HEADER ═════ -->
-<header class="hdr" data-om-id="ab1b7f4c:8">
-  <div class="hdr-inner" data-om-id="ab1b7f4c:9">
-    <a href="#" class="hdr-logo" data-om-id="ab1b7f4c:10"><img src="logo.png" alt="M&amp;H Assistenz" data-om-id="ab1b7f4c:11"></a>
-    <nav class="hdr-nav" data-om-id="ab1b7f4c:12">
-      <a href="#module" data-om-id="ab1b7f4c:13">Plattform</a>
-      <a href="#dashboard" data-om-id="ab1b7f4c:14">Dashboard</a>
-      <a href="#integrations" data-om-id="ab1b7f4c:15">Integrationen</a>
-      <a href="#prozess" data-om-id="ab1b7f4c:16">Prozess</a>
-      <a href="#formular" data-om-id="ab1b7f4c:17">Erstgespräch</a>
+<header class="hdr">
+  <div class="hdr-inner">
+    <a href="#" class="hdr-logo"><img src="logo.png" alt="M&amp;H Assistenz"></a>
+    <nav class="hdr-nav">
+      <a href="#module">Plattform</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#integrations">Integrationen</a>
+      <a href="#prozess">Prozess</a>
+      <a href="#formular">Erstgespräch</a>
     </nav>
-    <a href="#formular" class="hdr-cta" data-om-id="ab1b7f4c:18">Termin buchen
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:19"><line x1="5" y1="12" x2="19" y2="12" data-om-id="ab1b7f4c:20"></line><polyline points="12 5 19 12 12 19" data-om-id="ab1b7f4c:21"></polyline></svg>
+    <a href="#formular" class="hdr-cta">Termin buchen
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
     </a>
-    <button class="burger" id="burger" aria-label="Menu" data-om-id="ab1b7f4c:22"><span data-om-id="ab1b7f4c:23"></span></button>
+    <button class="burger" id="burger" aria-label="Menu"><span></span></button>
   </div>
 </header>
-<div class="mnav" id="mnav" data-om-id="ab1b7f4c:24">
-  <a href="#module" data-om-id="ab1b7f4c:25">Plattform</a>
-  <a href="#dashboard" data-om-id="ab1b7f4c:26">Dashboard</a>
-  <a href="#integrations" data-om-id="ab1b7f4c:27">Integrationen</a>
-  <a href="#prozess" data-om-id="ab1b7f4c:28">Prozess</a>
-  <a href="#formular" data-om-id="ab1b7f4c:29">Erstgespräch</a>
+<div class="mnav" id="mnav">
+  <a href="#module">Plattform</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#integrations">Integrationen</a>
+  <a href="#prozess">Prozess</a>
+  <a href="#formular">Erstgespräch</a>
 </div>
 
 <!-- ═════ HERO ═════ -->
-<section class="hero" data-om-id="ab1b7f4c:30">
-  <div class="hero-grid" data-om-id="ab1b7f4c:31"></div>
-  <div class="hero-blob hero-blob-1" data-om-id="ab1b7f4c:32"></div>
-  <div class="hero-blob hero-blob-2" data-om-id="ab1b7f4c:33"></div>
-  <div class="hero-blob hero-blob-3" data-om-id="ab1b7f4c:34"></div>
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
 
-  <div class="hero-inner" data-om-id="ab1b7f4c:35">
-    <div class="hero-badge sr in" data-om-id="ab1b7f4c:36"><span class="hero-badge-dot" data-om-id="ab1b7f4c:37"></span>KI-Infrastruktur · Made in Germany · DSGVO-konform</div>
-    <h1 class="sr sd1 in" data-om-id="ab1b7f4c:38">Eine Plattform.<br data-om-id="ab1b7f4c:39"><span class="grad" data-om-id="ab1b7f4c:40">Alle KI-Systeme.</span><br data-om-id="ab1b7f4c:41">Für dein Unternehmen.</h1>
-    <p class="lead sr sd2 in" data-om-id="ab1b7f4c:42">Von der modernen Website zum vollständigen KI-System, das alles managed — Voice Agent, Kalender, Wissensdatenbank, CRM, Marketing und Analytics, zentral verbunden im M&amp;H Dashboard.</p>
+  <div class="hero-inner">
+    <div class="hero-badge sr in"><span class="hero-badge-dot"></span>KI-Infrastruktur · Made in Germany · DSGVO-konform</div>
+    <h1 class="sr sd1 in">Eine Plattform.<br><span class="grad">Alle KI-Systeme.</span><br>Für dein Unternehmen.</h1>
+    <p class="lead sr sd2 in">Von der modernen Website zum vollständigen KI-System, das alles managed — Voice Agent, Kalender, Wissensdatenbank, CRM, Marketing und Analytics, zentral verbunden im M&amp;H Dashboard.</p>
 
-    <div class="hero-cta-row sr sd3 in" data-om-id="ab1b7f4c:43">
-      <a href="#formular" class="btn-pri" data-om-id="ab1b7f4c:44">Kostenloses Erstgespräch
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:45"><line x1="5" y1="12" x2="19" y2="12" data-om-id="ab1b7f4c:46"></line><polyline points="12 5 19 12 12 19" data-om-id="ab1b7f4c:47"></polyline></svg>
+    <div class="hero-cta-row sr sd3 in">
+      <a href="#formular" class="btn-pri">Kostenloses Erstgespräch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </a>
-      <a href="#module" class="btn-sec" data-om-id="ab1b7f4c:48">Plattform ansehen</a>
+      <a href="#module" class="btn-sec">Plattform ansehen</a>
     </div>
 
-    <div class="hero-trust sr sd4 in" data-om-id="ab1b7f4c:49">
-      <div class="hero-trust-item" data-om-id="ab1b7f4c:50"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:51"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:52"></polyline></svg>EU-Hosting</div>
-      <div class="hero-trust-item" data-om-id="ab1b7f4c:53"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:54"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:55"></polyline></svg>DSGVO-konform</div>
-      <div class="hero-trust-item" data-om-id="ab1b7f4c:56"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:57"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:58"></polyline></svg>Direktkontakt zum Entwickler</div>
-      <div class="hero-trust-item" data-om-id="ab1b7f4c:59"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:60"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:61"></polyline></svg>Modular &amp; skalierbar</div>
+    <div class="hero-trust sr sd4 in">
+      <div class="hero-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>EU-Hosting</div>
+      <div class="hero-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>DSGVO-konform</div>
+      <div class="hero-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Direktkontakt zum Entwickler</div>
+      <div class="hero-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Modular &amp; skalierbar</div>
     </div>
 
     <!-- Hero dashboard preview -->
-    <div class="hero-screen sr" data-om-id="ab1b7f4c:62">
-      <div class="hero-screen-bar" data-om-id="ab1b7f4c:63"><i data-om-id="ab1b7f4c:64"></i><i data-om-id="ab1b7f4c:65"></i><i data-om-id="ab1b7f4c:66"></i></div>
-      <div class="hero-screen-body" data-om-id="ab1b7f4c:67">
-        <div class="hsb-side" data-om-id="ab1b7f4c:68">
-          <div class="hsb-logo" data-om-id="ab1b7f4c:69"><span data-om-id="ab1b7f4c:70"></span>M&amp;H Cockpit</div>
-          <div class="hsb-nav" data-om-id="ab1b7f4c:71">
-            <a class="on" data-om-id="ab1b7f4c:72"><i data-om-id="ab1b7f4c:73"></i>Übersicht</a>
-            <a data-om-id="ab1b7f4c:74"><i data-om-id="ab1b7f4c:75"></i>Voice Agent</a>
-            <a data-om-id="ab1b7f4c:76"><i data-om-id="ab1b7f4c:77"></i>Kalender</a>
-            <a data-om-id="ab1b7f4c:78"><i data-om-id="ab1b7f4c:79"></i>CRM</a>
-            <a data-om-id="ab1b7f4c:80"><i data-om-id="ab1b7f4c:81"></i>Wissen</a>
-            <a data-om-id="ab1b7f4c:82"><i data-om-id="ab1b7f4c:83"></i>Marketing</a>
-            <a data-om-id="ab1b7f4c:84"><i data-om-id="ab1b7f4c:85"></i>Analytics</a>
+    <div class="hero-screen sr">
+      <div class="hero-screen-bar"><i></i><i></i><i></i></div>
+      <div class="hero-screen-body">
+        <div class="hsb-side">
+          <div class="hsb-logo"><span></span>M&amp;H Cockpit</div>
+          <div class="hsb-nav">
+            <a class="on"><i></i>Übersicht</a>
+            <a><i></i>Voice Agent</a>
+            <a><i></i>Kalender</a>
+            <a><i></i>CRM</a>
+            <a><i></i>Wissen</a>
+            <a><i></i>Marketing</a>
+            <a><i></i>Analytics</a>
           </div>
         </div>
-        <div class="hsb-main" data-om-id="ab1b7f4c:86">
-          <div class="hsb-head" data-om-id="ab1b7f4c:87">
-            <h3 data-om-id="ab1b7f4c:88">Übersicht · Heute</h3>
-            <span class="pill" data-om-id="ab1b7f4c:89">● Live</span>
+        <div class="hsb-main">
+          <div class="hsb-head">
+            <h3>Übersicht · Heute</h3>
+            <span class="pill">● Live</span>
           </div>
-          <div class="hsb-stats" data-om-id="ab1b7f4c:90">
-            <div class="hsb-stat" data-om-id="ab1b7f4c:91"><div class="hsb-stat-l" data-om-id="ab1b7f4c:92">Anrufe</div><div class="hsb-stat-v" data-om-id="ab1b7f4c:93">142</div><div class="hsb-stat-d" data-om-id="ab1b7f4c:94">↑ 18%</div></div>
-            <div class="hsb-stat" data-om-id="ab1b7f4c:95"><div class="hsb-stat-l" data-om-id="ab1b7f4c:96">Buchungen</div><div class="hsb-stat-v" data-om-id="ab1b7f4c:97">37</div><div class="hsb-stat-d" data-om-id="ab1b7f4c:98">↑ 24%</div></div>
-            <div class="hsb-stat" data-om-id="ab1b7f4c:99"><div class="hsb-stat-l" data-om-id="ab1b7f4c:100">Leads</div><div class="hsb-stat-v" data-om-id="ab1b7f4c:101">214</div><div class="hsb-stat-d" data-om-id="ab1b7f4c:102">↑ 9%</div></div>
-            <div class="hsb-stat" data-om-id="ab1b7f4c:103"><div class="hsb-stat-l" data-om-id="ab1b7f4c:104">No-Shows</div><div class="hsb-stat-v" data-om-id="ab1b7f4c:105">2.1%</div><div class="hsb-stat-d dn" data-om-id="ab1b7f4c:106">↓ 4%</div></div>
+          <div class="hsb-stats">
+            <div class="hsb-stat"><div class="hsb-stat-l">Anrufe</div><div class="hsb-stat-v">142</div><div class="hsb-stat-d">↑ 18%</div></div>
+            <div class="hsb-stat"><div class="hsb-stat-l">Buchungen</div><div class="hsb-stat-v">37</div><div class="hsb-stat-d">↑ 24%</div></div>
+            <div class="hsb-stat"><div class="hsb-stat-l">Leads</div><div class="hsb-stat-v">214</div><div class="hsb-stat-d">↑ 9%</div></div>
+            <div class="hsb-stat"><div class="hsb-stat-l">No-Shows</div><div class="hsb-stat-v">2.1%</div><div class="hsb-stat-d dn">↓ 4%</div></div>
           </div>
-          <div class="hsb-row" data-om-id="ab1b7f4c:107">
-            <div class="hsb-card" data-om-id="ab1b7f4c:108">
-              <div class="hsb-card-t" data-om-id="ab1b7f4c:109">Anfragen letzte 30 Tage</div>
-              <div class="hsb-chart" data-om-id="ab1b7f4c:110">
-                <svg viewBox="0 0 400 130" preserveAspectRatio="none" data-om-id="ab1b7f4c:111">
-                  <defs data-om-id="ab1b7f4c:112"><lineargradient id="g1" x1="0" x2="0" y1="0" y2="1" data-om-id="ab1b7f4c:113"><stop offset="0" stop-color="#5278FF" stop-opacity=".5" data-om-id="ab1b7f4c:114"></stop><stop offset="1" stop-color="#5278FF" stop-opacity="0" data-om-id="ab1b7f4c:115"></stop></lineargradient></defs>
-                  <path d="M0 100 L40 92 L80 78 L120 84 L160 60 L200 58 L240 40 L280 50 L320 30 L360 22 L400 10 L400 130 L0 130 Z" fill="url(#g1)" data-om-id="ab1b7f4c:116"></path>
-                  <path d="M0 100 L40 92 L80 78 L120 84 L160 60 L200 58 L240 40 L280 50 L320 30 L360 22 L400 10" fill="none" stroke="#5278FF" stroke-width="2" data-om-id="ab1b7f4c:117"></path>
+          <div class="hsb-row">
+            <div class="hsb-card">
+              <div class="hsb-card-t">Anfragen letzte 30 Tage</div>
+              <div class="hsb-chart">
+                <svg viewBox="0 0 400 130" preserveAspectRatio="none">
+                  <defs><lineargradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5278FF" stop-opacity=".5"></stop><stop offset="1" stop-color="#5278FF" stop-opacity="0"></stop></lineargradient></defs>
+                  <path d="M0 100 L40 92 L80 78 L120 84 L160 60 L200 58 L240 40 L280 50 L320 30 L360 22 L400 10 L400 130 L0 130 Z" fill="url(#g1)"></path>
+                  <path d="M0 100 L40 92 L80 78 L120 84 L160 60 L200 58 L240 40 L280 50 L320 30 L360 22 L400 10" fill="none" stroke="#5278FF" stroke-width="2"></path>
                 </svg>
               </div>
             </div>
-            <div class="hsb-card" data-om-id="ab1b7f4c:118">
-              <div class="hsb-card-t" data-om-id="ab1b7f4c:119">KI-Vorschläge</div>
-              <div class="ai-list" data-om-id="ab1b7f4c:120">
-                <div class="ai-item" data-om-id="ab1b7f4c:121"><div class="ai-item-icon" data-om-id="ab1b7f4c:122">★</div><div class="ai-item-txt" data-om-id="ab1b7f4c:123"><b data-om-id="ab1b7f4c:124">+12% Conversion</b><br data-om-id="ab1b7f4c:125">Wenn du nach 18 Uhr antwortest.</div></div>
-                <div class="ai-item" data-om-id="ab1b7f4c:126"><div class="ai-item-icon" data-om-id="ab1b7f4c:127">⚡</div><div class="ai-item-txt" data-om-id="ab1b7f4c:128"><b data-om-id="ab1b7f4c:129">3 Follow-ups</b><br data-om-id="ab1b7f4c:130">warten seit 48 h.</div></div>
+            <div class="hsb-card">
+              <div class="hsb-card-t">KI-Vorschläge</div>
+              <div class="ai-list">
+                <div class="ai-item"><div class="ai-item-icon">★</div><div class="ai-item-txt"><b>+12% Conversion</b><br>Wenn du nach 18 Uhr antwortest.</div></div>
+                <div class="ai-item"><div class="ai-item-icon">⚡</div><div class="ai-item-txt"><b>3 Follow-ups</b><br>warten seit 48 h.</div></div>
               </div>
             </div>
           </div>
@@ -870,15 +865,15 @@ section{padding:120px 24px;position:relative}
 </section>
 
 <!-- ═════ MODULES BENTO ═════ -->
-<section id="module" class="modules" data-om-id="ab1b7f4c:131">
-  <div class="wrap" data-om-id="ab1b7f4c:132">
-    <div class="modules-head sr" data-om-id="ab1b7f4c:133">
-      <div class="lbl" data-om-id="ab1b7f4c:134"><span class="lbl-dot" data-om-id="ab1b7f4c:135"></span>Plattform · Module</div>
-      <h2 class="h2" data-om-id="ab1b7f4c:136">Jedes System einzeln. <em data-om-id="ab1b7f4c:137">Alle zusammen unschlagbar.</em></h2>
-      <p class="sub" data-om-id="ab1b7f4c:138">Du startest mit dem System, das den größten Engpass löst — und ergänzt nach und nach. Im Dashboard wachsen alle Module zu einer einzigen Plattform zusammen.</p>
+<section id="module" class="modules">
+  <div class="wrap">
+    <div class="modules-head sr">
+      <div class="lbl"><span class="lbl-dot"></span>Plattform · Module</div>
+      <h2 class="h2">Jedes System einzeln. <em>Alle zusammen unschlagbar.</em></h2>
+      <p class="sub">Du startest mit dem System, das den größten Engpass löst — und ergänzt nach und nach. Im Dashboard wachsen alle Module zu einer einzigen Plattform zusammen.</p>
     </div>
 
-    <div class="bento" data-om-id="ab1b7f4c:139">
+    <div class="bento">
 
       <!-- 1 — Websites -->
       <article class="b b-1 sr">
@@ -918,113 +913,113 @@ section{padding:120px 24px;position:relative}
       </article>
 
       <!-- 3 — Knowledge -->
-      <article class="b b-3 sr" data-om-id="ab1b7f4c:220">
-        <span class="b-tag" data-om-id="ab1b7f4c:221">03 · Wissen / RAG</span>
-        <h3 data-om-id="ab1b7f4c:222">Quellenbasierte Antworten aus deinen Dokumenten.</h3>
-        <p data-om-id="ab1b7f4c:223">PDFs, Preislisten, FAQs — deine KI greift zuverlässig auf dein internes Wissen zu, intern wie extern.</p>
-        <div class="kb-list" data-om-id="ab1b7f4c:224">
-          <div class="kb-item" data-om-id="ab1b7f4c:225"><div class="kb-icon pdf" data-om-id="ab1b7f4c:226">PDF</div><div class="kb-name" data-om-id="ab1b7f4c:227">Preisliste 2026.pdf</div><div class="kb-meta" data-om-id="ab1b7f4c:228">2,4 MB</div></div>
-          <div class="kb-item" data-om-id="ab1b7f4c:229"><div class="kb-icon doc" data-om-id="ab1b7f4c:230">DOC</div><div class="kb-name" data-om-id="ab1b7f4c:231">Onboarding · Standardprozess</div><div class="kb-meta" data-om-id="ab1b7f4c:232">v3.1</div></div>
-          <div class="kb-item" data-om-id="ab1b7f4c:233"><div class="kb-icon faq" data-om-id="ab1b7f4c:234">FAQ</div><div class="kb-name" data-om-id="ab1b7f4c:235">Kunden-Fragen Top 50</div><div class="kb-meta" data-om-id="ab1b7f4c:236">live</div></div>
+      <article class="b b-3 sr">
+        <span class="b-tag">03 · Wissen / RAG</span>
+        <h3>Quellenbasierte Antworten aus deinen Dokumenten.</h3>
+        <p>PDFs, Preislisten, FAQs — deine KI greift zuverlässig auf dein internes Wissen zu, intern wie extern.</p>
+        <div class="kb-list">
+          <div class="kb-item"><div class="kb-icon pdf">PDF</div><div class="kb-name">Preisliste 2026.pdf</div><div class="kb-meta">2,4 MB</div></div>
+          <div class="kb-item"><div class="kb-icon doc">DOC</div><div class="kb-name">Onboarding · Standardprozess</div><div class="kb-meta">v3.1</div></div>
+          <div class="kb-item"><div class="kb-icon faq">FAQ</div><div class="kb-name">Kunden-Fragen Top 50</div><div class="kb-meta">live</div></div>
         </div>
       </article>
 
       <!-- 4 — CRM -->
-      <article class="b b-4 sr" data-om-id="ab1b7f4c:237">
-        <span class="b-tag" data-om-id="ab1b7f4c:238">04 · CRM</span>
-        <h3 data-om-id="ab1b7f4c:239">Leads, Kunden, Follow-ups — an einem Ort.</h3>
-        <p data-om-id="ab1b7f4c:240">Zentrale Datenverwaltung mit Automatisierungen für Kontaktpflege und Kampagnen.</p>
-        <div class="crm-mini" data-om-id="ab1b7f4c:241">
-          <div class="crm-col" data-om-id="ab1b7f4c:242">
-            <div class="crm-col-h" data-om-id="ab1b7f4c:243">Neu <b data-om-id="ab1b7f4c:244">12</b></div>
-            <div class="crm-card hot" data-om-id="ab1b7f4c:245">Müller GmbH<div class="crm-card-c" data-om-id="ab1b7f4c:246">€ 8.400</div></div>
-            <div class="crm-card" data-om-id="ab1b7f4c:247">Lex KG<div class="crm-card-c" data-om-id="ab1b7f4c:248">€ 2.100</div></div>
+      <article class="b b-4 sr">
+        <span class="b-tag">04 · CRM</span>
+        <h3>Leads, Kunden, Follow-ups — an einem Ort.</h3>
+        <p>Zentrale Datenverwaltung mit Automatisierungen für Kontaktpflege und Kampagnen.</p>
+        <div class="crm-mini">
+          <div class="crm-col">
+            <div class="crm-col-h">Neu <b>12</b></div>
+            <div class="crm-card hot">Müller GmbH<div class="crm-card-c">€ 8.400</div></div>
+            <div class="crm-card">Lex KG<div class="crm-card-c">€ 2.100</div></div>
           </div>
-          <div class="crm-col" data-om-id="ab1b7f4c:249">
-            <div class="crm-col-h" data-om-id="ab1b7f4c:250">Termin <b data-om-id="ab1b7f4c:251">5</b></div>
-            <div class="crm-card hot" data-om-id="ab1b7f4c:252">Auto Hauser<div class="crm-card-c" data-om-id="ab1b7f4c:253">€ 14.000</div></div>
+          <div class="crm-col">
+            <div class="crm-col-h">Termin <b>5</b></div>
+            <div class="crm-card hot">Auto Hauser<div class="crm-card-c">€ 14.000</div></div>
           </div>
-          <div class="crm-col" data-om-id="ab1b7f4c:254">
-            <div class="crm-col-h" data-om-id="ab1b7f4c:255">Gewonnen <b data-om-id="ab1b7f4c:256">9</b></div>
-            <div class="crm-card" data-om-id="ab1b7f4c:257">Bäckerei B.<div class="crm-card-c" data-om-id="ab1b7f4c:258">€ 4.200</div></div>
+          <div class="crm-col">
+            <div class="crm-col-h">Gewonnen <b>9</b></div>
+            <div class="crm-card">Bäckerei B.<div class="crm-card-c">€ 4.200</div></div>
           </div>
         </div>
       </article>
 
       <!-- 5 — Marketing -->
-      <article class="b b-5 sr" data-om-id="ab1b7f4c:259">
-        <span class="b-tag" data-om-id="ab1b7f4c:260">05 · Marketing &amp; Ads</span>
-        <h3 data-om-id="ab1b7f4c:261">Kampagnen, Anzeigen, Conversion — auf einen Blick.</h3>
-        <p data-om-id="ab1b7f4c:262">Performance-Auswertung über alle Kanäle, mit klaren KI-Empfehlungen, was als Nächstes zu tun ist.</p>
-        <div class="mk-mini" data-om-id="ab1b7f4c:263">
-          <div class="mk-bar" data-v="1.2k" style="height:42%" data-om-id="ab1b7f4c:264"></div>
-          <div class="mk-bar alt" data-v="2.4k" style="height:64%" data-om-id="ab1b7f4c:265"></div>
-          <div class="mk-bar" data-v="3.1k" style="height:78%" data-om-id="ab1b7f4c:266"></div>
-          <div class="mk-bar alt" data-v="2.8k" style="height:70%" data-om-id="ab1b7f4c:267"></div>
-          <div class="mk-bar" data-v="4.6k" style="height:92%" data-om-id="ab1b7f4c:268"></div>
-          <div class="mk-bar alt" data-v="3.9k" style="height:84%" data-om-id="ab1b7f4c:269"></div>
-          <div class="mk-bar" data-v="5.2k" style="height:100%" data-om-id="ab1b7f4c:270"></div>
+      <article class="b b-5 sr">
+        <span class="b-tag">05 · Marketing &amp; Ads</span>
+        <h3>Kampagnen, Anzeigen, Conversion — auf einen Blick.</h3>
+        <p>Performance-Auswertung über alle Kanäle, mit klaren KI-Empfehlungen, was als Nächstes zu tun ist.</p>
+        <div class="mk-mini">
+          <div class="mk-bar" data-v="1.2k" style="height:42%"></div>
+          <div class="mk-bar alt" data-v="2.4k" style="height:64%"></div>
+          <div class="mk-bar" data-v="3.1k" style="height:78%"></div>
+          <div class="mk-bar alt" data-v="2.8k" style="height:70%"></div>
+          <div class="mk-bar" data-v="4.6k" style="height:92%"></div>
+          <div class="mk-bar alt" data-v="3.9k" style="height:84%"></div>
+          <div class="mk-bar" data-v="5.2k" style="height:100%"></div>
         </div>
       </article>
 
       <!-- 6 — Analytics -->
-      <article class="b b-6 sr" data-om-id="ab1b7f4c:271">
-        <span class="b-tag" data-om-id="ab1b7f4c:272">06 · Website Analytics</span>
-        <h3 data-om-id="ab1b7f4c:273">Echtzeit-Daten, die wirklich zeigen, was passiert.</h3>
-        <p data-om-id="ab1b7f4c:274">Besucher, Conversion, Anfragen — tief verzahnt mit CRM und Voice Agent. Du siehst, welcher Kanal wirklich funktioniert.</p>
-        <div class="an-mini" data-om-id="ab1b7f4c:275">
-          <svg viewBox="0 0 600 140" preserveAspectRatio="none" data-om-id="ab1b7f4c:276">
-            <defs data-om-id="ab1b7f4c:277">
-              <lineargradient id="g2" x1="0" x2="0" y1="0" y2="1" data-om-id="ab1b7f4c:278"><stop offset="0" stop-color="#2F5CFF" stop-opacity=".25" data-om-id="ab1b7f4c:279"></stop><stop offset="1" stop-color="#2F5CFF" stop-opacity="0" data-om-id="ab1b7f4c:280"></stop></lineargradient>
+      <article class="b b-6 sr">
+        <span class="b-tag">06 · Website Analytics</span>
+        <h3>Echtzeit-Daten, die wirklich zeigen, was passiert.</h3>
+        <p>Besucher, Conversion, Anfragen — tief verzahnt mit CRM und Voice Agent. Du siehst, welcher Kanal wirklich funktioniert.</p>
+        <div class="an-mini">
+          <svg viewBox="0 0 600 140" preserveAspectRatio="none">
+            <defs>
+              <lineargradient id="g2" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#2F5CFF" stop-opacity=".25"></stop><stop offset="1" stop-color="#2F5CFF" stop-opacity="0"></stop></lineargradient>
             </defs>
-            <path d="M0 110 L60 96 L120 100 L180 78 L240 86 L300 60 L360 70 L420 44 L480 52 L540 28 L600 20 L600 140 L0 140 Z" fill="url(#g2)" data-om-id="ab1b7f4c:281"></path>
-            <path d="M0 110 L60 96 L120 100 L180 78 L240 86 L300 60 L360 70 L420 44 L480 52 L540 28 L600 20" fill="none" stroke="#2F5CFF" stroke-width="2.5" data-om-id="ab1b7f4c:282"></path>
-            <path d="M0 124 L60 118 L120 122 L180 110 L240 116 L300 100 L360 108 L420 92 L480 100 L540 84 L600 78" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 4" data-om-id="ab1b7f4c:283"></path>
+            <path d="M0 110 L60 96 L120 100 L180 78 L240 86 L300 60 L360 70 L420 44 L480 52 L540 28 L600 20 L600 140 L0 140 Z" fill="url(#g2)"></path>
+            <path d="M0 110 L60 96 L120 100 L180 78 L240 86 L300 60 L360 70 L420 44 L480 52 L540 28 L600 20" fill="none" stroke="#2F5CFF" stroke-width="2.5"></path>
+            <path d="M0 124 L60 118 L120 122 L180 110 L240 116 L300 100 L360 108 L420 92 L480 100 L540 84 L600 78" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 4"></path>
           </svg>
         </div>
       </article>
 
       <!-- 7 — Webdesign -->
-      <article class="b b-7 sr" data-om-id="ab1b7f4c:284">
-        <span class="b-tag" data-om-id="ab1b7f4c:285">07 · Premium Webdesign</span>
-        <h3 data-om-id="ab1b7f4c:286">Individuell. Schnell. Conversion-stark.</h3>
-        <p data-om-id="ab1b7f4c:287">Keine Templates. Eigene Webseiten, technisch sauber, mobiloptimiert, DSGVO-konform — gebaut auf Conversion und nahtlos verbunden mit Voice Agent &amp; CRM.</p>
-        <div class="wd-mini" data-om-id="ab1b7f4c:288">[ Hi-Fi Mockup deiner Seite ]</div>
+      <article class="b b-7 sr">
+        <span class="b-tag">07 · Premium Webdesign</span>
+        <h3>Individuell. Schnell. Conversion-stark.</h3>
+        <p>Keine Templates. Eigene Webseiten, technisch sauber, mobiloptimiert, DSGVO-konform — gebaut auf Conversion und nahtlos verbunden mit Voice Agent &amp; CRM.</p>
+        <div class="wd-mini">[ Hi-Fi Mockup deiner Seite ]</div>
       </article>
 
       <!-- 8 — Dashboard CTA dark -->
-      <article class="b b-8 sr" data-om-id="ab1b7f4c:289">
-        <span class="b-tag" data-om-id="ab1b7f4c:290">08 · Dashboard</span>
-        <h3 data-om-id="ab1b7f4c:291">Das Cockpit, das alles verbindet.</h3>
-        <p data-om-id="ab1b7f4c:292">Die zentrale Plattform — eine KI-Zentrale für dein Unternehmen. Voice, Kalender, CRM, Analytics — ein Login, ein Datenraum.</p>
-        <div class="dash-vis" data-om-id="ab1b7f4c:293">
-          <div class="dash-vis-side" data-om-id="ab1b7f4c:294"><i class="act" data-om-id="ab1b7f4c:295"></i><i data-om-id="ab1b7f4c:296"></i><i data-om-id="ab1b7f4c:297"></i><i data-om-id="ab1b7f4c:298"></i><i data-om-id="ab1b7f4c:299"></i></div>
-          <div class="dash-vis-main" data-om-id="ab1b7f4c:300">
-            <div class="dash-vis-main-top" data-om-id="ab1b7f4c:301"><i data-om-id="ab1b7f4c:302"></i><i data-om-id="ab1b7f4c:303"></i><i data-om-id="ab1b7f4c:304"></i></div>
-            <div class="dash-vis-main-bot" data-om-id="ab1b7f4c:305"><i style="height:30%" data-om-id="ab1b7f4c:306"></i><i style="height:55%" data-om-id="ab1b7f4c:307"></i><i style="height:42%" data-om-id="ab1b7f4c:308"></i><i style="height:70%" data-om-id="ab1b7f4c:309"></i><i style="height:60%" data-om-id="ab1b7f4c:310"></i><i style="height:88%" data-om-id="ab1b7f4c:311"></i><i style="height:75%" data-om-id="ab1b7f4c:312"></i><i style="height:96%" data-om-id="ab1b7f4c:313"></i></div>
+      <article class="b b-8 sr">
+        <span class="b-tag">08 · Dashboard</span>
+        <h3>Das Cockpit, das alles verbindet.</h3>
+        <p>Die zentrale Plattform — eine KI-Zentrale für dein Unternehmen. Voice, Kalender, CRM, Analytics — ein Login, ein Datenraum.</p>
+        <div class="dash-vis">
+          <div class="dash-vis-side"><i class="act"></i><i></i><i></i><i></i><i></i></div>
+          <div class="dash-vis-main">
+            <div class="dash-vis-main-top"><i></i><i></i><i></i></div>
+            <div class="dash-vis-main-bot"><i style="height:30%"></i><i style="height:55%"></i><i style="height:42%"></i><i style="height:70%"></i><i style="height:60%"></i><i style="height:88%"></i><i style="height:75%"></i><i style="height:96%"></i></div>
           </div>
         </div>
       </article>
 
       <!-- 9 — KI-Schulung -->
-      <article class="b b-9 sr" data-om-id="ab1b7f4c:314">
-        <span class="b-tag" data-om-id="ab1b7f4c:315">09 · KI-Schulung</span>
-        <h3 data-om-id="ab1b7f4c:316">KI-Einführung, die wirklich ankommt.</h3>
-        <p data-om-id="ab1b7f4c:317">Wir setzen Claude Code ein, definieren Workflows und schulen dein Team — bis KI fester Teil eures Alltags ist.</p>
-        <ul class="b-list" data-om-id="ab1b7f4c:318">
-          <li data-om-id="ab1b7f4c:319"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:320"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:321"></polyline></svg>Tool-Empfehlungen passend zu deiner Branche</li>
-          <li data-om-id="ab1b7f4c:322"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:323"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:324"></polyline></svg>Sichere Nutzung &amp; Datenschutz</li>
+      <article class="b b-9 sr">
+        <span class="b-tag">09 · KI-Schulung</span>
+        <h3>KI-Einführung, die wirklich ankommt.</h3>
+        <p>Wir setzen Claude Code ein, definieren Workflows und schulen dein Team — bis KI fester Teil eures Alltags ist.</p>
+        <ul class="b-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Tool-Empfehlungen passend zu deiner Branche</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Sichere Nutzung &amp; Datenschutz</li>
         </ul>
       </article>
 
       <!-- 10 — Custom KI -->
-      <article class="b b-10 sr" data-om-id="ab1b7f4c:325">
-        <span class="b-tag" data-om-id="ab1b7f4c:326">10 · Individuelle KI</span>
-        <h3 data-om-id="ab1b7f4c:327">Maßgeschneiderte Systeme.</h3>
-        <p data-om-id="ab1b7f4c:328">Eigene Agenten, individuelle Automatisierungen, interne KI-Workflows — gebaut für genau deinen Prozess.</p>
-        <ul class="b-list" data-om-id="ab1b7f4c:329">
-          <li data-om-id="ab1b7f4c:330"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:331"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:332"></polyline></svg>n8n, Make &amp; Custom-API-Integrationen</li>
-          <li data-om-id="ab1b7f4c:333"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-om-id="ab1b7f4c:334"><polyline points="20 6 9 17 4 12" data-om-id="ab1b7f4c:335"></polyline></svg>Eigene RAG- &amp; Agenten-Systeme</li>
+      <article class="b b-10 sr">
+        <span class="b-tag">10 · Individuelle KI</span>
+        <h3>Maßgeschneiderte Systeme.</h3>
+        <p>Eigene Agenten, individuelle Automatisierungen, interne KI-Workflows — gebaut für genau deinen Prozess.</p>
+        <ul class="b-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>n8n, Make &amp; Custom-API-Integrationen</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Eigene RAG- &amp; Agenten-Systeme</li>
         </ul>
       </article>
 
@@ -1152,16 +1147,16 @@ section{padding:120px 24px;position:relative}
 </section>
 
 <!-- ═════ FORM ═════ -->
-<section id="formular" class="form-section" data-om-id="ab1b7f4c:590">
-  <div class="form-head" data-om-id="ab1b7f4c:591">
-    <div class="lbl sr" data-om-id="ab1b7f4c:592"><span class="lbl-dot" data-om-id="ab1b7f4c:593"></span>Erstgespräch · 30 Min · kostenlos</div>
-    <h2 class="sr sd1" data-om-id="ab1b7f4c:594">Lass uns sprechen.<br data-om-id="ab1b7f4c:595"><em data-om-id="ab1b7f4c:596">Wir bauen dein System.</em></h2>
-    <p class="sr sd2" data-om-id="ab1b7f4c:597">Du wählst einen Slot, beantwortest 6 kurze Fragen — den Rest übernehme ich. Du sprichst direkt mit dem Entwickler.</p>
+<section id="formular" class="form-section">
+  <div class="form-head">
+    <div class="lbl sr"><span class="lbl-dot"></span>Erstgespräch · 30 Min · kostenlos</div>
+    <h2 class="sr sd1">Lass uns sprechen.<br><em>Wir bauen dein System.</em></h2>
+    <p class="sr sd2">Du wählst einen Slot, beantwortest 6 kurze Fragen — den Rest übernehme ich. Du sprichst direkt mit dem Entwickler.</p>
   </div>
-  <div class="form-shell sr" data-om-id="ab1b7f4c:598">
-    <iframe id="bookingFrame" class="form-iframe" src="./formular-embed.html" loading="lazy" title="Termin buchen" data-om-id="ab1b7f4c:599"></iframe>
+  <div class="form-shell sr">
+    <iframe id="bookingFrame" class="form-iframe" src="./formular-embed.html" loading="lazy" title="Termin buchen"></iframe>
   </div>
-  <p class="form-cap" data-om-id="ab1b7f4c:600">🔒 DSGVO-konform · Vertraulich · Keine Weitergabe an Dritte</p>
+  <p class="form-cap">🔒 DSGVO-konform · Vertraulich · Keine Weitergabe an Dritte</p>
 </section>
 
 <!-- ═════ FOOTER ═════ -->
@@ -1181,7 +1176,10 @@ section{padding:120px 24px;position:relative}
   <div class="foot-ghost">M&amp;H ASSISTENZ</div>
   <div class="foot-bot">
     <span>© 2026 M&amp;H Assistenz · Alle Rechte vorbehalten</span>
-    <span>Made in Germany · Hosting in der EU</span>
+    <nav style="display:flex;gap:16px;flex-wrap:wrap;">
+      <a href="impressum.html" style="color:inherit;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Impressum</a>
+      <a href="datenschutz.html" style="color:inherit;text-decoration:none;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">Datenschutz</a>
+    </nav>
   </div>
 </footer>
 

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutzerklärung — M&amp;H Assistenz</title>
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=geist:300,400,500,600,700,800,900|geist-mono:400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-l:#5278FF;--gold-ll:#A0B4FF;
+  --gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#F5F5F5;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --dark:#111111;
+  --font-d:'Geist',system-ui,sans-serif;
+  --font-b:'Geist',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);--max:760px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.05);
+  --shadow-md:0 6px 24px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{font-family:var(--font-b);background:var(--white);color:var(--text);font-size:15px;line-height:1.7;padding-top:72px;}
+
+.site-header{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  position:fixed;top:0;left:0;right:0;z-index:999;height:72px;
+}
+.header-logo{height:52px;width:auto;object-fit:contain;display:block;padding:6px 0;}
+.header-back{
+  display:inline-flex;align-items:center;gap:7px;font-family:var(--font-b);
+  font-size:13px;font-weight:600;color:var(--text-2);
+  border:1.5px solid var(--border);border-radius:999px;padding:9px 20px;
+  text-decoration:none;background:var(--white);transition:all .2s var(--ease);
+}
+.header-back:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.header-back svg{width:14px;height:14px;}
+
+.legal-wrap{max-width:var(--max);margin:0 auto;padding:64px 24px 96px;}
+.legal-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-2);background:var(--bg);border:1px solid var(--border);
+  border-radius:999px;padding:6px 18px;margin-bottom:32px;
+}
+.legal-title{
+  font-family:var(--font-d);font-size:clamp(32px,5vw,52px);font-weight:800;
+  line-height:1.05;letter-spacing:-.035em;color:var(--text);margin-bottom:12px;
+}
+.legal-title em{font-style:normal;color:var(--gold);}
+.legal-meta{font-size:13px;color:var(--text-3);margin-bottom:52px;}
+
+.legal-block{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:16px;padding:32px;margin-bottom:16px;
+  box-shadow:var(--shadow-sm);
+}
+.legal-block:hover{box-shadow:var(--shadow-md);transition:box-shadow .2s var(--ease);}
+.block-label{
+  font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+}
+.block-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px;letter-spacing:-.02em;}
+.block-body{font-size:14px;color:var(--text-2);line-height:1.75;}
+.block-body p{margin-bottom:12px;}
+.block-body p:last-child{margin-bottom:0;}
+.block-body strong{color:var(--text);font-weight:600;}
+.block-body a{color:var(--gold);text-decoration:none;}
+.block-body a:hover{text-decoration:underline;}
+.block-body ul{padding-left:20px;margin-bottom:12px;}
+.block-body ul li{margin-bottom:6px;}
+.block-body .art-badge{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--gold-bg);color:var(--gold);
+  border:1px solid var(--gold-border);border-radius:6px;padding:2px 8px;
+  margin-left:6px;vertical-align:middle;
+}
+
+.toc{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:14px;padding:24px 28px;margin-bottom:32px;
+}
+.toc-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;}
+.toc ol{padding-left:18px;}
+.toc ol li{margin-bottom:6px;}
+.toc ol li a{font-size:13px;color:var(--text-2);text-decoration:none;font-weight:500;}
+.toc ol li a:hover{color:var(--gold);}
+
+.site-footer{background:var(--dark);padding:40px 24px;margin-top:80px;text-align:center;}
+.footer-inner{max-width:var(--max);margin:0 auto;}
+.footer-copy{font-size:12px;color:#555;margin-bottom:16px;}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;}
+.footer-links a{font-size:12px;color:#555;text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:#888;}
+.footer-links a.active{color:var(--gold);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html">
+    <img src="logo.png" alt="M&amp;H Assistenz" class="header-logo">
+  </a>
+  <a href="index.html" class="header-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Zurück zur Website
+  </a>
+</header>
+
+<main class="legal-wrap">
+
+  <div class="legal-badge">Datenschutz</div>
+  <h1 class="legal-title">Datenschutz&shy;<em>erklärung</em></h1>
+  <p class="legal-meta">Stand: Mai 2026 · Verantwortlicher: M&amp;H Assistenz, Matthias Heuchemer</p>
+
+  <div class="toc">
+    <div class="toc-title">Inhaltsverzeichnis</div>
+    <ol>
+      <li><a href="#verantwortlicher">Verantwortlicher</a></li>
+      <li><a href="#grundsaetze">Grundsätze der Datenverarbeitung</a></li>
+      <li><a href="#hosting">Hosting (GitHub Pages)</a></li>
+      <li><a href="#fonts">Schriften (Bunny Fonts)</a></li>
+      <li><a href="#kontaktformular">Kontaktformular</a></li>
+      <li><a href="#chat">KI-Chat-Assistent</a></li>
+      <li><a href="#infrastruktur">Infrastruktur (n8n / Supabase)</a></li>
+      <li><a href="#externe-links">Externe Links</a></li>
+      <li><a href="#rechte">Ihre Rechte</a></li>
+      <li><a href="#sicherheit">Datensicherheit</a></li>
+    </ol>
+  </div>
+
+  <div class="legal-block" id="verantwortlicher">
+    <div class="block-label">§ 1</div>
+    <div class="block-title">Verantwortlicher</div>
+    <div class="block-body">
+      <p>
+        <strong>M&amp;H Assistenz</strong><br>
+        Inhaber: Matthias Heuchemer<br>
+        Tannenbergstraße 53<br>
+        56564 Neuwied<br>
+        Deutschland
+      </p>
+      <p>
+        <strong>Telefon:</strong> +49 172 1505142<br>
+        <strong>E-Mail:</strong> <a href="mailto:mh.ai.assistenz@gmail.com">mh.ai.assistenz@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="grundsaetze">
+    <div class="block-label">§ 2</div>
+    <div class="block-title">Grundsätze der Datenverarbeitung</div>
+    <div class="block-body">
+      <p>Wir verarbeiten personenbezogene Daten nur, soweit dies gesetzlich erlaubt oder durch Ihre Einwilligung gestattet ist. Grundlage ist die Datenschutz-Grundverordnung (DSGVO), das Bundesdatenschutzgesetz (BDSG) sowie das Telekommunikation-Digitale-Dienste-Datenschutz-Gesetz (TDDDG).</p>
+      <p>Wir erfassen <strong>keine</strong> Tracking-Cookies, kein Google Analytics, keinen Meta Pixel und keine sonstigen Analyse- oder Werbedienste.</p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="hosting">
+    <div class="block-label">§ 3</div>
+    <div class="block-title">Hosting (GitHub Pages)</div>
+    <div class="block-body">
+      <p>Diese Website wird über <strong>GitHub Pages</strong> gehostet. Anbieter: GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA (Microsoft-Konzern).</p>
+      <p>Beim Aufruf der Website übermittelt Ihr Browser technisch bedingt folgende Daten an GitHub-Server:</p>
+      <ul>
+        <li>IP-Adresse</li>
+        <li>Datum und Uhrzeit des Zugriffs</li>
+        <li>Browser-Typ und Betriebssystem</li>
+        <li>Aufgerufene Seite (Referrer)</li>
+      </ul>
+      <p>
+        <strong>Rechtsgrundlage:</strong> <span class="art-badge">Art. 6 Abs. 1 lit. f DSGVO</span> — berechtigtes Interesse an einem sicheren Betrieb der Website.
+      </p>
+      <p>Da GitHub Server in den USA betreibt, kann es zu einer Drittlandübermittlung kommen. GitHub hat Standardvertragsklauseln (SCCs) gemäß Art. 46 DSGVO vereinbart. Weitere Informationen: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Datenschutzerklärung</a>.</p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="fonts">
+    <div class="block-label">§ 4</div>
+    <div class="block-title">Schriften (Bunny Fonts)</div>
+    <div class="block-body">
+      <p>Diese Website verwendet Web-Schriften des Dienstes <strong>Bunny Fonts</strong>, betrieben von BunnyCDN (bunny.net, Luka Škrinjar, Drenikova ulica 11, 1000 Ljubljana, Slowenien — EU).</p>
+      <p>Bunny Fonts ist ein datenschutzfreundlicher Spiegel von Google Fonts, der <strong>keine IP-Adressen speichert</strong> und vollständig in der EU betrieben wird. Es werden keine personenbezogenen Daten an Drittländer übermittelt.</p>
+      <p>
+        <strong>Rechtsgrundlage:</strong> <span class="art-badge">Art. 6 Abs. 1 lit. f DSGVO</span> — berechtigtes Interesse an einer einheitlichen Darstellung der Website.
+      </p>
+      <p>Weitere Informationen: <a href="https://fonts.bunny.net/about" target="_blank" rel="noopener">fonts.bunny.net/about</a></p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="kontaktformular">
+    <div class="block-label">§ 5</div>
+    <div class="block-title">Kontaktformular</div>
+    <div class="block-body">
+      <p>Wenn Sie unser Kontaktformular nutzen, werden folgende Daten verarbeitet:</p>
+      <ul>
+        <li>Vor- und Nachname</li>
+        <li>E-Mail-Adresse</li>
+        <li>Telefonnummer (optional)</li>
+        <li>Unternehmensname und -größe</li>
+        <li>Beschreibung Ihres Anliegens</li>
+        <li>Gewünschte Dienstleistungen</li>
+        <li>Zeitstempel der Einreichung</li>
+      </ul>
+      <p>Die Daten werden über eine HTTPS-verschlüsselte Verbindung an unser Automatisierungssystem (n8n, gehostet bei Hostinger in der EU) übertragen und in unserer Datenbank (Supabase, EU-Region Frankfurt) gespeichert. <strong>Es erfolgt keine Weitergabe an Dritte.</strong></p>
+      <p>
+        <strong>Rechtsgrundlage:</strong> <span class="art-badge">Art. 6 Abs. 1 lit. b DSGVO</span> (Vertragsanbahnung) und <span class="art-badge">Art. 6 Abs. 1 lit. a DSGVO</span> (Einwilligung durch Absenden).<br>
+        <strong>Speicherdauer:</strong> Bis zu 3 Jahre nach Abschluss der Geschäftsbeziehung, danach Löschung.
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="chat">
+    <div class="block-label">§ 6</div>
+    <div class="block-title">KI-Chat-Assistent</div>
+    <div class="block-body">
+      <p>Auf dieser Website steht ein KI-gestützter Chat-Assistent zur Verfügung. Wenn Sie diesen nutzen, werden folgende Daten verarbeitet:</p>
+      <ul>
+        <li>Textinhalt Ihrer Nachrichten</li>
+        <li>IP-Adresse (technisch bedingt, nicht dauerhaft gespeichert)</li>
+        <li>Zeitstempel</li>
+      </ul>
+      <p>Ihre Nachrichten werden über HTTPS an unser n8n-System (EU-Server) übermittelt und durch ein KI-Sprachmodell verarbeitet. <strong>Bitte geben Sie keine sensiblen personenbezogenen Daten (z.B. Passwörter, Gesundheitsdaten, Ausweisdaten) im Chat ein.</strong></p>
+      <p>
+        <strong>Rechtsgrundlage:</strong> <span class="art-badge">Art. 6 Abs. 1 lit. a DSGVO</span> (Einwilligung durch aktive Nutzung).<br>
+        <strong>Speicherdauer:</strong> Chat-Protokolle werden nach spätestens 6 Monaten gelöscht.
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="infrastruktur">
+    <div class="block-label">§ 7</div>
+    <div class="block-title">Infrastruktur (n8n / Supabase)</div>
+    <div class="block-body">
+      <p><strong>n8n (Automatisierung):</strong> Unser Automatisierungssystem n8n ist auf einem Server bei Hostinger (EU) selbst gehostet. Alle Daten verbleiben in der EU.</p>
+      <p><strong>Supabase (Datenbank):</strong> Formulardaten werden in einer PostgreSQL-Datenbank bei Supabase (EU-Region eu-central-1, Frankfurt) gespeichert. Für die Verarbeitung besteht ein Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO. Weitere Informationen: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>.</p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="externe-links">
+    <div class="block-label">§ 8</div>
+    <div class="block-title">Externe Links</div>
+    <div class="block-body">
+      <p>Diese Website enthält Links zu externen Diensten. Beim Anklicken verlassen Sie unsere Website. Wir haben keinen Einfluss auf die Datenverarbeitung dieser Drittanbieter:</p>
+      <p><strong>LinkedIn</strong> (Microsoft Ireland Operations Ltd., One Microsoft Place, Dublin, Irland): Beim Aufruf von LinkedIn-Profilen gelten die <a href="https://www.linkedin.com/legal/privacy-policy" target="_blank" rel="noopener">Datenschutzrichtlinien von LinkedIn</a>.</p>
+      <p><strong>E-Mail (Gmail):</strong> Unser Kontakt-E-Mail-Dienst wird über Google LLC bereitgestellt. Für E-Mail-Kommunikation gelten die <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Datenschutzbestimmungen von Google</a>.</p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="rechte">
+    <div class="block-label">§ 9</div>
+    <div class="block-title">Ihre Rechte</div>
+    <div class="block-body">
+      <p>Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:</p>
+      <ul>
+        <li><strong>Auskunftsrecht</strong> (Art. 15 DSGVO)</li>
+        <li><strong>Recht auf Berichtigung</strong> (Art. 16 DSGVO)</li>
+        <li><strong>Recht auf Löschung</strong> (Art. 17 DSGVO)</li>
+        <li><strong>Recht auf Einschränkung der Verarbeitung</strong> (Art. 18 DSGVO)</li>
+        <li><strong>Recht auf Datenübertragbarkeit</strong> (Art. 20 DSGVO)</li>
+        <li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO)</li>
+        <li><strong>Recht auf Widerruf</strong> erteilter Einwilligungen (Art. 7 Abs. 3 DSGVO)</li>
+      </ul>
+      <p>Zur Ausübung Ihrer Rechte wenden Sie sich an: <a href="mailto:mh.ai.assistenz@gmail.com">mh.ai.assistenz@gmail.com</a></p>
+      <p>Außerdem haben Sie das Recht, sich bei der zuständigen Datenschutzbehörde zu beschweren:<br>
+      <strong>Landesbeauftragte für den Datenschutz und die Informationsfreiheit Rheinland-Pfalz</strong><br>
+      Hintere Bleiche 34, 55116 Mainz · <a href="mailto:poststelle@datenschutz.rlp.de">poststelle@datenschutz.rlp.de</a></p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="sicherheit">
+    <div class="block-label">§ 10</div>
+    <div class="block-title">Datensicherheit</div>
+    <div class="block-body">
+      <p>Diese Website nutzt aus Sicherheitsgründen eine <strong>SSL/TLS-Verschlüsselung</strong>. Eine verschlüsselte Verbindung erkennen Sie am „https://" in der Adresszeile Ihres Browsers.</p>
+      <p>Alle Datenübertragungen zwischen Ihrem Browser und unseren Systemen sowie zwischen unseren Systemen untereinander erfolgen ausschließlich verschlüsselt.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-copy">© <script>document.write(new Date().getFullYear())</script> M&amp;H Assistenz · Matthias Heuchemer · Neuwied</p>
+    <nav class="footer-links">
+      <a href="index.html">Startseite</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html" class="active">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
