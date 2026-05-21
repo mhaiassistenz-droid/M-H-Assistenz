@@ -255,12 +255,12 @@ section{padding:120px 24px;position:relative}
 .wd-mini{margin-top:14px;height:160px;border-radius:12px;background:repeating-linear-gradient(45deg,#f6f7fb,#f6f7fb 8px,#eef1ff 8px,#eef1ff 16px);border:1px dashed var(--blue-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--blue);font-weight:600;letter-spacing:.04em}
 
 /* ─────────────── DASHBOARD SHOWCASE ─────────────── */
-.dash-section{background:#f6f7fb;color:var(--ink);border-radius:32px 32px 0 0;margin-top:0;padding:120px 24px;position:relative;overflow:hidden}
+.dash-section{background:#f6f7fb;color:var(--ink);border-radius:32px 32px 0 0;margin-top:0;padding:120px 24px;position:relative;overflow:visible}
 .dash-section::before{display:none}
 .dash-head{text-align:center;margin-bottom:60px;position:relative;z-index:2}
 .dash-head .h2{color:var(--ink)}
 .dash-head .sub{color:var(--text-2);margin:18px auto 0}
-.dash-frame{position:relative;z-index:2;max-width:1240px;margin:0 auto;background:#fff;border-radius:18px;border:1px solid var(--border);box-shadow:0 24px 80px rgba(15,23,42,.08),0 4px 16px rgba(15,23,42,.04);overflow:hidden}
+.dash-frame{position:relative;z-index:2;max-width:1240px;margin:0 auto;background:#fff;border-radius:18px;border:1px solid var(--border);box-shadow:0 24px 80px rgba(15,23,42,.08),0 4px 16px rgba(15,23,42,.04);overflow:hidden;will-change:transform;transform-origin:50% 50%;transform:perspective(1400px) rotateX(16deg) scale(1.04)}
 .dash-frame-bar{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);background:#f8f9fb;align-items:center}
 .dash-frame-bar i{display:block;width:11px;height:11px;border-radius:50%}
 .dash-frame-bar i:nth-child(1){background:#ff5f57}
@@ -1216,6 +1216,23 @@ window.addEventListener('scroll', () => {
   else hdr.classList.remove('hidden');
   lastY = y;
 }, { passive: true });
+
+// Dashboard 3D scroll animation
+(function() {
+  const frame = document.querySelector('#dashboard .dash-frame');
+  const section = document.getElementById('dashboard');
+  if (!frame || !section) return;
+  function tick() {
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const t = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.85)));
+    const rotX = 16 * (1 - t);
+    const sc = 1 + 0.04 * (1 - t);
+    frame.style.transform = 'perspective(1400px) rotateX(' + rotX + 'deg) scale(' + sc + ')';
+  }
+  window.addEventListener('scroll', tick, { passive: true });
+  tick();
+})();
 
 // Form iframe auto-resize
 window.addEventListener('message', (e) => {
