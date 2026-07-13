@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data: https:; connect-src 'self' https://ajloxsiyevauwyxfpepn.supabase.co https://umami.srv1419118.hstgr.cloud https://n8n.srv1419118.hstgr.cloud https://claude.ai; frame-ancestors 'none'; form-action 'self' https://ajloxsiyevauwyxfpepn.supabase.co;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data: https:; connect-src 'self' https://ajloxsiyevauwyxfpepn.supabase.co https://umami.srv1419118.hstgr.cloud https://n8n.srv1419118.hstgr.cloud https://claude.ai; frame-src https://calendly.com; frame-ancestors 'none'; form-action 'self' https://ajloxsiyevauwyxfpepn.supabase.co;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>M&amp;H Assistenz</title>
 <link rel="preconnect" href="https://fonts.bunny.net">
@@ -385,7 +385,8 @@ section{padding:120px 24px;position:relative}
 .form-head h2 em{font-style:normal;background:linear-gradient(120deg,#fff,#a8baff);-webkit-background-clip:text;background-clip:text;color:transparent}
 .form-head p{font-size:18px;color:rgba(255,255,255,.7);line-height:1.6;max-width:560px;margin:0 auto}
 .form-shell{position:relative;z-index:2;max-width:900px;margin:0 auto;overflow:hidden}
-.form-iframe{width:100%;border:none;display:block;min-height:500px}
+.form-iframe{width:100%;border:none;display:block;height:760px;border-radius:14px;background:#fff}
+@media(max-width:640px){.form-iframe{height:1000px}}
 .form-cap{position:relative;z-index:2;text-align:center;margin-top:32px;color:rgba(255,255,255,.5);font-size:13px}
 
 /* ─────────────── FOOTER ─────────────── */
@@ -1154,10 +1155,10 @@ section{padding:120px 24px;position:relative}
   <div class="form-head">
     <div class="lbl sr"><span class="lbl-dot"></span>Erstgespräch · 30 Min · kostenlos</div>
     <h2 class="sr sd1">Lass uns sprechen.<br><em>Wir bauen dein System.</em></h2>
-    <p class="sr sd2">Du wählst einen Slot, beantwortest 6 kurze Fragen — den Rest übernehme ich. Du sprichst direkt mit dem Entwickler.</p>
+    <p class="sr sd2">Wähl direkt im Kalender einen freien Slot — 30 Minuten, kostenlos. Du sprichst direkt mit dem Entwickler.</p>
   </div>
   <div class="form-shell sr">
-    <iframe id="bookingFrame" class="form-iframe" src="./formular-embed.html" loading="lazy" title="Termin buchen"></iframe>
+    <iframe id="bookingFrame" class="form-iframe" src="https://calendly.com/matthias-heuchemer-mhassistenz/30min?embed_domain=mhassistenz.de&amp;embed_type=Inline&amp;primary_color=2F5CFF" loading="lazy" title="Termin buchen — Calendly"></iframe>
   </div>
   <p class="form-cap">🔒 DSGVO-konform · Vertraulich · Keine Weitergabe an Dritte</p>
 </section>
@@ -1241,13 +1242,6 @@ window.addEventListener('scroll', () => {
   tick();
 })();
 
-// Form iframe auto-resize
-window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'embed-resize' && typeof e.data.height === 'number') {
-    const f = document.getElementById('bookingFrame');
-    if (f) f.style.height = Math.max(900, e.data.height) + 'px';
-  }
-});
 </script>
 
 
