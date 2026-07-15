@@ -230,6 +230,10 @@ textarea{min-height:64px;resize:vertical;}
             <div class="f"><label>Telefon <span class="req">*</span></label><input id="fPhone" type="tel" placeholder="+49 …" autocomplete="tel" required><span class="ferr" id="errPhone">Pflichtfeld</span></div>
             <div class="f"><label>Branche <span class="req">*</span></label><input id="fBranche" type="text" placeholder="z. B. Handwerk, Immobilien …" required><span class="ferr" id="errBranche">Pflichtfeld</span></div>
           </div>
+          <div class="frow2">
+            <div class="f"><label>Social Media <span class="opt">(optional)</span></label><input id="fSocial" type="text" placeholder="Instagram / LinkedIn / TikTok …"></div>
+            <div class="f"><label>Website <span class="opt">(optional)</span></label><input id="fWebsite" type="text" placeholder="www.deine-website.de"></div>
+          </div>
           <div class="f"><label>Zusatzinformationen <span class="opt">(optional)</span></label><textarea id="fNote" placeholder="Worum geht es? Gibt es etwas, das ich vorab wissen sollte?"></textarea></div>
         </div>
         <div class="form-actions">
@@ -319,7 +323,9 @@ async function apiCreateBooking(payload){
       p_email:   payload.email,
       p_phone:   payload.phone,
       p_branche: payload.branche || null,
-      p_note:    payload.note || null
+      p_note:    payload.note || null,
+      p_social:  payload.social || null,
+      p_website: payload.website || null
     })
   });
   if(!r.ok){
@@ -638,7 +644,9 @@ async function doSubmit(){
     email:   document.getElementById('fEmail').value.trim().slice(0,160),
     phone:   document.getElementById('fPhone').value.trim().slice(0,40),
     branche: document.getElementById('fBranche').value.trim().slice(0,120),
-    note:    document.getElementById('fNote').value.trim().slice(0,1000)
+    note:    document.getElementById('fNote').value.trim().slice(0,1000),
+    social:  document.getElementById('fSocial').value.trim().slice(0,200),
+    website: document.getElementById('fWebsite').value.trim().slice(0,200)
   };
   try{
     await apiCreateBooking(payload);
