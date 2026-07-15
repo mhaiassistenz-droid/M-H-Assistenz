@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>M&amp;H Assistenz</title>
+<meta name="robots" content="noindex">
+<script>
+// Hübsche Termin-Links: /termin/<terminart> → Buchungsseite mit passender Terminart.
+// Alles andere → Startseite.
+(function () {
+  var m = location.pathname.match(/^\/termin\/([a-z0-9-]+)\/?$/i);
+  if (m) {
+    location.replace('/buchen.html?type=' + encodeURIComponent(m[1].toLowerCase()) + (location.search ? '&' + location.search.slice(1) : ''));
+  } else {
+    location.replace('/');
+  }
+})();
+</script>
+</head>
+<body>
+<p style="font-family:system-ui,sans-serif;padding:24px;">Einen Moment — du wirst weitergeleitet…</p>
+</body>
+</html>

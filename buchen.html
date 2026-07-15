@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://ajloxsiyevauwyxfpepn.supabase.co https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termin buchen — M&amp;H Assistenz</title>
+<meta name="description" content="Buche dir dein kostenloses Erstgespräch: Wir schauen gemeinsam, wo KI und Automatisierung in deinem Betrieb den größten Hebel haben.">
+<meta property="og:title" content="Kostenloses Erstgespräch buchen — M&amp;H Assistenz">
+<meta property="og:description" content="30 Minuten, Google Meet, unverbindlich: Wir finden gemeinsam, wo KI und Automatisierung in deinem Betrieb den größten Hebel haben.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mhassistenz.de/termin/erstgespraech">
+<meta property="og:image" content="https://mhassistenz.de/logo.png">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=geist:300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#F5F5F5;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --error:#b83a2c;--dark:#111111;
+  --font-b:'Geist',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{-webkit-font-smoothing:antialiased;font-family:var(--font-b);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 16px 48px;}
+.book-shell{width:100%;max-width:960px;background:var(--white);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;display:grid;grid-template-columns:290px 1fr;}
+.panel{border-right:1px solid var(--border);padding:22px 24px;display:flex;flex-direction:column;gap:13px;background:linear-gradient(180deg,#fff 0%,#FAFBFF 100%);}
+.p-brand{padding-bottom:16px;border-bottom:1px solid var(--border);}
+.p-brand img{width:100%;max-width:170px;height:auto;display:block;}
+.panel h1{font-size:22px;font-weight:800;line-height:1.25;color:var(--text);}
+.p-meta{display:flex;flex-direction:column;gap:9px;margin-top:2px;}
+.p-meta-row{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--text-2);}
+.p-meta-row svg{color:var(--gold);flex-shrink:0;}
+.p-desc{font-size:13px;color:var(--text-2);line-height:1.65;}
+.p-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:7px 11px;font-size:11px;font-weight:700;color:var(--gold);width:fit-content;}
+.p-foot{margin-top:auto;padding-top:16px;font-size:10px;color:var(--text-3);display:flex;gap:12px;}
+.p-foot a{color:var(--text-3);text-decoration:none;}
+.p-foot a:hover{color:var(--gold);}
+.flow{padding:0;min-height:440px;display:flex;flex-direction:column;}
+.cal-cols{display:grid;grid-template-columns:1fr;gap:0;transition:grid-template-columns .3s var(--ease);}
+.cal-cols.with-slots{grid-template-columns:1fr 236px;gap:20px;}
+.slots-col{display:none;flex-direction:column;border-left:1px solid var(--border);padding-left:20px;min-height:320px;}
+.cal-cols.with-slots .slots-col{display:flex;animation:fu .25s var(--ease);}
+.slots-head{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.slots-sub{font-size:10px;color:var(--text-3);margin-bottom:10px;}
+.slots-list{overflow-y:auto;max-height:330px;display:flex;flex-direction:column;gap:6px;padding-right:4px;}
+.slots-list .time-group-lbl{margin:4px 0 2px;}
+.slots-list .time-btn{width:100%;padding:10px 8px;}
+.slots-empty{font-size:12px;color:var(--text-3);padding:18px 4px;text-align:center;}
+.steps-bar{display:flex;align-items:center;gap:0;padding:16px 22px;border-bottom:1px solid var(--border);}
+.step-node{display:flex;align-items:center;gap:6px;}
+.step-circle{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--white);color:var(--text-3);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;}
+.step-circle.done{background:var(--gold);border-color:var(--gold);color:#fff;}
+.step-circle.active{background:var(--dark);border-color:var(--dark);color:#fff;}
+.step-lbl{font-size:11px;font-weight:600;color:var(--text-3);letter-spacing:.03em;transition:color .3s;}
+.step-lbl.active{color:var(--text);}
+.step-lbl.done{color:var(--gold);}
+.step-sep{flex:1;height:2px;background:var(--border);margin:0 8px;transition:background .3s;}
+.step-sep.done{background:var(--gold);}
+.stage{display:none;animation:fu .25s var(--ease);}
+.stage.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.cal-wrap,.time-wrap,.form-wrap{padding:18px 22px 22px;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-nav-btn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:14px;}
+.cal-nav-btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.cal-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.cal-month{font-size:15px;font-weight:700;color:var(--text);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:6px;}
+.cal-wd{font-size:10px;font-weight:600;color:var(--text-3);padding:3px 0;}
+.cal-wd.we{color:#f87171;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-day{aspect-ratio:1;border-radius:8px;border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;position:relative;transition:all .15s;}
+.cal-day.past{color:var(--text-3);opacity:.35;}
+.cal-day.avail{cursor:pointer;color:var(--text);border-color:var(--border);background:var(--white);}
+.cal-day.avail:hover{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);transform:scale(1.05);}
+.cal-day.avail::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:.6;}
+.cal-day.selected{border-color:var(--gold)!important;background:var(--gold)!important;color:#fff!important;}
+.cal-day.selected::after{background:#fff;}
+.cal-day.today-ring{box-shadow:0 0 0 2px var(--gold);}
+.tz-note{margin-top:12px;font-size:10px;color:var(--text-3);display:flex;align-items:center;gap:5px;}
+.time-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.btn-back-sm{background:none;border:1.5px solid var(--border);color:var(--text-2);padding:6px 12px;border-radius:7px;font-family:var(--font-b);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-back-sm:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.time-lbl{font-size:13px;font-weight:700;color:var(--text);}
+.time-hint{font-size:11px;color:var(--text-3);margin-bottom:12px;}
+.time-group{margin-bottom:14px;}
+.time-group-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;}
+.time-btn{padding:10px 6px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
+.time-btn:hover{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);transform:translateY(-1px);box-shadow:0 3px 10px rgba(47,92,255,.1);}
+.time-btn.selected{border-color:var(--gold);background:var(--gold);color:#fff;}
+.time-btn.booked{background:#f5f5f5;color:#bbb;border-color:#e5e5e5;cursor:not-allowed;text-decoration:line-through;}
+.slot-pill{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:8px 12px;margin-bottom:16px;font-size:12px;font-weight:600;color:var(--gold);}
+.fgroup{display:flex;flex-direction:column;gap:11px;}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.f{display:flex;flex-direction:column;gap:4px;}
+.f label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;gap:4px;}
+.req{color:var(--gold);}
+.opt{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3);}
+input,textarea{width:100%;padding:9px 11px;font-family:var(--font-b);font-size:13px;color:var(--text);background:var(--bg);border:1.5px solid var(--border);border-radius:7px;outline:none;transition:all .2s;-webkit-appearance:none;}
+input:focus,textarea:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(47,92,255,.08);}
+input.error,textarea.error{border-color:var(--error);}
+textarea{min-height:64px;resize:vertical;}
+.ferr{font-size:10px;color:var(--error);font-weight:600;display:none;margin-top:1px;}
+.ferr.v{display:block;}
+.form-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.btn-submit{background:var(--dark);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;}
+.btn-submit:hover{background:var(--gold);transform:translateY(-1px);}
+.btn-submit.loading{opacity:.7;cursor:not-allowed;}
+.form-note{font-size:10px;color:var(--text-3);margin-top:8px;}
+.submit-err{display:none;margin-top:12px;padding:10px 13px;border:1.5px solid var(--error);background:#fdf3f2;border-radius:8px;font-size:12px;font-weight:600;color:var(--error);}
+.submit-err.v{display:block;}
+.spin{display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;}
+.loading .spin{display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.success-wrap{padding:48px 22px;text-align:center;display:none;}
+.success-wrap.visible{display:block;animation:fu .4s var(--ease);}
+.suc-icon{width:56px;height:56px;border-radius:50%;background:#f0faf4;border:2px solid #b7e4c7;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.suc-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.suc-msg{font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:14px;max-width:380px;margin-left:auto;margin-right:auto;}
+.suc-slot{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;color:var(--gold);}
+.type-list{padding:22px;display:flex;flex-direction:column;gap:10px;}
+.type-card{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .15s;background:var(--white);text-align:left;font-family:var(--font-b);}
+.type-card:hover{border-color:var(--gold);background:var(--gold-bg);transform:translateY(-1px);box-shadow:0 4px 14px rgba(47,92,255,.1);}
+.type-card .tc-name{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.type-card .tc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.type-card .tc-desc{font-size:12px;color:var(--text-2);margin-top:3px;}
+.type-card .tc-dur{font-size:11px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:7px;padding:5px 9px;white-space:nowrap;}
+.state-box{padding:48px 22px;text-align:center;color:var(--text-2);font-size:13px;}
+@media(max-width:840px){
+  body{padding:18px 10px 32px;}
+  .book-shell{grid-template-columns:1fr;}
+  .panel{border-right:none;border-bottom:1px solid var(--border);padding:20px 18px;}
+  .panel h1{font-size:19px;}
+  .p-foot{margin-top:4px;padding-top:8px;}
+  .cal-cols.with-slots{grid-template-columns:1fr;gap:14px;}
+  .slots-col{border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:14px;min-height:0;}
+  .slots-list{max-height:none;flex-direction:row;flex-wrap:wrap;}
+  .slots-list .time-btn{width:auto;flex:1 1 30%;}
+  .slots-list .time-group-lbl{width:100%;}
+}
+@media(max-width:640px){
+  .frow2{grid-template-columns:1fr;}
+  .steps-bar{padding:12px 14px;}
+  .step-lbl{display:none;}
+  .step-circle{width:22px;height:22px;font-size:10px;}
+  .cal-wrap,.time-wrap,.form-wrap{padding:14px 16px 18px;}
+  .cal-grid{gap:2px;}
+  .cal-day{font-size:11px;border-radius:6px;}
+  .time-grid{grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:5px;}
+  .time-btn{padding:8px 4px;font-size:12px;}
+  .form-actions{flex-wrap:wrap;}
+  .btn-submit{flex:1;justify-content:center;}
+}
+</style>
+</head>
+<body>
+<div class="book-shell">
+  <aside class="panel" id="panel">
+    <div class="p-brand"><img src="logo.png" alt="M&amp;H Assistenz"></div>
+    <h1 id="pTitle">Termin buchen</h1>
+    <div class="p-meta" id="pMeta" style="display:none;">
+      <div class="p-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="pDur"></span></div>
+      <div class="p-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"/><polyline points="8 7 8 3 16 3 16 7"/></svg><span>Google Meet — Link kommt per E-Mail</span></div>
+    </div>
+    <p class="p-desc" id="pDesc">Wähle eine Terminart, dann Tag und Uhrzeit. Du bekommst sofort eine Bestätigung per E-Mail.</p>
+    <div class="p-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>DSGVO-konform · EU-Hosting</div>
+    <div class="p-foot">
+      <a href="impressum.html" target="_blank" rel="noopener">Impressum</a>
+      <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+    </div>
+  </aside>
+
+  <main class="flow">
+    <div class="steps-bar" id="stepsBar" style="display:none;">
+      <div class="step-node"><div class="step-circle active" id="sc1">1</div><div class="step-lbl active" id="sl1">Termin wählen</div></div>
+      <div class="step-sep" id="sep1"></div>
+      <div class="step-node"><div class="step-circle" id="sc2">2</div><div class="step-lbl" id="sl2">Angaben</div></div>
+      <div class="step-sep" id="sep2"></div>
+      <div class="step-node"><div class="step-circle" id="sc3">3</div><div class="step-lbl" id="sl3">Fertig</div></div>
+    </div>
+
+    <div class="type-list" id="typeList" style="display:none;"></div>
+
+    <div class="stage" id="stageCalendar">
+      <div class="cal-wrap">
+        <div class="cal-cols" id="calCols">
+          <div>
+            <div class="cal-nav">
+              <button class="cal-nav-btn" id="calPrev" onclick="calChangeMonth(-1)">&#8592;</button>
+              <div class="cal-month" id="calMonth"></div>
+              <button class="cal-nav-btn" id="calNext" onclick="calChangeMonth(1)">&#8594;</button>
+            </div>
+            <div class="cal-weekdays">
+              <div class="cal-wd">Mo</div><div class="cal-wd">Di</div><div class="cal-wd">Mi</div>
+              <div class="cal-wd">Do</div><div class="cal-wd">Fr</div>
+              <div class="cal-wd we">Sa</div><div class="cal-wd we">So</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="tz-note"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Zeitzone: Europe/Berlin (MEZ/MESZ)</div>
+          </div>
+          <div class="slots-col">
+            <div class="slots-head" id="slotsHead"></div>
+            <div class="slots-sub" id="slotsSub"></div>
+            <div class="slots-list" id="slotsList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stageForm">
+      <div class="form-wrap">
+        <div class="slot-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="slotText">—</span>
+        </div>
+        <div class="fgroup">
+          <div class="frow2">
+            <div class="f"><label>Name <span class="req">*</span></label><input id="fName" type="text" placeholder="Vollständiger Name" autocomplete="name" required><span class="ferr" id="errName">Pflichtfeld</span></div>
+            <div class="f"><label>E-Mail <span class="req">*</span></label><input id="fEmail" type="email" placeholder="deine@email.de" autocomplete="email" required><span class="ferr" id="errEmail">Gültige E-Mail</span></div>
+          </div>
+          <div class="frow2">
+            <div class="f"><label>Telefon <span class="req">*</span></label><input id="fPhone" type="tel" placeholder="+49 …" autocomplete="tel" required><span class="ferr" id="errPhone">Pflichtfeld</span></div>
+            <div class="f"><label>Branche <span class="req">*</span></label><input id="fBranche" type="text" placeholder="z. B. Handwerk, Immobilien …" required><span class="ferr" id="errBranche">Pflichtfeld</span></div>
+          </div>
+          <div class="f"><label>Zusatzinformationen <span class="opt">(optional)</span></label><textarea id="fNote" placeholder="Worum geht es? Gibt es etwas, das ich vorab wissen sollte?"></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-back-sm" onclick="goStage(1)">&#8592; Zurück</button>
+          <button class="btn-submit" id="subBtn" onclick="doSubmit()">
+            <span class="spin"></span>Termin bestätigen
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        <div class="submit-err" id="submitErr"></div>
+        <p class="form-note">&#128274; DSGVO-konform · Vertraulich · keine Weitergabe an Dritte</p>
+      </div>
+    </div>
+
+    <div class="success-wrap" id="successWrap">
+      <div class="suc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="suc-title">Termin bestätigt!</div>
+      <p class="suc-msg">Du bekommst in wenigen Minuten eine E-Mail mit allen Details, dem Google-Meet-Link und der Möglichkeit, den Termin zu verschieben oder abzusagen.</p>
+      <div class="suc-slot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="sucSlot"></span></div>
+    </div>
+
+    <div class="state-box" id="stateBox" style="display:none;"></div>
+  </main>
+</div>
+
+<script>
+'use strict';
+/* ================= KONFIG ================= */
+const CONFIG = {
+  MOCK: false,                                       // true = lokale Mock-Daten statt Supabase/n8n
+  SUPABASE_URL: 'https://ajloxsiyevauwyxfpepn.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_W-G7FzVx_W9tTMOnQoQrig_wFp9JdXb',
+  N8N_BASE: 'https://n8n.mhassistenz.de/webhook',
+  MIN_NOTICE_H: 12                                   // muss zur RPC-Validierung passen (12 h)
+};
+const SB_HEADERS = { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer '+CONFIG.SUPABASE_ANON_KEY };
+
+/* ============ MOCK-DATEN (PHASE 3: kommt aus Supabase) ============ */
+const MOCK_EVENT_TYPES = [
+  { id:'mock-1', slug:'erstgespraech', name:'Erstgespräch', duration_min:30, color:'#2F5CFF', active:true, public_listed:true,
+    description:'Kostenlos & unverbindlich. Bereite dich am besten kurz darauf vor, mir deine Abläufe zu erklären — gemeinsam finden wir, wo KI und Automatisierung in deinem Betrieb den größten Hebel haben.' },
+  { id:'mock-2', slug:'folgetermin', name:'Folgetermin', duration_min:45, color:'#22c55e', active:true,
+    description:'Weiterführendes Gespräch für bestehende Kontakte: nächste Schritte, offene Fragen, Projektstand.' }
+];
+// Verfügbarkeitsfenster: weekday 0=So … 6=Sa, event_type_id null = gilt für alle Terminarten
+const MOCK_AVAILABILITY = [
+  { weekday:1, from:'15:00', to:'20:00', event_type_id:null },
+  { weekday:2, from:'15:00', to:'20:00', event_type_id:null },
+  { weekday:3, from:'15:00', to:'20:00', event_type_id:null },
+  { weekday:4, from:'18:00', to:'20:00', event_type_id:null },
+  { weekday:5, from:'18:00', to:'20:00', event_type_id:null },
+  { weekday:6, from:'10:00', to:'19:00', event_type_id:null },
+  { weekday:0, from:'10:00', to:'19:00', event_type_id:null }
+];
+
+/* ============ DATENSCHICHT (PHASE 3 tauscht nur diese Funktionen) ============ */
+async function apiGetEventTypes(){
+  if(CONFIG.MOCK) return MOCK_EVENT_TYPES.filter(t=>t.active);
+  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/event_types?active=is.true&select=id,slug,name,duration_min,color,description,public_listed&order=duration_min',
+    { headers: SB_HEADERS });
+  if(!r.ok) throw new Error('event_types '+r.status);
+  return r.json();
+}
+async function apiGetAvailability(){
+  if(CONFIG.MOCK) return MOCK_AVAILABILITY;
+  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/availability?select=weekday,from_time,to_time,event_type_id',
+    { headers: SB_HEADERS });
+  if(!r.ok) throw new Error('availability '+r.status);
+  // auf internes Format mappen (HH:MM statt HH:MM:SS)
+  return (await r.json()).map(a=>({ weekday:a.weekday, from:a.from_time.slice(0,5), to:a.to_time.slice(0,5), event_type_id:a.event_type_id }));
+}
+async function apiGetBusy(){
+  if(CONFIG.MOCK) return [];
+  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/busy_slots?select=start_ts,end_ts', { headers: SB_HEADERS });
+  if(!r.ok) return [];                                // Slot erscheint frei; RPC-Constraint fängt Kollision ab
+  return (await r.json()).map(b=>({ start:b.start_ts, end:b.end_ts }));
+}
+async function apiCreateBooking(payload){
+  if(CONFIG.MOCK){ await new Promise(res=>setTimeout(res,600)); return { ok:true, mock:true }; }
+  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/rpc/create_booking',{
+    method:'POST',
+    headers:{ ...SB_HEADERS, 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      p_event_type_slug: payload.event_type,
+      p_start:   payload.start,
+      p_name:    payload.name,
+      p_email:   payload.email,
+      p_phone:   payload.phone,
+      p_branche: payload.branche || null,
+      p_note:    payload.note || null
+    })
+  });
+  if(!r.ok){
+    let msg=''; try{ msg=(await r.json()).message||''; }catch(e){}
+    const err=new Error(msg||('booking '+r.status)); err.friendly=!!msg; throw err;
+  }
+  const bookingId = await r.json();
+  // n8n übernimmt ab hier: Google-Event + Meet, Mails, Historie (Phase 4 — tolerant, Buchung ist bereits gesichert)
+  try{
+    await fetch(CONFIG.N8N_BASE+'/booking-created',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ booking_id: bookingId })
+    });
+  }catch(e){ console.warn('[buchen] n8n-Benachrichtigung ausstehend:', e); }
+  return { ok:true, id: bookingId };
+}
+
+/* ================= STATE + ROUTING ================= */
+const MN=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DN=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const today=new Date();today.setHours(0,0,0,0);
+let calY=today.getFullYear(), calM=today.getMonth();
+let eventTypes=[], availability=[], busy=[];
+let selType=null, selDate=null, selTime=null;
+let manage=null; // { token, booking } — Verschieben/Absagen-Modus
+
+function routeSlug(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('type')) return q.get('type');
+  const m=location.pathname.match(/\/termin\/([a-z0-9-]+)/i);   // hübsche Pfade via 404-Routing (Deploy-Schritt)
+  return m?m[1]:null;
+}
+function prefill(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('name'))  document.getElementById('fName').value  = q.get('name').slice(0,120);
+  if(q.get('email')) document.getElementById('fEmail').value = q.get('email').slice(0,160);
+}
+function minBookable(){ return new Date(Date.now()+CONFIG.MIN_NOTICE_H*3600*1000); }
+
+/* ================= INIT ================= */
+(async function init(){
+  const q=new URLSearchParams(location.search);
+  try{
+    [eventTypes, availability, busy] = await Promise.all([apiGetEventTypes(), apiGetAvailability(), apiGetBusy()]);
+  }catch(e){
+    showState('Der Kalender konnte nicht geladen werden.<br>Bitte versuche es gleich noch einmal.');
+    return;
+  }
+  if(q.get('manage')){ await initManage(q.get('manage'), q.get('action')); return; }
+  const slug=routeSlug();
+  const t = slug ? eventTypes.find(x=>x.slug===slug) : null;
+  if(t){ selectType(t); }
+  else if(slug){ showState('Diese Terminart gibt es nicht (mehr).<br>Wähle unten eine verfügbare aus.'); setTimeout(renderTypeList, 1600); }
+  else renderTypeList();
+  prefill();
+})();
+
+function showState(html){
+  ['stepsBar','typeList'].forEach(id=>document.getElementById(id).style.display='none');
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  const b=document.getElementById('stateBox'); b.innerHTML=html; b.style.display='block';
+}
+
+/* ================= MANAGE-MODUS (Verschieben / Absagen) ================= */
+async function initManage(token, action){
+  let mb;
+  try{
+    const r=await fetch(CONFIG.N8N_BASE+'/booking-manage?token='+encodeURIComponent(token));
+    if(!r.ok) throw new Error('invalid');
+    mb=(await r.json()).booking;
+  }catch(e){
+    showState('Dieser Link ist ungültig oder abgelaufen.<br>Bei Fragen: <b>matthias.heuchemer@mhassistenz.de</b>');
+    return;
+  }
+  if(mb.status!=='gebucht'){
+    showState('Dieser Termin ist nicht mehr aktiv.<br><br><a href="buchen.html" style="color:var(--gold);font-weight:700;">→ Neuen Termin buchen</a>');
+    return;
+  }
+  manage={ token, booking: mb };
+  const t=eventTypes.find(x=>x.slug===mb.event_type.slug) || { ...mb.event_type, id:null };
+  document.getElementById('pTitle').textContent=t.name;
+  document.getElementById('pDur').textContent=t.duration_min+' Minuten';
+  document.getElementById('pMeta').style.display='flex';
+  document.getElementById('pDesc').textContent='Du kannst deinen Termin hier verschieben oder absagen.';
+  if(action==='absagen') renderCancelConfirm();
+  else renderManageHome(t);
+}
+function fmtManageSlot(){
+  const s=new Date(manage.booking.start_ts);
+  return DN[s.getDay()]+', '+s.getDate()+'. '+MN[s.getMonth()]+' · '
+    + s.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr';
+}
+function renderManageHome(t){
+  showState(
+    '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Dein Termin</div>'
+    +'<div class="suc-slot" style="margin-bottom:22px;">'+esc(fmtManageSlot())+'</div><br>'
+    +'<button class="btn-submit" id="mgMove" style="margin:14px 8px 0 0;">Termin verschieben</button>'
+    +'<button class="btn-back-sm" id="mgCancel" style="margin-top:14px;padding:11px 22px;font-size:13px;">Termin absagen</button>'
+  );
+  document.getElementById('mgMove').addEventListener('click',()=>{ startReschedule(t); });
+  document.getElementById('mgCancel').addEventListener('click', renderCancelConfirm);
+}
+function startReschedule(t){
+  selectType(t);
+  document.getElementById('pDesc').textContent='Wähle einfach deinen neuen Wunschtermin — du bekommst sofort eine neue Bestätigung.';
+}
+function renderCancelConfirm(){
+  showState(
+    '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Termin wirklich absagen?</div>'
+    +'<div class="suc-slot" style="margin-bottom:22px;">'+esc(fmtManageSlot())+'</div><br>'
+    +'<button class="btn-submit" id="mgDoCancel" style="margin:14px 8px 0 0;background:var(--error);">Ja, Termin absagen</button>'
+    +'<button class="btn-back-sm" id="mgBack" style="margin-top:14px;padding:11px 22px;font-size:13px;">Zurück</button>'
+    +'<div class="submit-err" id="mgErr" style="margin-top:14px;"></div>'
+  );
+  document.getElementById('mgBack').addEventListener('click',()=>{
+    const t=eventTypes.find(x=>x.slug===manage.booking.event_type.slug)||manage.booking.event_type;
+    renderManageHome(t);
+  });
+  document.getElementById('mgDoCancel').addEventListener('click', async (ev)=>{
+    const btn=ev.currentTarget; btn.disabled=true; btn.textContent='Sage ab…';
+    try{
+      const r=await fetch(CONFIG.N8N_BASE+'/booking-manage',{ method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ token: manage.token, action:'cancel' }) });
+      if(!r.ok) throw new Error((await r.json()).error||'Fehler');
+      showState('<div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;">Termin abgesagt ✓</div>'
+        +'<p style="font-size:13px;color:var(--text-2);">Du bekommst eine Bestätigung per E-Mail.<br><br>'
+        +'<a href="buchen.html" style="color:var(--gold);font-weight:700;">→ Neuen Termin buchen</a></p>');
+    }catch(e){
+      btn.disabled=false; btn.textContent='Ja, Termin absagen';
+      const eb=document.getElementById('mgErr'); eb.textContent=e.message||'Absagen fehlgeschlagen.'; eb.classList.add('v');
+    }
+  });
+}
+async function manageReschedule(startDate, btn){
+  btn.disabled=true; const old=btn.textContent; btn.textContent='…';
+  try{
+    const r=await fetch(CONFIG.N8N_BASE+'/booking-manage',{ method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: manage.token, action:'reschedule', new_start: startDate.toISOString() }) });
+    if(!r.ok) throw new Error((await r.json()).error||'Fehler');
+    document.getElementById('stepsBar').style.display='none';
+    document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+    showState('<div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;">Termin verschoben ✓</div>'
+      +'<p style="font-size:13px;color:var(--text-2);">Neuer Termin: <b>'
+      +esc(DN[startDate.getDay()]+', '+startDate.getDate()+'. '+MN[startDate.getMonth()]+' · '
+      +startDate.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+' Uhr')
+      +'</b><br>Die neue Bestätigung mit Meet-Link ist unterwegs an dich und wird auch mir bestätigt.</p>');
+  }catch(e){
+    btn.disabled=false; btn.textContent=old;
+    alert(e.message||'Verschieben fehlgeschlagen — bitte anderen Slot versuchen.');
+  }
+}
+
+/* ================= TERMINART-AUSWAHL ================= */
+function renderTypeList(){
+  document.getElementById('stateBox').style.display='none';
+  document.getElementById('stepsBar').style.display='none';
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('pTitle').textContent='Termin buchen';
+  document.getElementById('pMeta').style.display='none';
+  document.getElementById('pDesc').textContent='Wähle eine Terminart, dann Tag und Uhrzeit. Du bekommst sofort eine Bestätigung per E-Mail.';
+  const list=document.getElementById('typeList'); list.style.display='flex'; list.innerHTML='';
+  eventTypes.filter(t=>t.public_listed).forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='type-card';
+    btn.innerHTML='<span><span class="tc-name"><span class="tc-dot" style="background:'+t.color+'"></span>'+esc(t.name)+'</span>'+
+      '<span class="tc-desc">'+esc(t.description||'')+'</span></span>'+
+      '<span class="tc-dur">'+t.duration_min+' Min.</span>';
+    btn.onclick=()=>{ selectType(t); history.replaceState(null,'','?type='+encodeURIComponent(t.slug)+keepPrefill()); };
+    list.appendChild(btn);
+  });
+  notifyH();
+}
+function keepPrefill(){
+  const q=new URLSearchParams(location.search); let s='';
+  if(q.get('name'))  s+='&name='+encodeURIComponent(q.get('name'));
+  if(q.get('email')) s+='&email='+encodeURIComponent(q.get('email'));
+  return s;
+}
+function selectType(t){
+  selType=t; selDate=null; selTime=null;
+  document.getElementById('typeList').style.display='none';
+  document.getElementById('stateBox').style.display='none';
+  document.getElementById('stepsBar').style.display='flex';
+  document.getElementById('pTitle').textContent=t.name;
+  document.getElementById('pDur').textContent=t.duration_min+' Minuten';
+  document.getElementById('pMeta').style.display='flex';
+  document.getElementById('pDesc').textContent=t.description||'';
+  goStage(1); calRender();
+}
+
+/* ================= VERFÜGBARKEIT / SLOTS ================= */
+function windowsFor(date){
+  const w=date.getDay();
+  return availability.filter(a=>a.weekday===w && (a.event_type_id==null || a.event_type_id===selType.id));
+}
+function getSlots(date){
+  const wins=windowsFor(date), dur=selType.duration_min, out=[];
+  const minB=minBookable();
+  wins.forEach(win=>{
+    const [fh,fm]=win.from.split(':').map(Number), [th,tm]=win.to.split(':').map(Number);
+    for(let m=fh*60+fm; m+dur<=th*60+tm; m+=dur){
+      const hh=String(Math.floor(m/60)).padStart(2,'0'), mm=String(m%60).padStart(2,'0');
+      const st=new Date(date); st.setHours(Math.floor(m/60),m%60,0,0);
+      if(st<minB) continue;
+      out.push({ label:hh+':'+mm, start:st, booked:isBusy(st,dur) });
+    }
+  });
+  return out.sort((a,b)=>a.start-b.start);
+}
+function isBusy(start,dur){
+  const end=new Date(start.getTime()+dur*60000);
+  return busy.some(b=>{ const bs=new Date(b.start), be=new Date(b.end); return bs<end && be>start; });
+}
+function dayHasSlots(date){ return getSlots(date).length>0; }
+
+/* ================= KALENDER ================= */
+function calRender(){
+  document.getElementById('calMonth').textContent=MN[calM]+' '+calY;
+  document.getElementById('calPrev').disabled=(calY===today.getFullYear()&&calM===today.getMonth());
+  const grid=document.getElementById('calGrid'); grid.innerHTML='';
+  const first=new Date(calY,calM,1), off=(first.getDay()+6)%7, days=new Date(calY,calM+1,0).getDate();
+  for(let i=0;i<off;i++){ const e=document.createElement('div'); e.className='cal-day'; grid.appendChild(e); }
+  for(let d=1;d<=days;d++){
+    const date=new Date(calY,calM,d), el=document.createElement('div');
+    el.textContent=d;
+    if(date<today || !dayHasSlots(date)){ el.className='cal-day past'; }
+    else{
+      el.className='cal-day avail';
+      if(date.toDateString()===today.toDateString()) el.classList.add('today-ring');
+      if(selDate && date.toDateString()===selDate.toDateString()) el.classList.add('selected');
+      el.onclick=()=>{ selDate=date;
+        document.querySelectorAll('.cal-day.selected').forEach(e=>e.classList.remove('selected'));
+        el.classList.add('selected'); renderSlots(); };
+    }
+    grid.appendChild(el);
+  }
+  notifyH();
+}
+function calChangeMonth(dir){ calM+=dir; if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;} calRender(); }
+
+/* ================= SLOT-SPALTE (neben dem Kalender) ================= */
+function renderSlots(){
+  if(!selDate) return;
+  calRender();
+  document.getElementById('calCols').classList.add('with-slots');
+  const lbl=DN[selDate.getDay()]+', '+selDate.getDate()+'. '+MN[selDate.getMonth()];
+  document.getElementById('slotsHead').textContent=lbl;
+  const wins=windowsFor(selDate);
+  document.getElementById('slotsSub').textContent=wins.map(w=>w.from+' – '+w.to+' Uhr').join(' · ')+' · '+selType.duration_min+' Min.';
+  const slots=getSlots(selDate), list=document.getElementById('slotsList'); list.innerHTML='';
+  if(!slots.length){ list.innerHTML='<div class="slots-empty">Für diesen Tag sind keine Zeiten mehr frei.</div>'; notifyH(); return; }
+  const groups={Vormittag:[],Nachmittag:[],Abend:[]};
+  slots.forEach(s=>{ const h=s.start.getHours(); if(h<13)groups.Vormittag.push(s); else if(h<17)groups.Nachmittag.push(s); else groups.Abend.push(s); });
+  Object.entries(groups).forEach(([name,times])=>{
+    if(!times.length) return;
+    const gl=document.createElement('div'); gl.className='time-group-lbl'; gl.textContent=name; list.appendChild(gl);
+    times.forEach(s=>{
+      const btn=document.createElement('button');
+      btn.className='time-btn'+(selTime===s.label?' selected':'')+(s.booked?' booked':'');
+      btn.textContent=s.label+(s.booked?' ✕':'');
+      if(s.booked){ btn.disabled=true; btn.title='Bereits belegt'; }
+      else btn.onclick=()=>{
+        if(manage){ manageReschedule(new Date(s.start), btn); return; }
+        selTime=s.label; selDate=new Date(s.start);
+        document.querySelectorAll('.time-btn.selected').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const full=lbl+' · '+s.label+' Uhr';
+        document.getElementById('slotText').textContent=full+' ('+selType.name+')';
+        document.getElementById('sucSlot').textContent=full;
+        setTimeout(()=>goStage(2),180); };
+      list.appendChild(btn);
+    });
+  });
+  notifyH();
+}
+
+/* ================= WIZARD (3 Schritte) ================= */
+function updateSteps(n){
+  for(let i=1;i<=3;i++){
+    const c=document.getElementById('sc'+i), l=document.getElementById('sl'+i);
+    c.className='step-circle'+(i<n?' done':i===n?' active':'');
+    l.className='step-lbl'+(i<n?' done':i===n?' active':'');
+    if(i<n)c.innerHTML='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; else c.textContent=i;
+    if(i<3)document.getElementById('sep'+i).className='step-sep'+(i<n?' done':'');
+  }
+  notifyH();
+}
+function goStage(n){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('successWrap').classList.remove('visible');
+  document.getElementById('successWrap').style.display='none';
+  if(n===1){ document.getElementById('stageCalendar').classList.add('active'); if(selDate)renderSlots(); updateSteps(1); }
+  if(n===2){ document.getElementById('stageForm').classList.add('active'); updateSteps(2); }
+}
+
+/* ================= SUBMIT ================= */
+async function doSubmit(){
+  let ok=true;
+  [['fName','errName',v=>v.trim().length>=2],
+   ['fEmail','errEmail',v=>/^\S+@\S+\.\S+$/.test(v.trim())],
+   ['fPhone','errPhone',v=>v.trim().length>=5],
+   ['fBranche','errBranche',v=>v.trim().length>=2]].forEach(([id,eid,fn])=>{
+    const el=document.getElementById(id), err=document.getElementById(eid);
+    if(!fn(el.value)){ el.classList.add('error'); err.classList.add('v'); ok=false; }
+    else{ el.classList.remove('error'); err.classList.remove('v'); }
+  });
+  if(!ok) return;
+  const errBox=document.getElementById('submitErr'); errBox.classList.remove('v');
+  const btn=document.getElementById('subBtn'); btn.classList.add('loading'); btn.disabled=true;
+  const startIso=selDate.toISOString();
+  const endIso=new Date(selDate.getTime()+selType.duration_min*60000).toISOString();
+  const payload={
+    event_type: selType.slug,
+    start: startIso, end: endIso, timezone:'Europe/Berlin',
+    name:    document.getElementById('fName').value.trim().slice(0,120),
+    email:   document.getElementById('fEmail').value.trim().slice(0,160),
+    phone:   document.getElementById('fPhone').value.trim().slice(0,40),
+    branche: document.getElementById('fBranche').value.trim().slice(0,120),
+    note:    document.getElementById('fNote').value.trim().slice(0,1000)
+  };
+  try{
+    await apiCreateBooking(payload);
+    document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+    document.getElementById('successWrap').style.display='block';
+    document.getElementById('successWrap').classList.add('visible');
+    updateSteps(3);
+  }catch(e){
+    errBox.textContent=(e && e.friendly && e.message)
+      ? e.message+' — oder schreib mir direkt: matthias.heuchemer@mhassistenz.de'
+      : 'Die Buchung hat leider nicht geklappt. Bitte versuche es erneut — oder schreib mir direkt: matthias.heuchemer@mhassistenz.de';
+    errBox.classList.add('v');
+  }finally{
+    btn.classList.remove('loading'); btn.disabled=false; notifyH();
+  }
+}
+
+/* ================= HELFER ================= */
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function notifyH(){ setTimeout(()=>{ const h=document.body.scrollHeight;
+  if(window.parent!==window) window.parent.postMessage({type:'embed-resize',height:h+32},'*'); },100); }
+</script>
+</body>
+</html>
