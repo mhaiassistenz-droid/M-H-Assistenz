@@ -307,9 +307,24 @@ async function apiGetAvailability(){
 }
 async function apiGetBusy(){
   if(CONFIG.MOCK) return [];
-  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/busy_slots?select=start_ts,end_ts', { headers: SB_HEADERS });
-  if(!r.ok) return [];                                // Slot erscheint frei; RPC-Constraint fängt Kollision ab
-  return (await r.json()).map(b=>({ start:b.start_ts, end:b.end_ts }));
+  const out=[];
+  try{                                                 // eigene Buchungen (Supabase, ohne PII)
+    const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/busy_slots?select=start_ts,end_ts', { headers: SB_HEADERS });
+    if(r.ok) (await r.json()).forEach(b=>out.push({ start:b.start_ts, end:b.end_ts }));
+  }catch(e){}
+  try{                                                 // Google-Kalender (private Termine) via n8n FreeBusy
+    const r = await fetch(CONFIG.N8N_BASE+'/booking-freebusy');
+    if(r.ok) ((await r.json()).busy||[]).forEach(b=>out.push({ start:b.start, end:b.end }));
+  }catch(e){}
+  return out;
+}
+async function apiGetBuffer(){
+  if(CONFIG.MOCK) return 0;
+  try{
+    const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/booking_settings?key=eq.buffer_min&select=value', { headers: SB_HEADERS });
+    if(r.ok){ const a=await r.json(); return parseInt(a[0]?.value||'0',10)||0; }
+  }catch(e){}
+  return 0;
 }
 async function apiCreateBooking(payload){
   if(CONFIG.MOCK){ await new Promise(res=>setTimeout(res,600)); return { ok:true, mock:true }; }
@@ -348,7 +363,7 @@ const MN=['Januar','Februar','März','April','Mai','Juni','Juli','August','Septe
 const DN=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const today=new Date();today.setHours(0,0,0,0);
 let calY=today.getFullYear(), calM=today.getMonth();
-let eventTypes=[], availability=[], busy=[];
+let eventTypes=[], availability=[], busy=[], bufferMin=0;
 let selType=null, selDate=null, selTime=null;
 let manage=null; // { token, booking } — Verschieben/Absagen-Modus
 
@@ -369,7 +384,7 @@ function minBookable(){ return new Date(Date.now()+CONFIG.MIN_NOTICE_H*3600*1000
 (async function init(){
   const q=new URLSearchParams(location.search);
   try{
-    [eventTypes, availability, busy] = await Promise.all([apiGetEventTypes(), apiGetAvailability(), apiGetBusy()]);
+    [eventTypes, availability, busy, bufferMin] = await Promise.all([apiGetEventTypes(), apiGetAvailability(), apiGetBusy(), apiGetBuffer()]);
   }catch(e){
     showState('Der Kalender konnte nicht geladen werden.<br>Bitte versuche es gleich noch einmal.');
     return;
@@ -537,7 +552,8 @@ function getSlots(date){
 }
 function isBusy(start,dur){
   const end=new Date(start.getTime()+dur*60000);
-  return busy.some(b=>{ const bs=new Date(b.start), be=new Date(b.end); return bs<end && be>start; });
+  const pad=bufferMin*60000;                           // Puffer: belegte Blöcke wachsen beidseitig
+  return busy.some(b=>{ const bs=new Date(new Date(b.start).getTime()-pad), be=new Date(new Date(b.end).getTime()+pad); return bs<end && be>start; });
 }
 function dayHasSlots(date){ return getSlots(date).length>0; }
 
