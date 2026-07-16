@@ -123,6 +123,7 @@ body{font-family:var(--font-b);background:var(--white);color:var(--text);font-si
       <li><a href="#hosting">Hosting (GitHub Pages)</a></li>
       <li><a href="#fonts">Schriften (Bunny Fonts)</a></li>
       <li><a href="#terminbuchung">Terminbuchung (Calendly)</a></li>
+      <li><a href="#eigene-buchung">Eigenes Buchungssystem</a></li>
       <li><a href="#chat">KI-Chat-Assistent</a></li>
       <li><a href="#infrastruktur">Infrastruktur (n8n / Supabase)</a></li>
       <li><a href="#externe-links">Externe Links</a></li>
@@ -211,8 +212,30 @@ body{font-family:var(--font-b);background:var(--white);color:var(--text);font-si
     </div>
   </div>
 
-  <div class="legal-block" id="chat">
+  <div class="legal-block" id="eigene-buchung">
     <div class="block-label">§ 6</div>
+    <div class="block-title">Eigenes Buchungssystem</div>
+    <div class="block-body">
+      <p>Neben Calendly betreiben wir ein eigenes Terminbuchungssystem (erreichbar u.&nbsp;a. über unsere Buchungsseite <em>buchen.html</em>). Wenn Sie darüber einen Termin vereinbaren, verarbeiten wir die von Ihnen angegebenen Daten:</p>
+      <ul>
+        <li>Name</li>
+        <li>E-Mail-Adresse</li>
+        <li>Telefonnummer</li>
+        <li>Gewählter Termin (Datum, Uhrzeit)</li>
+        <li>Optionale Angaben (Branche, Anliegen, ggf. Social-Media-/Website-Angabe)</li>
+      </ul>
+      <p>Die Verarbeitung erfolgt ausschließlich auf von uns kontrollierter, in der EU gehosteter Infrastruktur (siehe § 8): Ihre Buchungsdaten werden in unserer Supabase-Datenbank (EU-Region Frankfurt) gespeichert; die Abläufe (Terminbestätigung, Erinnerungen) steuert unser selbst gehostetes n8n-System (EU).</p>
+      <p><strong>Kalender &amp; Videokonferenz:</strong> Für den Termin wird ein Eintrag in unserem Google-Kalender angelegt und – sofern ein Online-Gespräch stattfindet – ein Google-Meet-Link erstellt. Anbieter ist Google Ireland Limited; eine Übermittlung in die USA ist möglich. Google ist nach dem EU-U.S. Data Privacy Framework (DPF) zertifiziert (angemessenes Datenschutzniveau gem. Art.&nbsp;45 DSGVO), und es besteht ein Auftragsverarbeitungsvertrag gem. Art.&nbsp;28 DSGVO. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</p>
+      <p><strong>Erinnerungs- und Bestätigungs-E-Mails:</strong> Zur Bestätigung und Erinnerung an den Termin versenden wir E-Mails an die von Ihnen angegebene Adresse.</p>
+      <p>
+        <strong>Rechtsgrundlage:</strong> <span class="art-badge">Art. 6 Abs. 1 lit. b DSGVO</span> (Vertragsanbahnung — Terminvereinbarung) und <span class="art-badge">Art. 6 Abs. 1 lit. f DSGVO</span> (berechtigtes Interesse an effizienter Terminorganisation).<br>
+        <strong>Speicherdauer:</strong> Buchungsdaten werden bis zu 3 Jahre nach Abschluss der Geschäftsbeziehung gespeichert, danach gelöscht.
+      </p>
+    </div>
+  </div>
+
+  <div class="legal-block" id="chat">
+    <div class="block-label">§ 7</div>
     <div class="block-title">KI-Chat-Assistent</div>
     <div class="block-body">
       <p>Auf dieser Website steht ein KI-gestützter Chat-Assistent zur Verfügung. Wenn Sie diesen nutzen, werden folgende Daten verarbeitet:</p>
@@ -230,16 +253,16 @@ body{font-family:var(--font-b);background:var(--white);color:var(--text);font-si
   </div>
 
   <div class="legal-block" id="infrastruktur">
-    <div class="block-label">§ 7</div>
+    <div class="block-label">§ 8</div>
     <div class="block-title">Infrastruktur (n8n / Supabase)</div>
     <div class="block-body">
-      <p><strong>n8n (Automatisierung):</strong> Unser Automatisierungssystem n8n ist auf einem Server bei Hostinger (EU) selbst gehostet. Alle Daten verbleiben in der EU.</p>
+      <p><strong>n8n (Automatisierung):</strong> Unser Automatisierungssystem n8n ist auf einem Server bei Hetzner (Rechenzentrum Nürnberg, Deutschland) selbst gehostet. Alle Daten verbleiben in der EU.</p>
       <p><strong>Supabase (Datenbank):</strong> Formulardaten werden in einer PostgreSQL-Datenbank bei Supabase (EU-Region eu-central-1, Frankfurt) gespeichert. Für die Verarbeitung besteht ein Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO. Weitere Informationen: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>.</p>
     </div>
   </div>
 
   <div class="legal-block" id="externe-links">
-    <div class="block-label">§ 8</div>
+    <div class="block-label">§ 9</div>
     <div class="block-title">Externe Links</div>
     <div class="block-body">
       <p>Diese Website enthält Links zu externen Diensten. Beim Anklicken verlassen Sie unsere Website. Wir haben keinen Einfluss auf die Datenverarbeitung dieser Drittanbieter:</p>
@@ -249,7 +272,7 @@ body{font-family:var(--font-b);background:var(--white);color:var(--text);font-si
   </div>
 
   <div class="legal-block" id="rechte">
-    <div class="block-label">§ 9</div>
+    <div class="block-label">§ 10</div>
     <div class="block-title">Ihre Rechte</div>
     <div class="block-body">
       <p>Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:</p>
@@ -270,7 +293,7 @@ body{font-family:var(--font-b);background:var(--white);color:var(--text);font-si
   </div>
 
   <div class="legal-block" id="sicherheit">
-    <div class="block-label">§ 10</div>
+    <div class="block-label">§ 11</div>
     <div class="block-title">Datensicherheit</div>
     <div class="block-body">
       <p>Diese Website nutzt aus Sicherheitsgründen eine <strong>SSL/TLS-Verschlüsselung</strong>. Eine verschlüsselte Verbindung erkennen Sie am „https://" in der Adresszeile Ihres Browsers.</p>
