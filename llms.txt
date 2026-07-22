@@ -1,0 +1,23 @@
+# M&H Assistenz
+
+> KI-Agentur für kleine und mittlere Unternehmen in Deutschland (Neuwied, Rheinland-Pfalz).
+> Gegründet von Matthias Heuchemer. Baut und betreibt Voice Agents, RAG-Wissensdatenbanken,
+> CRM-Automatisierung, Marketing-Analytics und individuelle n8n-Workflows, gebündelt im
+> M&H Dashboard. DSGVO-konform.
+
+## Angebot
+- [Voice Agent](https://mhassistenz.de/#module): KI-Telefonassistent für Anrufannahme, Terminbuchung, FAQ-Beantwortung, 24/7, DSGVO-konform.
+- [Wissensdatenbank / RAG](https://mhassistenz.de/#module): Quellenbasierte KI-Antworten aus PDFs, Preislisten, internen Dokumenten.
+- [CRM-Automatisierung](https://mhassistenz.de/#module): Lead-Erfassung, Follow-ups, zentrale Kontaktverwaltung.
+- [n8n / Make Automatisierungen](https://mhassistenz.de/#module): individuelle Workflow-Automatisierung für wiederkehrende Aufgaben.
+- [M&H Dashboard](https://mhassistenz.de/#dashboard): zentrale Plattform, die alle Module verbindet.
+- [Website-Entwicklung](https://mhassistenz.de/#module): individuelle, conversion-optimierte Websites, direkt an CRM/Voice Agent/Kalender angebunden.
+
+## Kontakt
+- Erstgespräch buchen: https://mhassistenz.de/termin/erstgespraech/
+- E-Mail: matthias.heuchemer@mhassistenz.de
+- Standort: Neuwied, Rheinland-Pfalz, Deutschland
+
+## Rechtliches
+- Impressum: https://mhassistenz.de/impressum.html
+- Datenschutz: https://mhassistenz.de/datenschutz.html
