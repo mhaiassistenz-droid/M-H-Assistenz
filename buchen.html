@@ -6,6 +6,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://ddbpwdgkafvrzjvavwiw.supabase.co https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>if(new URLSearchParams(location.search).get('embed'))document.documentElement.classList.add('is-embed');</script>
 <title>Termin buchen — M&amp;H Assistenz</title>
 <meta name="description" content="Buche dir dein kostenloses Erstgespräch: Wir schauen gemeinsam, wo KI und Automatisierung in deinem Betrieb den größten Hebel haben.">
 <meta property="og:title" content="Kostenloses Erstgespräch buchen — M&amp;H Assistenz">
@@ -159,6 +160,11 @@ textarea{min-height:64px;resize:vertical;}
   .form-actions{flex-wrap:wrap;}
   .btn-submit{flex:1;justify-content:center;}
 }
+/* ================= EMBED-MODUS (?embed=1, eingebettet in mhassistenz.de/#formular) ================= */
+.is-embed body{background:#fff;min-height:0;padding:32px 28px;}
+.is-embed .book-shell{max-width:none;border:none;box-shadow:none;border-radius:0;background:transparent;grid-template-columns:1fr;}
+.is-embed .panel{display:none;}
+@media(max-width:640px){ .is-embed body{padding:20px 16px;} }
 </style>
 </head>
 <body>
