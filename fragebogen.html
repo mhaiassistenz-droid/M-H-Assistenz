@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
 <meta name="robots" content="noindex,nofollow">
 <title>Fragebogen zum Erstgespräch — M&H Assistenz</title>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,600,700,800&display=swap">
 <style>
   :root{
     --blue:#2F5CFF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
@@ -13,11 +14,11 @@
     --green:#0F9D58; --green-soft:#E8F5EE;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:32px 12px;}
+  body{background:var(--bg);font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:32px 12px;}
   .card{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
-  .head{padding:30px 30px 0;text-align:left;}
-  .head img{display:block;height:92px;margin-left:-6px;}
-  .body{padding:20px 30px 30px;}
+  .head{padding:30px 30px 0;}
+  .head img{display:block;height:52px;}
+  .body{padding:22px 30px 30px;}
   h1{font-size:21px;margin-bottom:6px;letter-spacing:-.01em;}
   .intro{font-size:13.5px;color:var(--gray);line-height:1.65;margin-bottom:8px;}
   .meta{display:flex;align-items:center;gap:8px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;margin:14px 0 24px;}
@@ -43,7 +44,7 @@
   .radio.on .dot{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 45%,transparent 50%);}
   .followup{margin-top:8px;display:none;}
   .radio-group.show-follow .followup{display:block;}
-  .submit{display:block;width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .15s;}
+  .submit{display:block;width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .15s;font-family:inherit;}
   .submit:disabled{opacity:.55;cursor:default;}
   .autosave{text-align:center;font-size:11.5px;color:var(--muted);margin-top:10px;min-height:16px;}
   .autosave.saved{color:var(--green);}
@@ -56,12 +57,12 @@
   .icon.ok{background:var(--green-soft);}
   .icon.err{background:#FDECEC;}
   .hidden{display:none;}
-  @media (max-width:480px){ body{padding:16px 8px;} .head{padding:24px 20px 0;} .head img{height:72px;} .body{padding:18px 20px 24px;} .foot{padding:16px 20px 20px;} }
+  @media (max-width:480px){ body{padding:16px 8px;} .head{padding:24px 20px 0;} .head img{height:44px;} .body{padding:18px 20px 24px;} .foot{padding:16px 20px 20px;} }
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="head"><img src="logo.png" alt="M&amp;H Assistenz"></div>
+  <div class="head"><img src="logo-wide.png" alt="M&amp;H Assistenz"></div>
 
   <!-- Ladezustand -->
   <div class="body" id="viewLoading">
@@ -73,7 +74,7 @@
     <div class="state">
       <span class="icon err"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".5" fill="#C0392B"/></svg></span>
       <h2>Link ungültig oder abgelaufen</h2>
-      <p>Dieser Fragebogen-Link funktioniert leider nicht mehr. Kein Problem — wir besprechen einfach alles direkt im Gespräch.</p>
+      <p>Dieser Fragebogen-Link funktioniert leider nicht mehr. Kein Problem: Wir besprechen einfach alles direkt im Gespräch.</p>
     </div>
   </div>
 
@@ -81,15 +82,15 @@
   <div class="body hidden" id="viewDone">
     <div class="state">
       <span class="icon ok"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F9D58" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span>
-      <h2 id="doneTitle">Danke dir!</h2>
-      <p id="doneText">Deine Antworten sind angekommen. Matthias schaut sie sich vor eurem Gespräch in Ruhe an — bis bald!</p>
+      <h2 id="doneTitle">Vielen Dank!</h2>
+      <p id="doneText">Ihre Antworten sind angekommen. Matthias schaut sie sich vor Ihrem Gespräch in Ruhe an. Bis bald!</p>
     </div>
   </div>
 
   <!-- Formular -->
   <div class="body hidden" id="viewForm">
     <h1>Kurz vor unserem Gespräch…</h1>
-    <p class="intro" id="introText">Damit wir im Erstgespräch direkt über <b>deine</b> Abläufe sprechen können statt bei null anzufangen: 10 kurze Fragen, ca. 4 Minuten. Deine Antworten sieht nur Matthias.</p>
+    <p class="intro" id="introText">Damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 9 kurze Fragen, etwa 3 Minuten. Ihre Antworten sieht nur Matthias.</p>
     <div class="meta" id="terminBadge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
       <span id="terminText">Erstgespräch</span>
@@ -97,41 +98,41 @@
     <div class="progress"><i id="bar"></i></div>
 
     <div class="q" data-key="q1">
-      <div class="q-num">Frage 1 / 10</div>
-      <div class="q-label">Was macht ihr genau — und was ist deine Rolle im Unternehmen?</div>
+      <div class="q-num">Frage 1 / 9</div>
+      <div class="q-label">Was machen Sie genau, und was ist Ihre Rolle im Unternehmen?</div>
       <div class="q-hint">Ein bis zwei Sätze reichen völlig.</div>
-      <textarea data-field="text" placeholder="z.B. Immobilienmakler mit 4 Leuten, ich bin der Inhaber und mache selbst noch Besichtigungen…"></textarea>
+      <textarea data-field="text" placeholder="z.B. Immobilienmakler mit 4 Leuten, ich bin der Inhaber und mache selbst noch Besichtigungen"></textarea>
     </div>
 
     <div class="q" data-key="q2">
-      <div class="q-num">Frage 2 / 10</div>
-      <div class="q-label">Wie kommen Kundenanfragen bei euch rein — und wer kümmert sich darum?</div>
+      <div class="q-num">Frage 2 / 9</div>
+      <div class="q-label">Wie kommen Kundenanfragen bei Ihnen rein, und wer kümmert sich darum?</div>
       <div class="q-hint">Telefon, E-Mail, Portale, Website… und wer beantwortet das alles?</div>
-      <textarea data-field="text" placeholder="z.B. Meiste Anfragen über ImmoScout und Telefon, geht alles über mich…"></textarea>
+      <textarea data-field="text" placeholder="z.B. die meisten Anfragen über ImmoScout und Telefon, geht alles über mich"></textarea>
     </div>
 
     <div class="q" data-key="q3">
-      <div class="q-num">Frage 3 / 10</div>
-      <div class="q-label">Wie schnell schafft ihr es, auf eine neue Anfrage zu reagieren?</div>
+      <div class="q-num">Frage 3 / 9</div>
+      <div class="q-label">Wie schnell schaffen Sie es, auf eine neue Anfrage zu reagieren?</div>
       <div class="radios radio-group">
-        <div class="radio" data-value="sofort"><span class="dot"></span><span><b>Meist sofort</b> — wir sind da schnell.</span></div>
-        <div class="radio" data-value="selber-tag"><span class="dot"></span><span><b>Am selben Tag</b> — aber oft erst abends.</span></div>
-        <div class="radio" data-value="tage" data-follow><span class="dot"></span><span><b>Dauert auch mal Tage</b> — da geht sicher was verloren.</span></div>
-        <div class="followup"><input type="text" data-field="detail" placeholder="Was passiert, wenn gerade keiner rangehen kann?"></div>
+        <div class="radio" data-value="sofort"><span class="dot"></span><span><b>Meist sofort.</b> Wir sind da schnell.</span></div>
+        <div class="radio" data-value="selber-tag"><span class="dot"></span><span><b>Am selben Tag,</b> aber oft erst abends.</span></div>
+        <div class="radio" data-value="tage" data-follow><span class="dot"></span><span><b>Dauert auch mal Tage.</b> Da geht sicher was verloren.</span></div>
+        <div class="followup"><input type="text" data-field="detail" placeholder="Was passiert, wenn gerade niemand rangehen kann?"></div>
       </div>
     </div>
 
     <div class="q" data-key="q4">
-      <div class="q-num">Frage 4 / 10</div>
-      <div class="q-label">Beschreib mal grob, wie es bei euch von der Anfrage bis zum Abschluss läuft — und wo es unterwegs am meisten hakt.</div>
-      <div class="q-hint">Stichpunkte reichen. Genau da schauen wir im Gespräch hin.</div>
-      <textarea data-field="text" placeholder="z.B. Anfrage kommt rein → ich rufe zurück → Besichtigung → Unterlagen hin und her per Mail → … hakt vor allem beim Unterlagen-Einsammeln"></textarea>
+      <div class="q-num">Frage 4 / 9</div>
+      <div class="q-label">Wo hakt es bei Ihnen am meisten zwischen Anfrage und Abschluss?</div>
+      <div class="q-hint">Ein Satz reicht. Genau da schauen wir im Gespräch hin.</div>
+      <textarea data-field="text" placeholder="z.B. beim Einsammeln der Unterlagen geht die meiste Zeit verloren"></textarea>
     </div>
 
     <div class="q" data-key="q5">
-      <div class="q-num">Frage 5 / 10</div>
-      <div class="q-label">Welche Aufgaben fressen bei euch aktuell die meiste Zeit?</div>
-      <div class="q-hint">Tippe alles an, was zutrifft.</div>
+      <div class="q-num">Frage 5 / 9</div>
+      <div class="q-label">Welche Aufgaben fressen bei Ihnen aktuell die meiste Zeit?</div>
+      <div class="q-hint">Tippen Sie alles an, was zutrifft.</div>
       <div class="chips">
         <div class="chip">Telefon &amp; Anfragen beantworten</div>
         <div class="chip">E-Mails abarbeiten</div>
@@ -146,23 +147,16 @@
     </div>
 
     <div class="q" data-key="q6">
-      <div class="q-num">Frage 6 / 10</div>
-      <div class="q-label">Bei welcher Aufgabe sagt dein Team: „Darauf haben wir echt keinen Bock mehr“?</div>
+      <div class="q-num">Frage 6 / 9</div>
+      <div class="q-label">Bei welcher Aufgabe sagt Ihr Team: „Darauf haben wir echt keinen Bock mehr“?</div>
       <div class="q-hint">Die ehrliche Antwort ist die beste.</div>
-      <textarea data-field="text" placeholder="z.B. Jede Anfrage einzeln beantworten, obwohl 80% dieselben Fragen stellen…"></textarea>
+      <textarea data-field="text" placeholder="z.B. jede Anfrage einzeln beantworten, obwohl 80% dieselben Fragen stellen"></textarea>
     </div>
 
     <div class="q" data-key="q7">
-      <div class="q-num">Frage 7 / 10</div>
-      <div class="q-label">Was bleibt bei euch regelmäßig liegen, weil einfach die Zeit fehlt?</div>
-      <div class="q-hint">Nachfassen, Bewertungen einsammeln, Website pflegen… was fällt hinten runter?</div>
-      <textarea data-field="text" placeholder="z.B. Alte Interessenten nachfassen — da liegt bestimmt Umsatz…"></textarea>
-    </div>
-
-    <div class="q" data-key="q8">
-      <div class="q-num">Frage 8 / 10</div>
-      <div class="q-label">Welche Programme nutzt ihr im Alltag?</div>
-      <div class="q-hint">Tippe alles an, was ihr regelmäßig nutzt.</div>
+      <div class="q-num">Frage 7 / 9</div>
+      <div class="q-label">Welche Programme nutzen Sie im Alltag?</div>
+      <div class="q-hint">Tippen Sie alles an, was Sie regelmäßig nutzen.</div>
       <div class="group-label">Google</div>
       <div class="chips" data-group="google">
         <div class="chip">Gmail</div>
@@ -181,31 +175,31 @@
         <div class="chip">Branchensoftware</div>
         <div class="chip">Sonstiges</div>
       </div>
-      <div style="margin-top:10px;"><input type="text" data-field="detail" placeholder="Welche genau? (z.B. Name der Branchensoftware, CRM…)"></div>
+      <div style="margin-top:10px;"><input type="text" data-field="detail" placeholder="Welche genau? (z.B. Name der Branchensoftware oder des CRM)"></div>
     </div>
 
-    <div class="q" data-key="q9">
-      <div class="q-num">Frage 9 / 10</div>
-      <div class="q-label">Habt ihr schon mal etwas mit KI ausprobiert?</div>
+    <div class="q" data-key="q8">
+      <div class="q-num">Frage 8 / 9</div>
+      <div class="q-label">Haben Sie schon mal etwas mit KI ausprobiert?</div>
       <div class="radios radio-group">
-        <div class="radio" data-value="nein"><span class="dot"></span><span><b>Nein, noch nicht</b> — deshalb reden wir ja.</span></div>
-        <div class="radio" data-value="ja-nutzen"><span class="dot"></span><span><b>Ja, nutzen wir</b> — z.B. ChatGPT hier und da.</span></div>
-        <div class="radio" data-value="ja-verworfen" data-follow><span class="dot"></span><span><b>Ja, aber wieder verworfen</b></span></div>
-        <div class="followup"><input type="text" data-field="detail" placeholder="Was habt ihr probiert — und woran ist es gescheitert?"></div>
+        <div class="radio" data-value="nein"><span class="dot"></span><span><b>Nein, noch nicht.</b> Deshalb reden wir ja.</span></div>
+        <div class="radio" data-value="ja-nutzen"><span class="dot"></span><span><b>Ja, nutzen wir.</b> Zum Beispiel ChatGPT hier und da.</span></div>
+        <div class="radio" data-value="ja-verworfen" data-follow><span class="dot"></span><span><b>Ja, aber wieder verworfen.</b></span></div>
+        <div class="followup"><input type="text" data-field="detail" placeholder="Was haben Sie probiert, und woran ist es gescheitert?"></div>
       </div>
     </div>
 
-    <div class="q" data-key="q10">
-      <div class="q-num">Frage 10 / 10</div>
-      <div class="q-label">Stell dir vor, wir arbeiten 3 Monate zusammen. Was muss sich verändert haben, damit du sagst: „Das hat sich richtig gelohnt“?</div>
-      <textarea data-field="text" placeholder="z.B. Ich will abends nicht mehr 2 Stunden E-Mails beantworten…"></textarea>
+    <div class="q" data-key="q9">
+      <div class="q-num">Frage 9 / 9</div>
+      <div class="q-label">Stellen Sie sich vor, wir arbeiten 3 Monate zusammen. Was muss sich verändert haben, damit Sie sagen: „Das hat sich richtig gelohnt“?</div>
+      <textarea data-field="text" placeholder="z.B. ich will abends nicht mehr 2 Stunden E-Mails beantworten"></textarea>
     </div>
 
     <button class="submit" id="btnSubmit">Antworten absenden</button>
-    <div class="autosave" id="saveState">Deine Eingaben werden automatisch zwischengespeichert</div>
+    <div class="autosave" id="saveState">Ihre Eingaben werden automatisch zwischengespeichert</div>
   </div>
 
-  <div class="foot">M&amp;H Assistenz · Matthias Heuchemer<br><a href="https://mhassistenz.de/impressum.html">Impressum</a> · <a href="https://mhassistenz.de/datenschutz.html">Datenschutz</a> · Antworten werden nur zur Vorbereitung deines Gesprächs genutzt.</div>
+  <div class="foot">M&amp;H Assistenz · Matthias Heuchemer<br><a href="https://mhassistenz.de/impressum.html">Impressum</a> · <a href="https://mhassistenz.de/datenschutz.html">Datenschutz</a> · Ihre Antworten werden nur zur Vorbereitung Ihres Gesprächs genutzt.</div>
 </div>
 
 <script>
@@ -218,6 +212,7 @@
   const show = (name) => Object.entries(views).forEach(([k, el]) => el.classList.toggle('hidden', k !== name));
 
   let saveTimer = null, dirty = false, submitted = false;
+  const QCOUNT = 9;
 
   // ---------- Antworten einsammeln / einsetzen ----------
   function collect(){
@@ -271,7 +266,7 @@
   function tick(){
     const answers = collect();
     const done = Object.keys(answers).length;
-    $('#bar').style.width = Math.max(4, Math.round(done / 10 * 100)) + '%';
+    $('#bar').style.width = Math.max(4, Math.round(done / QCOUNT * 100)) + '%';
   }
 
   // ---------- Autosave ----------
@@ -296,7 +291,7 @@
       $('#saveState').classList.add('saved');
     } catch (e) {
       dirty = true; // beim nächsten Input erneut versuchen
-      $('#saveState').textContent = 'Speichern gerade nicht möglich — Eingaben bleiben im Formular erhalten';
+      $('#saveState').textContent = 'Speichern gerade nicht möglich. Ihre Eingaben bleiben im Formular erhalten.';
       $('#saveState').classList.remove('saved');
     }
   }
@@ -317,7 +312,7 @@
       window.scrollTo({ top: 0 });
     } catch (e) {
       btn.disabled = false; btn.textContent = 'Antworten absenden';
-      $('#saveState').textContent = 'Senden fehlgeschlagen — bitte nochmal versuchen. Deine Eingaben sind noch da.';
+      $('#saveState').textContent = 'Senden fehlgeschlagen. Bitte versuchen Sie es noch einmal, Ihre Eingaben sind noch da.';
       $('#saveState').classList.remove('saved');
     }
   }
@@ -346,7 +341,7 @@
       if (!d || !d.ok) { show('error'); return; }
       if (d.q_status === 'abgesendet') { show('done'); return; }
       const vorname = String(d.name || '').trim().split(/\s+/)[0];
-      if (vorname) $('#introText').innerHTML = 'Hallo ' + vorname.replace(/[&<>"]/g, '') + ', damit wir im Erstgespräch direkt über <b>deine</b> Abläufe sprechen können statt bei null anzufangen: 10 kurze Fragen, ca. 4 Minuten. Deine Antworten sieht nur Matthias.';
+      if (vorname) $('#introText').innerHTML = 'Hallo ' + vorname.replace(/[&<>"]/g, '') + ', damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 9 kurze Fragen, etwa 3 Minuten. Ihre Antworten sieht nur Matthias.';
       if (d.start_ts) {
         const s = new Date(d.start_ts);
         $('#terminText').textContent = 'Erstgespräch: ' + s.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', weekday: 'long', day: '2-digit', month: 'long' }) + ' · ' + s.toLocaleTimeString('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
