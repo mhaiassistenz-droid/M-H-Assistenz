@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
 <meta name="robots" content="noindex,nofollow">
-<title>Fragebogen zum Erstgespräch — M&H Assistenz</title>
+<title>Fragebogen zum Erstgespräch · M&H Assistenz</title>
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,600,700,800&display=swap">
 <style>
   :root{
@@ -90,7 +90,7 @@
   <!-- Formular -->
   <div class="body hidden" id="viewForm">
     <h1>Kurz vor unserem Gespräch…</h1>
-    <p class="intro" id="introText">Damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 9 kurze Fragen, etwa 3 Minuten. Ihre Antworten sieht nur Matthias.</p>
+    <p class="intro" id="introText">Damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 10 kurze Fragen, etwa 4 Minuten. Ihre Antworten sieht nur Matthias.</p>
     <div class="meta" id="terminBadge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
       <span id="terminText">Erstgespräch</span>
@@ -190,7 +190,18 @@
     </div>
 
     <div class="q" data-key="q9">
-      <div class="q-num">Frage 9 / 9</div>
+      <div class="q-num">Frage 9 / 10</div>
+      <div class="q-label">Wenn Sie drei Dinge in Ihren Abläufen sofort ändern könnten: Welche wären das?</div>
+      <div class="q-hint">Beschreiben Sie jede Änderung so konkret wie möglich. Genau daraus bauen wir Ihre Lösung.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input type="text" data-field="eins" placeholder="1. z.B. Anfragen sollen sofort beantwortet werden, auch wenn ich unterwegs bin">
+        <input type="text" data-field="zwei" placeholder="2. z.B. Termine sollen sich von selbst koordinieren">
+        <input type="text" data-field="drei" placeholder="3. z.B. Unterlagen automatisch einsammeln statt hinterhertelefonieren">
+      </div>
+    </div>
+
+    <div class="q" data-key="q10">
+      <div class="q-num">Frage 10 / 10</div>
       <div class="q-label">Stellen Sie sich vor, wir arbeiten 3 Monate zusammen. Was muss sich verändert haben, damit Sie sagen: „Das hat sich richtig gelohnt“?</div>
       <textarea data-field="text" placeholder="z.B. ich will abends nicht mehr 2 Stunden E-Mails beantworten"></textarea>
     </div>
@@ -212,7 +223,7 @@
   const show = (name) => Object.entries(views).forEach(([k, el]) => el.classList.toggle('hidden', k !== name));
 
   let saveTimer = null, dirty = false, submitted = false;
-  const QCOUNT = 9;
+  const QCOUNT = 10;
 
   // ---------- Antworten einsammeln / einsetzen ----------
   function collect(){
@@ -221,8 +232,7 @@
       const key = q.dataset.key, a = {};
       const ta = q.querySelector('textarea');
       if (ta && ta.value.trim()) a.text = ta.value.trim();
-      const detail = q.querySelector('input[data-field=detail]');
-      if (detail && detail.value.trim()) a.detail = detail.value.trim();
+      q.querySelectorAll('input[data-field]').forEach(inp => { if (inp.value.trim()) a[inp.dataset.field] = inp.value.trim(); });
       const radio = q.querySelector('.radio.on');
       if (radio) a.wahl = radio.dataset.value;
       const groups = q.querySelectorAll('.chips');
@@ -247,8 +257,7 @@
       if (!a) return;
       const ta = q.querySelector('textarea');
       if (ta && a.text) ta.value = a.text;
-      const detail = q.querySelector('input[data-field=detail]');
-      if (detail && a.detail) detail.value = a.detail;
+      q.querySelectorAll('input[data-field]').forEach(inp => { if (a[inp.dataset.field]) inp.value = a[inp.dataset.field]; });
       if (a.wahl) {
         const r = q.querySelector(`.radio[data-value="${a.wahl}"]`);
         if (r) { r.classList.add('on'); r.closest('.radio-group').classList.toggle('show-follow', r.hasAttribute('data-follow')); }
@@ -299,6 +308,11 @@
   // ---------- Absenden ----------
   async function submit(){
     const btn = $('#btnSubmit');
+    if (Object.keys(collect()).length === 0) {
+      $('#saveState').textContent = 'Bitte beantworten Sie mindestens eine Frage, bevor Sie absenden.';
+      $('#saveState').classList.remove('saved');
+      return;
+    }
     btn.disabled = true; btn.textContent = 'Wird gesendet…';
     clearTimeout(saveTimer);
     try {
@@ -341,7 +355,7 @@
       if (!d || !d.ok) { show('error'); return; }
       if (d.q_status === 'abgesendet') { show('done'); return; }
       const vorname = String(d.name || '').trim().split(/\s+/)[0];
-      if (vorname) $('#introText').innerHTML = 'Hallo ' + vorname.replace(/[&<>"]/g, '') + ', damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 9 kurze Fragen, etwa 3 Minuten. Ihre Antworten sieht nur Matthias.';
+      if (vorname) $('#introText').innerHTML = 'Hallo ' + vorname.replace(/[&<>"]/g, '') + ', damit wir im Erstgespräch direkt über <b>Ihre</b> Abläufe sprechen können statt bei null anzufangen: 10 kurze Fragen, etwa 4 Minuten. Ihre Antworten sieht nur Matthias.';
       if (d.start_ts) {
         const s = new Date(d.start_ts);
         $('#terminText').textContent = 'Erstgespräch: ' + s.toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin', weekday: 'long', day: '2-digit', month: 'long' }) + ' · ' + s.toLocaleTimeString('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
