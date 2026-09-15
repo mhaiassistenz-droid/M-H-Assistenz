@@ -117,8 +117,7 @@ input.error{border-color:var(--error);}
 .site-foot a:hover{color:var(--gold);}
 
 @media(max-width:900px){
-  /* Handy: Spalten aufloesen, Reihenfolge Text -> Formular -> Katalogbilder.
-     Das Formular ist der Zweck der Seite und steht darum vor den Bildern. */
+  /* Handy: Spalten aufloesen, Reihenfolge Text -> Katalogbilder -> Formular. */
   body{height:auto;}
   .wrap{display:flex;flex-direction:column;gap:0;padding:14px 18px 26px;max-width:560px;}
   .col-text,.col-form{display:contents;}
@@ -126,8 +125,8 @@ input.error{border-color:var(--error);}
   h1{order:2;font-size:clamp(25px,7.2vw,31px);line-height:1.12;margin-bottom:9px;}
   .lede{order:3;font-size:14.5px;line-height:1.6;max-width:none;margin-bottom:2px;}
   .todo-flag{order:4;margin:10px 0 0;font-size:10px;}
-  .card{order:5;margin-top:18px;padding:20px 18px;border-radius:14px;}
-  .cat-visual{order:6;min-height:250px;margin-top:26px;}
+  .cat-visual{order:5;min-height:250px;margin-top:20px;}
+  .card{order:6;margin-top:22px;padding:20px 18px;border-radius:14px;}
   .cat-sheet{width:150px;}
   .cat-back{transform:rotate(8deg) translate(44%,-15%);}
   .cat-front{transform:rotate(-6deg) translate(-26%,15%);}
