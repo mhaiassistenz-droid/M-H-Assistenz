@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://ddbpwdgkafvrzjvavwiw.supabase.co https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Katalog kostenlos anfordern — M&amp;H Assistenz</title>
+<meta name="description" content="Der AI-Katalog von M&amp;H Assistenz: konkrete KI- und Automatisierungs-Anwendungen für deinen Betrieb. Kostenlos als PDF per E-Mail.">
+<meta property="og:title" content="AI-Katalog kostenlos anfordern — M&amp;H Assistenz">
+<meta property="og:description" content="Der AI-Katalog von M&amp;H Assistenz: konkrete KI- und Automatisierungs-Anwendungen für deinen Betrieb. Kostenlos als PDF per E-Mail.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mhassistenz.de/ai-katalog/">
+<meta property="og:image" content="https://mhassistenz.de/logo.png">
+<meta property="og:locale" content="de_DE">
+<!-- noindex, solange Platzhaltertext/Bilder/PDF fehlen. Vor dem echten Live-Gang auf "index,follow" stellen. -->
+<meta name="robots" content="noindex,nofollow">
+<link rel="canonical" href="https://mhassistenz.de/ai-katalog/">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=bricolage-grotesque:400,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#2F5CFF;--gold-bg:#EEF1FF;--gold-border:#C0CCFF;
+  --white:#FFFFFF;--bg:#FFFFFF;--soft:#F7F8FC;--border:#E8E8E8;
+  --text:#0F0F0F;--text-2:#444444;--text-3:#9B9B9B;
+  --error:#b83a2c;--dark:#111111;
+  --font-b:'Bricolage Grotesque',system-ui,sans-serif;--font-h:'Bricolage Grotesque',system-ui,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{-webkit-font-smoothing:antialiased;font-family:var(--font-b);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+body{min-height:100vh;display:flex;flex-direction:column;}
+@media(min-width:901px){ body{height:100vh;} }
+
+/* ---------- Kopf: Logo oben links ---------- */
+.site-head{padding:clamp(10px,2vh,22px) clamp(18px,3vw,34px) 0;flex-shrink:0;}
+.site-head img{width:clamp(112px,13vh,152px);max-width:42vw;height:auto;display:block;}
+
+/* ---------- Hauptbereich ---------- */
+.wrap{flex:1;min-height:0;width:100%;max-width:1140px;margin:0 auto;padding:clamp(4px,1.2vh,14px) clamp(18px,3vw,34px) clamp(6px,1.4vh,16px);
+      display:grid;grid-template-columns:minmax(0,1fr) clamp(320px,31vw,390px);gap:clamp(24px,3.4vw,48px);align-items:center;}
+.col-text{display:flex;flex-direction:column;justify-content:center;}
+
+/* ---------- Katalog-Visual: zwei schräge Rechtecke ---------- */
+.cat-visual{position:relative;min-height:clamp(140px,27vh,290px);margin-top:clamp(2px,1vh,10px);display:flex;align-items:center;justify-content:center;}
+.cat-sheet{position:absolute;width:clamp(96px,19vh,190px);aspect-ratio:1/1.414;border-radius:14px;
+           background:var(--soft);border:2px dashed var(--gold-border);
+           box-shadow:var(--shadow-lg);display:flex;align-items:center;justify-content:center;
+           overflow:hidden;transition:transform .45s var(--ease);}
+.cat-sheet img{width:100%;height:100%;object-fit:cover;display:block;}
+.cat-ph{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:16px;}
+.cat-ph-lbl{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);}
+.cat-ph-sub{font-size:10px;color:var(--text-3);line-height:1.5;}
+.cat-back{transform:rotate(8deg) translate(42%,-14%);}
+.cat-front{transform:rotate(-6deg) translate(-24%,14%);z-index:2;}
+.cat-visual:hover .cat-back{transform:rotate(10deg) translate(48%,-17%);}
+.cat-visual:hover .cat-front{transform:rotate(-8deg) translate(-29%,17%);}
+
+/* ---------- Textspalte + Formular ---------- */
+.pitch-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);
+             border-radius:8px;padding:5px 10px;font-size:10.5px;font-weight:700;color:var(--gold);width:fit-content;margin-bottom:clamp(6px,1.3vh,13px);}
+h1{font-family:var(--font-h);font-size:clamp(22px,3.4vh,33px);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:clamp(6px,1.2vh,11px);}
+.lede{font-size:clamp(12.5px,1.6vh,14.5px);color:var(--text-2);line-height:1.6;max-width:44ch;}
+
+/* TODO-Banner — vor dem Live-Gang entfernen (siehe HTML-Kommentar) */
+.todo-flag{margin:clamp(6px,1.1vh,12px) 0 0;padding:6px 10px;font-size:9.5px;border:1.5px dashed #d9a400;background:#fffbe9;border-radius:8px;
+           font-size:11px;font-weight:700;color:#8a6a00;line-height:1.55;}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);padding:clamp(14px,2.2vh,22px) clamp(16px,1.6vw,22px);}
+.card-h{font-size:clamp(14.5px,1.9vh,16.5px);font-weight:800;margin-bottom:2px;}
+.card-s{font-size:11.5px;color:var(--text-2);margin-bottom:clamp(8px,1.4vh,14px);}
+.fgroup{display:flex;flex-direction:column;gap:clamp(5px,1vh,9px);}
+.f{display:flex;flex-direction:column;gap:4px;}
+.f label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-2);display:flex;gap:4px;}
+.req{color:var(--gold);}
+input{width:100%;padding:clamp(7px,1.05vh,10px) 11px;font-family:var(--font-b);font-size:13px;color:var(--text);background:var(--soft);
+      border:1.5px solid var(--border);border-radius:7px;outline:none;transition:all .2s;-webkit-appearance:none;}
+input:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(47,92,255,.08);}
+input.error{border-color:var(--error);}
+.ferr{font-size:10px;color:var(--error);font-weight:600;display:none;margin-top:1px;}
+.ferr.v{display:block;}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;}
+.consent{margin-top:clamp(7px,1.2vh,12px);font-size:10.5px;color:var(--text-2);line-height:1.6;}
+.consent a{color:var(--gold);font-weight:600;}
+.form-actions{margin-top:clamp(8px,1.3vh,13px);padding-top:clamp(7px,1.2vh,12px);border-top:1px solid var(--border);}
+.btn-submit{width:100%;justify-content:center;background:var(--dark);color:#fff;border:none;padding:clamp(9px,1.5vh,13px) 22px;border-radius:8px;
+            font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;
+            display:inline-flex;align-items:center;gap:7px;}
+.btn-submit:hover{background:var(--gold);transform:translateY(-1px);}
+.btn-submit.loading{opacity:.7;cursor:not-allowed;}
+.spin{display:none;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;}
+.loading .spin{display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.submit-err{display:none;margin-top:12px;padding:10px 13px;border:1.5px solid var(--error);background:#fdf3f2;border-radius:8px;
+            font-size:12px;font-weight:600;color:var(--error);}
+.submit-err.v{display:block;}
+.form-note{font-size:9.5px;color:var(--text-3);margin-top:clamp(6px,1vh,9px);}
+
+/* ---------- Erfolg ---------- */
+.success-wrap{display:none;text-align:center;padding:22px 4px;}
+.success-wrap.visible{display:block;animation:fu .4s var(--ease);}
+.suc-icon{width:56px;height:56px;border-radius:50%;background:#f0faf4;border:2px solid #b7e4c7;
+          display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.suc-title{font-size:20px;font-weight:700;margin-bottom:8px;}
+.suc-msg{font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:16px;}
+.suc-cta{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:#fff;text-decoration:none;
+         border-radius:8px;padding:11px 18px;font-size:13px;font-weight:700;transition:all .2s;}
+.suc-cta:hover{background:var(--dark);transform:translateY(-1px);}
+@keyframes fu{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ---------- Fuß ---------- */
+.site-foot{padding:0 clamp(18px,3vw,34px) clamp(8px,1.6vh,18px);flex-shrink:0;display:flex;gap:14px;font-size:10px;color:var(--text-3);}
+.site-foot a{color:var(--text-3);text-decoration:none;}
+.site-foot a:hover{color:var(--gold);}
+
+@media(max-width:900px){
+  /* Handy: Spalten aufloesen, Reihenfolge Text -> Formular -> Katalogbilder.
+     Das Formular ist der Zweck der Seite und steht darum vor den Bildern. */
+  body{height:auto;}
+  .wrap{display:flex;flex-direction:column;gap:0;padding:14px 18px 26px;max-width:560px;}
+  .col-text,.col-form{display:contents;}
+  .pitch-badge{order:1;margin-bottom:10px;}
+  h1{order:2;font-size:clamp(25px,7.2vw,31px);line-height:1.12;margin-bottom:9px;}
+  .lede{order:3;font-size:14.5px;line-height:1.6;max-width:none;margin-bottom:2px;}
+  .todo-flag{order:4;margin:10px 0 0;font-size:10px;}
+  .card{order:5;margin-top:18px;padding:20px 18px;border-radius:14px;}
+  .cat-visual{order:6;min-height:250px;margin-top:26px;}
+  .cat-sheet{width:150px;}
+  .cat-back{transform:rotate(8deg) translate(44%,-15%);}
+  .cat-front{transform:rotate(-6deg) translate(-26%,15%);}
+  .card-h{font-size:17px;}
+  .card-s{font-size:12.5px;margin-bottom:14px;}
+  .fgroup{gap:10px;}
+  /* 16px verhindert den Zoom-Sprung beim Antippen auf iOS */
+  input{font-size:16px;padding:11px 12px;}
+  .f label{font-size:10.5px;}
+  .consent{font-size:11.5px;margin-top:13px;}
+  .btn-submit{padding:14px 22px;font-size:14px;}
+  .form-note{font-size:10.5px;}
+  .site-head{padding:16px 18px 0;}
+  .site-head img{width:132px;}
+  .site-foot{padding:0 18px 20px;}
+  .success-wrap{padding:16px 2px;}
+}
+/* sehr schmale Geraete (iPhone SE u. a.) */
+@media(max-width:380px){
+  .wrap{padding:12px 14px 22px;}
+  h1{font-size:23px;}
+  .cat-sheet{width:128px;}
+  .cat-visual{min-height:215px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <img src="/logo.png" alt="M&amp;H Assistenz">
+</header>
+
+<main class="wrap">
+
+  <!-- ============ LINKS: Text + Katalog-Visual ============ -->
+  <section class="col-text">
+    <span class="pitch-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+      Kostenlos · PDF per E-Mail
+    </span>
+
+    <h1>Der AI-Katalog für deinen Betrieb</h1>
+
+    <!-- TODO Matthias: Diese Sätze final formulieren (aktuell Platzhalter). -->
+    <p class="lede">
+      Im AI-Katalog siehst du auf einen Blick, welche KI- und Automatisierungs-Lösungen
+      in einem Betrieb wie deinem wirklich funktionieren — mit konkreten Beispielen
+      statt Buzzwords. Trag dich ein, und du bekommst den Katalog in wenigen Minuten als PDF per E-Mail.
+    </p>
+
+
+    <div class="cat-visual">
+      <!-- TODO Matthias: echte Katalog-Bilder einsetzen.
+           Vorderseite: <div class="cat-sheet cat-front"><img src="/ai-katalog/katalog-vorne.jpg" alt="AI-Katalog Vorderseite"></div>
+           Rückseite:   <div class="cat-sheet cat-back"><img src="/ai-katalog/katalog-hinten.jpg" alt="AI-Katalog Rückseite"></div>
+           Die beiden Platzhalter-Blöcke unten dabei ersetzen, Klassen (cat-sheet/cat-front/cat-back) beibehalten. -->
+      <div class="cat-sheet cat-back">
+        <div class="cat-ph">
+          <span class="cat-ph-lbl">Rückseite</span>
+          <span class="cat-ph-sub">Platzhalter — Bild folgt</span>
+        </div>
+      </div>
+      <div class="cat-sheet cat-front">
+        <div class="cat-ph">
+          <span class="cat-ph-lbl">Vorderseite</span>
+          <span class="cat-ph-sub">Platzhalter — Bild folgt</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECHTS: Formular ============ -->
+  <section class="col-form">
+    <div class="card">
+      <div id="formPane">
+        <div class="card-h">Katalog anfordern</div>
+        <div class="card-s">Drei Angaben — dann ist er unterwegs.</div>
+
+        <div class="fgroup">
+          <div class="f">
+            <label>Name <span class="req">*</span></label>
+            <input id="fName" type="text" placeholder="Vollständiger Name" autocomplete="name" required>
+            <span class="ferr" id="errName">Bitte Namen angeben</span>
+          </div>
+          <div class="f">
+            <label>Telefon <span class="req">*</span></label>
+            <input id="fPhone" type="tel" placeholder="+49 …" autocomplete="tel" required>
+            <span class="ferr" id="errPhone">Bitte Telefonnummer angeben</span>
+          </div>
+          <div class="f">
+            <label>E-Mail <span class="req">*</span></label>
+            <input id="fEmail" type="email" placeholder="deine@email.de" autocomplete="email" required>
+            <span class="ferr" id="errEmail">Bitte gültige E-Mail angeben</span>
+          </div>
+          <input class="hp" id="fCompanyX" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        </div>
+
+        <p class="consent">
+          Mit Absenden stimmst du der Kontaktaufnahme durch M&amp;H Assistenz zu.
+          Deine Daten werden ausschließlich dafür verwendet — Details in der
+          <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.
+        </p>
+
+        <div class="form-actions">
+          <button class="btn-submit" id="subBtn" onclick="doSubmit()">
+            <span class="spin"></span>Katalog kostenlos anfordern
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        <div class="submit-err" id="submitErr"></div>
+        <p class="form-note">&#128274; DSGVO-konform · Speicherung in der EU · keine Weitergabe an Dritte</p>
+      </div>
+
+      <div class="success-wrap" id="successWrap">
+        <div class="suc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="suc-title">Katalog ist unterwegs!</div>
+        <p class="suc-msg">Du bekommst den AI-Katalog in wenigen Minuten als PDF per E-Mail.
+          Wenn du direkt durchsprechen willst, wo KI in deinem Betrieb den größten Hebel hat:</p>
+        <a class="suc-cta" href="/termin/erstgespraech/">
+          Kostenloses Erstgespräch buchen
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <a href="/impressum.html" target="_blank" rel="noopener">Impressum</a>
+  <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutz</a>
+</footer>
+
+<script>
+'use strict';
+/* ================= KONFIG (identisch zu buchen.html) ================= */
+const CONFIG = {
+  SUPABASE_URL: 'https://ddbpwdgkafvrzjvavwiw.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_KSGYhgtE6BBg5XRxysd6Ag_Z9BG68CA',
+  N8N_BASE: 'https://n8n.mhassistenz.de/webhook'
+};
+const SB_HEADERS = { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer '+CONFIG.SUPABASE_ANON_KEY };
+
+/* ============ DATENSCHICHT ============ */
+async function apiCreateCatalogLead(payload){
+  // 1) Lead in Supabase sichern (RPC, SECURITY DEFINER — customers ist per RLS für anon gesperrt)
+  const r = await fetch(CONFIG.SUPABASE_URL+'/rest/v1/rpc/create_catalog_lead',{
+    method:'POST',
+    headers:{ ...SB_HEADERS, 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      p_name:  payload.name,
+      p_phone: payload.phone,
+      p_email: payload.email
+    })
+  });
+  if(!r.ok){
+    let msg=''; try{ msg=(await r.json()).message||''; }catch(e){}
+    const err=new Error(msg||('katalog '+r.status)); err.friendly=!!msg; throw err;
+  }
+  const customerId = await r.json();
+
+  // 2) n8n übernimmt ab hier: Telegram-Notify + Mail mit PDF (tolerant — Lead ist bereits gesichert)
+  try{
+    await fetch(CONFIG.N8N_BASE+'/katalog-angefordert',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ customer_id: customerId })
+    });
+  }catch(e){ console.warn('[ai-katalog] n8n-Benachrichtigung ausstehend:', e); }
+
+  return { ok:true, id: customerId };
+}
+
+/* ============ VALIDIERUNG + SUBMIT ============ */
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+function setErr(inputId, errId, show){
+  document.getElementById(inputId).classList.toggle('error', show);
+  document.getElementById(errId).classList.toggle('v', show);
+}
+
+async function doSubmit(){
+  const name  = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+
+  const badName  = name.length < 2 || name.length > 120;
+  const badPhone = phone.length < 5 || phone.length > 40;
+  const badEmail = !EMAIL_RE.test(email) || email.length > 160;
+  setErr('fName','errName',badName);
+  setErr('fPhone','errPhone',badPhone);
+  setErr('fEmail','errEmail',badEmail);
+  if(badName || badPhone || badEmail) return;
+
+  // Honeypot: von Bots ausgefüllt -> Erfolg vortäuschen, nichts senden
+  if(document.getElementById('fCompanyX').value){ showSuccess(); return; }
+
+  const btn = document.getElementById('subBtn');
+  const box = document.getElementById('submitErr');
+  btn.classList.add('loading'); btn.disabled = true; box.classList.remove('v');
+
+  try{
+    await apiCreateCatalogLead({ name, phone, email });
+    showSuccess();
+  }catch(e){
+    box.textContent = e.friendly ? e.message : 'Das hat gerade nicht geklappt. Bitte versuch es noch einmal.';
+    box.classList.add('v');
+    btn.classList.remove('loading'); btn.disabled = false;
+  }
+}
+
+function showSuccess(){
+  document.getElementById('formPane').style.display = 'none';
+  document.getElementById('successWrap').classList.add('visible');
+}
+
+['fName','fPhone','fEmail'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown', e=>{ if(e.key==='Enter') doSubmit(); });
+});
+</script>
+</body>
+</html>
