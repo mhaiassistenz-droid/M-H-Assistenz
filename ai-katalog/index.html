@@ -6,16 +6,16 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://ddbpwdgkafvrzjvavwiw.supabase.co https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-Katalog kostenlos anfordern — M&amp;H Assistenz</title>
-<meta name="description" content="Der AI-Katalog von M&amp;H Assistenz: konkrete KI- und Automatisierungs-Anwendungen für deinen Betrieb. Kostenlos als PDF per E-Mail.">
-<meta property="og:title" content="AI-Katalog kostenlos anfordern — M&amp;H Assistenz">
-<meta property="og:description" content="Der AI-Katalog von M&amp;H Assistenz: konkrete KI- und Automatisierungs-Anwendungen für deinen Betrieb. Kostenlos als PDF per E-Mail.">
+<title>KI-Prozesskatalog kostenlos anfordern | M&amp;H Assistenz</title>
+<meta name="description" content="42 Seiten von den Grundlagen der KI über konkrete Prozesse bis zum Datenschutz. Kostenlos als PDF per E-Mail.">
+<meta property="og:title" content="KI-Prozesskatalog kostenlos anfordern | M&amp;H Assistenz">
+<meta property="og:description" content="42 Seiten von den Grundlagen der KI über konkrete Prozesse bis zum Datenschutz. Kostenlos als PDF per E-Mail.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mhassistenz.de/ai-katalog/">
 <meta property="og:image" content="https://mhassistenz.de/ai-katalog/katalog-vorschau.png">
 <meta property="og:image:width" content="2400">
 <meta property="og:image:height" content="1256">
-<meta property="og:image:alt" content="KI-Prozesskatalog von M&amp;H Assistenz — kostenlos als PDF">
+<meta property="og:image:alt" content="KI-Prozesskatalog von M&amp;H Assistenz, kostenlos als PDF">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://mhassistenz.de/ai-katalog/katalog-vorschau.png">
 <meta property="og:locale" content="de_DE">
@@ -49,8 +49,8 @@ body{min-height:100vh;display:flex;flex-direction:column;}
 .col-text{display:flex;flex-direction:column;justify-content:center;}
 
 /* ---------- Katalog-Visual: zwei schräge Rechtecke ---------- */
-.cat-visual{position:relative;min-height:clamp(165px,34vh,350px);margin-top:clamp(2px,1vh,10px);display:flex;align-items:center;justify-content:center;}
-.cat-sheet{position:absolute;width:clamp(118px,24vh,245px);aspect-ratio:1/1.414;border-radius:14px;
+.cat-visual{position:relative;min-height:clamp(150px,32vh,350px);margin-top:clamp(2px,1vh,10px);display:flex;align-items:center;justify-content:center;}
+.cat-sheet{position:absolute;width:clamp(106px,22.5vh,245px);aspect-ratio:1/1.414;border-radius:14px;
            background:var(--white);border:1px solid rgba(15,15,15,.09);
            box-shadow:var(--shadow-lg);display:flex;align-items:center;justify-content:center;
            overflow:hidden;transition:transform .45s var(--ease);}
@@ -68,7 +68,8 @@ body{min-height:100vh;display:flex;flex-direction:column;}
 .pitch-badge{display:inline-flex;align-items:center;gap:7px;background:var(--gold-bg);border:1px solid var(--gold-border);
              border-radius:8px;padding:5px 10px;font-size:10.5px;font-weight:700;color:var(--gold);width:fit-content;margin-bottom:clamp(6px,1.3vh,13px);}
 h1{font-family:var(--font-h);font-size:clamp(22px,3.4vh,33px);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:clamp(6px,1.2vh,11px);}
-.lede{font-size:clamp(12.5px,1.6vh,14.5px);color:var(--text-2);line-height:1.6;max-width:44ch;}
+.lede{font-size:clamp(12px,1.55vh,14.5px);color:var(--text-2);line-height:1.58;max-width:46ch;}
+.lede-sub{margin-top:clamp(6px,1.1vh,12px);font-size:clamp(12px,1.55vh,14.5px);font-weight:600;color:var(--text);max-width:46ch;}
 
 /* TODO-Banner — vor dem Live-Gang entfernen (siehe HTML-Kommentar) */
 .todo-flag{margin:clamp(6px,1.1vh,12px) 0 0;padding:6px 10px;font-size:9.5px;border:1.5px dashed #d9a400;background:#fffbe9;border-radius:8px;
@@ -129,9 +130,10 @@ input.error{border-color:var(--error);}
   .pitch-badge{order:1;margin-bottom:10px;}
   h1{order:2;font-size:clamp(25px,7.2vw,31px);line-height:1.12;margin-bottom:9px;}
   .lede{order:3;font-size:14.5px;line-height:1.6;max-width:none;margin-bottom:2px;}
-  .todo-flag{order:4;margin:10px 0 0;font-size:10px;}
-  .cat-visual{order:5;min-height:285px;margin-top:22px;}
-  .card{order:6;margin-top:22px;padding:20px 18px;border-radius:14px;}
+  .lede-sub{order:4;font-size:14.5px;max-width:none;margin-top:10px;}
+  .todo-flag{order:5;margin:10px 0 0;font-size:10px;}
+  .cat-visual{order:6;min-height:285px;margin-top:22px;}
+  .card{order:7;margin-top:22px;padding:20px 18px;border-radius:14px;}
   .cat-sheet{width:172px;}
   .cat-back{transform:rotate(8deg) translate(44%,-15%);}
   .cat-front{transform:rotate(-6deg) translate(-26%,15%);}
@@ -173,22 +175,25 @@ input.error{border-color:var(--error);}
       Kostenlos · PDF per E-Mail
     </span>
 
-    <h1>Der AI-Katalog für deinen Betrieb</h1>
+    <h1>Der KI-Prozesskatalog für deinen Betrieb</h1>
 
-    <!-- TODO Matthias: Diese Sätze final formulieren (aktuell Platzhalter). -->
     <p class="lede">
-      Im AI-Katalog siehst du auf einen Blick, welche KI- und Automatisierungs-Lösungen
-      in einem Betrieb wie deinem wirklich funktionieren — mit konkreten Beispielen
-      statt Buzzwords. Trag dich ein, und du bekommst den Katalog in wenigen Minuten als PDF per E-Mail.
+      Ich habe über 30 Kurse bei Anthropic, OpenAI, Google und Microsoft belegt.
+      Mit über 100 Unternehmern geschrieben und gesprochen. Dazwischen sehr viele
+      KI-gestützte Prozesse gebaut. Tausende Stunden Theorie angeschaut.
+      Dabei ist das hier entstanden.
+    </p>
+    <p class="lede-sub">
+      Gib mir einfach deine Daten und du erhältst den Katalog als PDF per E-Mail.
     </p>
 
 
     <div class="cat-visual">
       <div class="cat-sheet cat-back">
-        <img src="katalog-hinten.jpg" alt="AI-Katalog — Kapitel Prozesskatalog" width="636" height="900">
+        <img src="katalog-hinten.jpg" alt="KI-Prozesskatalog, Kapitel Prozesskatalog" width="636" height="900">
       </div>
       <div class="cat-sheet cat-front">
-        <img src="katalog-vorne.jpg" alt="AI-Katalog — Titelseite" width="636" height="900">
+        <img src="katalog-vorne.jpg" alt="KI-Prozesskatalog, Titelseite" width="636" height="900">
       </div>
   </section>
 
@@ -197,7 +202,7 @@ input.error{border-color:var(--error);}
     <div class="card">
       <div id="formPane">
         <div class="card-h">Katalog anfordern</div>
-        <div class="card-s">Drei Angaben — dann ist er unterwegs.</div>
+        <div class="card-s">Drei Angaben, dann ist er unterwegs.</div>
 
         <div class="fgroup">
           <div class="f">
@@ -220,7 +225,7 @@ input.error{border-color:var(--error);}
 
         <p class="consent">
           Mit Absenden stimmst du der Kontaktaufnahme durch M&amp;H Assistenz zu.
-          Deine Daten werden ausschließlich dafür verwendet — Details in der
+          Deine Daten werden ausschließlich dafür verwendet. Details in der
           <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.
         </p>
 
@@ -237,7 +242,7 @@ input.error{border-color:var(--error);}
       <div class="success-wrap" id="successWrap">
         <div class="suc-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="suc-title">Katalog ist unterwegs!</div>
-        <p class="suc-msg">Du bekommst den AI-Katalog in wenigen Minuten als PDF per E-Mail.
+        <p class="suc-msg">Du bekommst den KI-Prozesskatalog in wenigen Minuten als PDF per E-Mail.
           Wenn du direkt durchsprechen willst, wo KI in deinem Betrieb den größten Hebel hat:</p>
         <a class="suc-cta" href="/termin/erstgespraech/">
           Kostenloses Erstgespräch buchen
