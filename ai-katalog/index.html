@@ -14,8 +14,7 @@
 <meta property="og:url" content="https://mhassistenz.de/ai-katalog/">
 <meta property="og:image" content="https://mhassistenz.de/logo.png">
 <meta property="og:locale" content="de_DE">
-<!-- noindex, solange Platzhaltertext/Bilder/PDF fehlen. Vor dem echten Live-Gang auf "index,follow" stellen. -->
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="index,follow">
 <link rel="canonical" href="https://mhassistenz.de/ai-katalog/">
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.bunny.net">
@@ -45,12 +44,13 @@ body{min-height:100vh;display:flex;flex-direction:column;}
 .col-text{display:flex;flex-direction:column;justify-content:center;}
 
 /* ---------- Katalog-Visual: zwei schräge Rechtecke ---------- */
-.cat-visual{position:relative;min-height:clamp(140px,27vh,290px);margin-top:clamp(2px,1vh,10px);display:flex;align-items:center;justify-content:center;}
-.cat-sheet{position:absolute;width:clamp(96px,19vh,190px);aspect-ratio:1/1.414;border-radius:14px;
-           background:var(--soft);border:2px dashed var(--gold-border);
+.cat-visual{position:relative;min-height:clamp(165px,34vh,350px);margin-top:clamp(2px,1vh,10px);display:flex;align-items:center;justify-content:center;}
+.cat-sheet{position:absolute;width:clamp(118px,24vh,245px);aspect-ratio:1/1.414;border-radius:14px;
+           background:var(--white);border:1px solid rgba(15,15,15,.09);
            box-shadow:var(--shadow-lg);display:flex;align-items:center;justify-content:center;
            overflow:hidden;transition:transform .45s var(--ease);}
 .cat-sheet img{width:100%;height:100%;object-fit:cover;display:block;}
+.cat-sheet{box-shadow:0 18px 44px rgba(15,23,60,.16),0 3px 10px rgba(15,23,60,.08);}
 .cat-ph{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:16px;}
 .cat-ph-lbl{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);}
 .cat-ph-sub{font-size:10px;color:var(--text-3);line-height:1.5;}
@@ -125,9 +125,9 @@ input.error{border-color:var(--error);}
   h1{order:2;font-size:clamp(25px,7.2vw,31px);line-height:1.12;margin-bottom:9px;}
   .lede{order:3;font-size:14.5px;line-height:1.6;max-width:none;margin-bottom:2px;}
   .todo-flag{order:4;margin:10px 0 0;font-size:10px;}
-  .cat-visual{order:5;min-height:250px;margin-top:20px;}
+  .cat-visual{order:5;min-height:285px;margin-top:22px;}
   .card{order:6;margin-top:22px;padding:20px 18px;border-radius:14px;}
-  .cat-sheet{width:150px;}
+  .cat-sheet{width:172px;}
   .cat-back{transform:rotate(8deg) translate(44%,-15%);}
   .cat-front{transform:rotate(-6deg) translate(-26%,15%);}
   .card-h{font-size:17px;}
@@ -148,8 +148,8 @@ input.error{border-color:var(--error);}
 @media(max-width:380px){
   .wrap{padding:12px 14px 22px;}
   h1{font-size:23px;}
-  .cat-sheet{width:128px;}
-  .cat-visual{min-height:215px;}
+  .cat-sheet{width:146px;}
+  .cat-visual{min-height:248px;}
 }
 </style>
 </head>
@@ -179,23 +179,12 @@ input.error{border-color:var(--error);}
 
 
     <div class="cat-visual">
-      <!-- TODO Matthias: echte Katalog-Bilder einsetzen.
-           Vorderseite: <div class="cat-sheet cat-front"><img src="/ai-katalog/katalog-vorne.jpg" alt="AI-Katalog Vorderseite"></div>
-           Rückseite:   <div class="cat-sheet cat-back"><img src="/ai-katalog/katalog-hinten.jpg" alt="AI-Katalog Rückseite"></div>
-           Die beiden Platzhalter-Blöcke unten dabei ersetzen, Klassen (cat-sheet/cat-front/cat-back) beibehalten. -->
       <div class="cat-sheet cat-back">
-        <div class="cat-ph">
-          <span class="cat-ph-lbl">Rückseite</span>
-          <span class="cat-ph-sub">Platzhalter — Bild folgt</span>
-        </div>
+        <img src="katalog-hinten.jpg" alt="AI-Katalog — Kapitel Prozesskatalog" width="636" height="900">
       </div>
       <div class="cat-sheet cat-front">
-        <div class="cat-ph">
-          <span class="cat-ph-lbl">Vorderseite</span>
-          <span class="cat-ph-sub">Platzhalter — Bild folgt</span>
-        </div>
+        <img src="katalog-vorne.jpg" alt="AI-Katalog — Titelseite" width="636" height="900">
       </div>
-    </div>
   </section>
 
   <!-- ============ RECHTS: Formular ============ -->
