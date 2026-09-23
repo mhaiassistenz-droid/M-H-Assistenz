@@ -12,40 +12,30 @@
 
 /* ── Schriften: lokal, kein externer Request ── */
 @font-face {
-  font-family: 'Geist';
-  src: url('fonts/geist-400.woff2') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'Geist';
-  src: url('fonts/geist-500.woff2') format('woff2');
-  font-weight: 500; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'Geist';
-  src: url('fonts/geist-600.woff2') format('woff2');
-  font-weight: 600; font-style: normal; font-display: swap;
+  font-family: 'Inter';
+  src: url('fonts/inter-variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
 }
 :root {
   color-scheme: light;
 
   /* Flächen */
-  --bg: #F5F5F4;
-  --bg-2: #FAFAF9;
+  --bg: #F9FAFB;
+  --bg-2: #FFFFFF;
   --card: #FFFFFF;
-  --card-hover: #FAFAFA;
-  --line: #E4E4E7;
-  --line-stark: #D4D4D8;
+  --card-hover: #F9FAFB;
+  --line: #E5E7EB;
+  --line-stark: #D1D5DB;
 
   /* Text — bewusst kontrastreich: wird draußen bei Sonne gelesen */
-  --text: #202124;      /* 15,9:1 auf Weiß */
-  --text-2: #55585F;    /* 7,1:1 — Kunde, Adresse, Fließtext zweiter Ordnung */
-  --text-3: #6B6F76;    /* 5,0:1 — Zusatzangaben, nie für Wichtiges */
+  --text: #1F2937;      /* 15,9:1 auf Weiß */
+  --text-2: #4B5563;    /* 7,1:1 — Kunde, Adresse, Fließtext zweiter Ordnung */
+  --text-3: #6B7280;    /* 5,0:1 — Zusatzangaben, nie für Wichtiges */
 
   /* Hauptaktion: Anthrazit statt Signalblau */
-  --aktion: #27272A;
-  --aktion-hover: #3F3F46;
-  --fokus: #52525B;
+  --aktion: #1F2937;
+  --aktion-hover: #374151;
+  --fokus: #4B5563;
 
   /* Status — gedämpft, erscheint nur als kleiner Punkt plus Text */
   --st-geplant: #3A6BA5;
@@ -59,12 +49,12 @@
   --fehler-linie: #FDA29B;
 
   /* Schrift */
-  --font: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 
   /* Radien: klein bis mittel, nichts Pillenförmiges */
-  --r-btn: 7px;
-  --r-feld: 7px;
-  --r-karte: 11px;
+  --r-btn: 8px;
+  --r-feld: 8px;
+  --r-karte: 14px;
 
   /* Schatten nur für Overlays */
   --schatten-overlay: 0 16px 48px rgba(24, 24, 27, 0.16), 0 2px 8px rgba(24, 24, 27, 0.08);
@@ -869,6 +859,91 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .daybtn-d { font-size: 16px; }
 }
 
+/* Dashboard-System — die gemeinsame Oberfläche für Aufträge, Kalender,
+   Rechnungen und Detailansichten. Informationen behalten ihre Semantik;
+   nur Hierarchie, Flächen und Typografie werden vereinheitlicht. */
+.sidebar { background: #FFF; border-color: var(--line); }
+.sb-top { padding: 24px 20px 18px; }
+.sb-firma { font-size: 16px; font-weight: 650; letter-spacing: -0.025em; }
+.sb-sub { color: var(--text-2); }
+.sb-nav { padding: 16px 12px; gap: 3px; }
+.sb-gruppe, .sb-section-label { color: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: .02em; padding-inline: 10px; }
+.nav-item { border-radius: 8px; padding: 10px 11px; color: var(--text-2); }
+.nav-item:hover { background: #F9FAFB; color: var(--text); }
+.nav-item.active { background: #F3F4F6; color: var(--text); }
+.sb-demo { border-radius: 10px; background: #F9FAFB; }
+.main { background: var(--bg); }
+.topbar { height: 56px; padding-inline: 32px; background: #FFF; border-color: var(--line); }
+.crumbs { font-weight: 500; }
+.page { padding: 32px; background: #F9FAFB; }
+.page-head { margin-bottom: 28px; }
+.page-title { font-size: 30px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.3; }
+.page-sub { margin-top: 7px; color: var(--text-2); }
+.section-head { margin-top: 30px; margin-bottom: 12px; }
+.section-title { font-size: 16px; letter-spacing: -0.015em; }
+.btn { border-radius: 8px; font-weight: 500; }
+.btn:hover { background: #F9FAFB; border-color: #9CA3AF; }
+.btn-primaer:hover { background: var(--aktion-hover); border-color: var(--aktion-hover); }
+.card, .wkal, .tag-ev, .auf-card, .sheet, .akte-kopf, .pos, .beleg, .entry-btn, .rec-box { box-shadow: 0 2px 3px rgb(17 24 39 / .025), 0 1px 1px rgb(17 24 39 / .025); }
+.card-head { padding: 18px 20px; }
+.card-title { font-size: 16px; letter-spacing: -0.015em; }
+.chips { background: #F3F4F6; border-color: var(--line); border-radius: 10px; }
+.chip { border-radius: 7px; }
+.chip.active { box-shadow: 0 1px 2px rgb(17 24 39 / .08); }
+.board { gap: 24px; }
+.board-col { gap: 12px; }
+.col-head { padding: 0 3px 12px; margin-bottom: 0; font-size: 15px; }
+.auf-card { padding: 18px; border-radius: 12px; }
+.auf-card:hover { border-color: #9CA3AF; background: #FFF; box-shadow: 0 5px 12px rgb(17 24 39 / .06); }
+.ac-aufgabe { line-height: 1.45; }
+.row-item { padding: 17px 20px; min-height: 64px; }
+.row-item:hover { background: #F9FAFB; }
+.wkal { box-shadow: 0 2px 3px rgb(17 24 39 / .025), 0 1px 1px rgb(17 24 39 / .025); }
+.wkal-kopf, .wkal-stunden { background: #F9FAFB; }
+.wkal-tag.heute { background: #F3F4F6; }
+.wkal-spalte.heute { background: #FCFCFD; }
+.wkal-termin { border-radius: 8px; box-shadow: 0 1px 2px rgb(17 24 39 / .06); }
+.cal-bar { margin-bottom: 22px; }
+.sheet { background: #F9FAFB; }
+.sheet-head { padding: 14px 20px; }
+.sheet-head-t { font-size: 17px; font-weight: 650; letter-spacing: -0.02em; }
+.sheet-body { padding: 22px 20px; gap: 18px; }
+.sheet-foot { padding: 14px 20px; }
+.akte-kopf { padding: 18px; background: #FFF; }
+.akte-kunde { font-size: 19px; }
+.akte-aufgabe, .summen { background: #F9FAFB; }
+.doc-btn { border-radius: 10px; background: #FFF; }
+.doc-btn:hover { background: #F9FAFB; border-color: #9CA3AF; }
+.vl-ico, .entry-ico { background: #F3F4F6; }
+.entry-btn { border-radius: 12px; background: #FFF; }
+.entry-btn:hover { background: #F9FAFB; border-color: #9CA3AF; }
+.pos, .abgleich-sp, .abgleich-box { border-radius: 12px; }
+.beleg { box-shadow: 0 2px 3px rgb(17 24 39 / .025); }
+@media (max-width: 880px) {
+  /* Diese Werte müssen nach den globalen Dashboard-Regeln erneut stehen:
+     Notch und Home-Indikator dürfen keine Bedienung überdecken. */
+  .topbar {
+    height: auto; min-height: 52px; background: #FFF;
+    padding: max(10px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+             10px max(16px, env(safe-area-inset-left));
+  }
+  .page { padding: 24px max(16px, env(safe-area-inset-right)) calc(86px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .page-title { font-size: 28px; }
+  .board { gap: 18px; }
+  .auf-card { padding: 16px; }
+  .row-item { padding: 16px; }
+  /* Rechnungsdaten brauchen auf dem Handy eine eigene Zeile; so bleibt der
+     Auftragsname lesbar und Betrag/Status bilden einen ruhigen Abschluss. */
+  #page-rechnungen .row-item { flex-wrap: wrap; align-items: flex-start; }
+  #page-rechnungen .row-mid { flex: 1 0 100%; }
+  #page-rechnungen .row-end { width: 100%; justify-content: flex-start; padding-top: 0; }
+  #page-rechnungen .row-end .row-chev { margin-left: auto; }
+  #page-rechnungen .row-s { hyphens: none; }
+  .sheet-head { padding-inline: 16px; }
+  .sheet-body { padding: 18px 16px; }
+  .sheet-foot { padding-inline: 16px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
@@ -891,3 +966,129 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .sum-erklaerung { font-size: 13px; color: var(--text-3); line-height: 1.45; }
 .beleg-kopfzeile { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .kal-neu { margin-top: 18px; }
+
+/* Home — Inter, kühle Flächen und ein ruhiges Dashboard-Raster.
+   Bewusst auf Home begrenzt; übrige Ansichten behalten ihre Gestaltung. */
+#page-home {
+  --text: #1F2937; --text-2: #4B5563; --text-3: #6B7280;
+  --line: #E5E7EB; --aktion: #1F2937; --aktion-hover: #374151;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+  background: #F9FAFB;
+  padding: 32px 32px 48px;
+}
+.home-dashboard { max-width: 1320px; margin: 0 auto; }
+.home-head { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 32px; }
+#page-home .page-title { font-size: 30px; font-weight: 700; line-height: 1.3; letter-spacing: -0.025em; }
+.home-date { font-size: 14px; color: var(--text-2); margin-top: 8px; }
+.home-date-detail { display: inline-block; padding-left: 12px; margin-left: 10px; border-left: 1px solid #D1D5DB; }
+.home-head > .btn { flex-shrink: 0; }
+#page-home .btn { border-radius: 8px; }
+.home-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.home-panel { min-width: 0; background: #FFF; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 3px rgb(17 24 39 / 0.025), 0 1px 1px rgb(17 24 39 / 0.025); overflow: hidden; }
+.home-current, .home-schedule { grid-column: span 8; }
+.home-overview, .home-invoices { grid-column: span 4; }
+.home-current, .home-overview { align-self: stretch; }
+.home-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #EEF0F3; }
+.home-panel-head h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.4; }
+.home-panel-head .badge { font-size: 12.5px; }
+.home-focus-body { padding: 25px 28px 28px; }
+.home-focus-date { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 13px; font-weight: 500; }
+#page-home svg { flex-shrink: 0; width: 17px; height: 17px; stroke-width: 1.7; }
+.home-focus-title { font-size: clamp(21px, 1.75vw, 26px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.4; margin: 15px 0 18px; overflow-wrap: anywhere; text-wrap: pretty; }
+.home-customer { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.home-address { display: flex; align-items: flex-start; gap: 6px; color: var(--text-2); font-size: 13px; margin-top: 6px; overflow-wrap: anywhere; }
+.home-address svg { margin-top: 2px; }
+.home-focus-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 24px; border-top: 1px solid #EEF0F3; background: #FCFCFD; }
+.home-progress { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 12.5px; }
+.home-current { display: flex; flex-direction: column; }
+.home-focus-foot { margin-top: auto; }
+.home-metrics { padding: 0 24px; }
+.home-metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 23px 0; }
+.home-metric + .home-metric { border-top: 1px solid #EEF0F3; }
+.home-metric dt { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; }
+.home-metric small { display: block; font-size: 11.5px; color: var(--text-2); font-weight: 400; margin-top: 4px; }
+.home-metric-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #F3F4F6; border-radius: 10px; color: #6B7280; flex-shrink: 0; }
+.home-metric dd { font-size: 32px; letter-spacing: -0.045em; font-weight: 600; line-height: 1.2; }
+.home-link, .home-panel-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 500; }
+.home-link { color: var(--text-2); min-height: 32px; flex-shrink: 0; }
+.home-panel-link { padding: 16px 24px; border-top: 1px solid #EEF0F3; min-height: 48px; }
+.home-link:hover, .home-panel-link:hover { color: #111827; background: #F9FAFB; }
+.home-job { display: grid; grid-template-columns: 78px minmax(0, 1fr) 16px; align-items: start; gap: 14px; padding: 24px; width: 100%; text-align: left; }
+.home-job + .home-job { border-top: 1px solid #EEF0F3; }
+.home-job:hover, .home-invoice:hover { background: #F9FAFB; }
+.home-job-time { display: block; font-size: 14px; font-weight: 600; line-height: 1.5; }
+.home-job-content, .home-job-title, .home-job-customer, .home-job-address { display: block; }
+.home-job-title { font-size: 15px; font-weight: 600; line-height: 1.55; overflow-wrap: anywhere; }
+.home-job-customer { font-size: 13px; color: var(--text-2); margin-top: 8px; overflow-wrap: anywhere; }
+.home-job-address { font-size: 12.5px; color: var(--text-2); margin-top: 3px; overflow-wrap: anywhere; }
+.home-job-content .badge { margin-top: 14px; font-size: 12.5px; }
+.home-chevron { margin-top: 3px; color: #6B7280; }
+.home-count { display: inline-flex; min-width: 25px; min-height: 25px; align-items: center; justify-content: center; padding: 2px 7px; background: #F3F4F6; color: var(--text-2); border-radius: 6px; font-size: 12px; font-weight: 600; }
+.home-invoice { display: block; width: 100%; text-align: left; padding: 24px; }
+.home-invoice + .home-invoice { border-top: 1px solid #EEF0F3; }
+.home-invoice-number { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+.home-invoice-customer { display: block; font-size: 16px; font-weight: 600; line-height: 1.45; letter-spacing: -0.02em; margin-top: 14px; overflow-wrap: anywhere; }
+.home-invoice-task { display: block; color: var(--text-2); font-size: 13px; line-height: 1.6; margin-top: 8px; overflow-wrap: anywhere; }
+.home-invoice-total { display: block; font-size: 22px; font-weight: 600; margin-top: 19px; }
+.home-invoice-total .badge { font-size: 12.5px; }
+.home-invoice-action { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; margin-top: 20px; }
+.home-list-label { font-size: 13px; font-weight: 600; padding: 14px 24px; background: #F9FAFB; border-block: 1px solid #EEF0F3; }
+.home-unbilled { grid-column: 1 / -1; }
+.home-empty { padding: 26px 24px; font-size: 14px; }
+.home-empty > span { display: block; font-size: 13px; color: var(--text-2); margin-top: 6px; }
+.home-empty-focus { padding: 28px; }
+.home-empty-focus h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.025em; margin: 14px 0 10px; }
+.home-empty-focus p { color: var(--text-2); max-width: 42ch; }
+.home-empty-focus .btn { margin-top: 24px; }
+.home-empty-focus .home-empty-icon { display: inline-flex; width: 40px; height: 40px; justify-content: center; align-items: center; background: #F3F4F6; border-radius: 12px; }
+#page-home a:focus-visible, #page-home button:focus-visible { outline: 2px solid #4B5563; outline-offset: -3px; }
+
+@media (min-width: 881px) and (max-width: 1150px) {
+  .home-current, .home-schedule { grid-column: span 7; }
+  .home-overview, .home-invoices { grid-column: span 5; }
+  .home-focus-foot { flex-wrap: wrap; }
+  .home-head { align-items: flex-start; }
+  .home-date-detail { display: block; border: 0; padding: 0; margin: 4px 0 0; }
+}
+@media (max-width: 880px) {
+  #page-home { padding: 24px max(16px, env(safe-area-inset-right)) calc(88px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .home-head { flex-wrap: wrap; gap: 18px; margin-bottom: 24px; }
+  #page-home .page-title { font-size: 28px; }
+  .home-date { font-size: 13px; }
+  .home-date-detail { display: block; padding: 0; margin: 4px 0 0; border: 0; }
+  .home-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .home-panel { grid-column: 1; border-radius: 12px; }
+  .home-panel-head { padding: 16px 18px; gap: 8px; }
+  .home-panel-head h2 { font-size: 15px; }
+  .home-panel-head .badge { font-size: 12px; }
+  .home-focus-body { padding: 20px 18px 22px; }
+  .home-focus-title { font-size: 21px; line-height: 1.4; margin: 14px 0; }
+  .home-address { font-size: 13px; }
+  .home-focus-foot { padding: 16px 18px; flex-wrap: wrap; gap: 14px; }
+  .home-focus-foot .btn { width: 100%; justify-content: space-between; }
+  .home-overview .home-panel-head { display: none; }
+  .home-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 18px 0; }
+  .home-metric { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0 15px; }
+  .home-metric + .home-metric { border-top: 0; border-left: 1px solid var(--line); }
+  .home-metric dt { font-size: 11.5px; }
+  .home-metric-icon, .home-metric small { display: none; }
+  .home-metric dd { font-size: 28px; }
+  .home-job { grid-template-columns: 52px minmax(0, 1fr) 14px; gap: 10px; padding: 20px 18px; }
+  .home-job-title { font-size: 15px; }
+  .home-job-time { font-size: 13px; overflow-wrap: anywhere; }
+  .home-job-customer, .home-job-address { font-size: 13px; }
+  .home-link { min-height: 44px; }
+  .home-panel-link, .home-list-label { padding-inline: 18px; }
+  .home-invoice { padding: 20px 18px; }
+  .home-empty { padding: 22px 18px; }
+}
+
+@media (max-width: 380px) {
+  #page-home { padding-top: 18px; }
+  #page-home .page-title { font-size: 26px; }
+  .home-head { gap: 14px; margin-bottom: 18px; }
+  .home-focus-body { padding-block: 16px 18px; }
+  .home-focus-title { font-size: 20px; }
+}
