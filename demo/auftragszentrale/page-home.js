@@ -3,6 +3,7 @@
 import { esc, icon, fmtUhr, fmtTermin, parseTermin, heuteKey, tagKey,
          wochentag, monatName, fmtEuro, istHandy } from './util.js';
 import * as flows from './flows.js';
+import { hinweisZeile, zugangKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { badge } from './ui.js';
 import { akteOeffnen } from './akte.js';
@@ -12,10 +13,10 @@ import { rechnungsFilterSetzen } from './page-rechnungen.js';
 /* Steht ein echter Dienst dahinter, darf die Fusszeile nicht weiter von
    Simulation sprechen. Die Pruefung ist asynchron; bis sie da ist, gilt die
    vorsichtigere Aussage. */
-let echterDienst = false;
+let modus = 'aus';
 flows.verfuegbar().then((ja) => {
   if (!ja) return;
-  echterDienst = true;
+  modus = flows.zugangsmodus();
 });
 
 export function renderHome(el) {
@@ -107,9 +108,8 @@ export function renderHome(el) {
       </div>
 
       ${istHandy() ? `<div class="home-fuss">
-        ${echterDienst
-          ? `<div class="hinweis"><span>Fiktive Kundendaten. Foto-Auswertung, Spracherkennung und Rechnungsversand laufen über echte Dienste.</span></div>`
-          : `<div class="hinweis"><span class="hinweis-marke">Demo</span><span>Bitte keine echten Kundendaten eingeben. Foto-Auswertung, Spracherkennung und Rechnungsversand sind simuliert.</span></div>`}
+        ${hinweisZeile(modus)}
+        <button class="btn btn-block" data-zugang type="button" hidden></button>
         <button class="btn btn-block" data-reset type="button">Demo zurücksetzen</button>
       </div>` : ''}
     </div>`;
@@ -294,4 +294,5 @@ function binden(el) {
     const { resetAusloesen } = await import('./app.js');
     resetAusloesen();
   });
+  zugangKnopf(el.querySelector('[data-zugang]'));
 }

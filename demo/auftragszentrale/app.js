@@ -8,6 +8,7 @@
 
 import { $, esc, icon, HANDY_MQ } from './util.js';
 import * as flows from './flows.js';
+import { hinweisHtml, zugangKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { bestaetigen, toast, alleSheetsSchliessen } from './ui.js';
 import { bilderNachladen } from './fotos.js';
@@ -156,11 +157,9 @@ async function start() {
   // bleiben erfunden, die Verarbeitung ist es nicht.
   if (echterDienst) {
     const hinweis = $('[data-demo-hinweis]');
-    if (hinweis) {
-      hinweis.innerHTML = 'Fiktive Kundendaten. Foto-Auswertung, Spracherkennung und '
-        + 'Rechnungsversand laufen \u00fcber echte Dienste.';
-    }
+    if (hinweis) hinweis.innerHTML = hinweisHtml(flows.zugangsmodus());
   }
+  zugangKnopf($('#btnZugang'));
 
   gehe(location.hash.replace('#', '') || 'home', { scrollTop: false });
 }

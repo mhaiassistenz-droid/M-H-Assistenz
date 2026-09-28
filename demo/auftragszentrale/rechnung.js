@@ -15,14 +15,19 @@ import * as flows from './flows.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, badge, hinweisBox } from './ui.js';
 
-/* Ob ein echter Rechnungsdienst dahintersteht. Wird beim Laden einmal
-   ermittelt; bis dahin gilt die vorsichtigere Annahme „Demo". Davon haengt
-   nur die Beschriftung ab — was tatsaechlich passiert, entscheidet die
-   Weiche in versandOeffnen(). */
+/* Zwei getrennte Fragen. `echterDienst`: laeuft die Auswertung echt (Sprache, Foto,
+   Aenderung per KI)? `versandEcht`: geht eine Rechnung wirklich an sevDesk? Das
+   ist nur ueber den lokalen Proxy so — in der oeffentlichen Demo mit Zugangscode
+   ist die KI echt, der Versand bleibt simuliert. Beides wird beim Laden einmal
+   ermittelt; bis dahin gilt die vorsichtigere Annahme „Demo". Davon haengt nur die
+   Beschriftung ab — was tatsaechlich passiert, entscheidet die Weiche in
+   versandOeffnen(). */
 let echterDienst = false;
+let versandEcht = false;
 flows.verfuegbar().then(ja => { echterDienst = ja; });
+flows.versandEcht().then(ja => { versandEcht = ja; });
 
-const VERSAND_LABEL = () => echterDienst ? 'Rechnung stellen' : 'Versand simulieren';
+const VERSAND_LABEL = () => versandEcht ? 'Rechnung stellen' : 'Versand simulieren';
 
 /* Fiktive Absenderdaten für die Belegvorschau. */
 const ABSENDER = {
@@ -381,9 +386,10 @@ function editorBinden(el, api, rechnungId, danach) {
  * verschickt eine Rechnung.
  */
 function beschriftungNachziehen(sheet) {
-  flows.verfuegbar().then((ja) => {
-    if (!ja) return;
-    echterDienst = true;
+  Promise.all([flows.verfuegbar(), flows.versandEcht()]).then(([ki, versand]) => {
+    if (!ki && !versand) return;
+    echterDienst = ki;
+    versandEcht = versand;
     sheet.render();
   });
 }
@@ -858,7 +864,7 @@ function hindernisseZeigen(hindernisse) {
         <ul class="liste-offen">${hindernisse.map(h => `<li>${esc(h)}</li>`).join('')}</ul>
       </div>
       <div class="hint-note">Solange Angaben fehlen oder unzulässig sind, bleibt der
-        ${echterDienst ? 'Versand' : 'Demo-Versand'} gesperrt. Eine Rechnung mit negativer
+        ${versandEcht ? 'Versand' : 'Demo-Versand'} gesperrt. Eine Rechnung mit negativer
         Menge oder ungültiger Adresse würde in der Praxis niemand herausgeben.</div>`,
     foot: () => `<button class="btn btn-primaer btn-block" data-zu type="button">Zurück zum Entwurf</button>`,
     bind: (el) => el.querySelector('[data-zu]').addEventListener('click', sheetSchliessen),
@@ -1025,7 +1031,7 @@ function rechnungStellenOeffnen(rechnungId, danach) {
  * sich nicht ändern. Steht einer bereit, geht die Rechnung wirklich hinaus.
  */
 async function versandOeffnen(rechnungId, danach) {
-  if (await flows.verfuegbar()) return rechnungStellenOeffnen(rechnungId, danach);
+  if (await flows.versandEcht()) return rechnungStellenOeffnen(rechnungId, danach);
   return demoVersandOeffnen(rechnungId, danach);
 }
 

@@ -6,26 +6,76 @@
    bleibt bei ihren gekennzeichneten Beispielen. Steht ein Backend bereit,
    wird wirklich aufgenommen und wirklich ausgewertet.
 
-   Bewusst enthält diese Datei **keine Webhook-URL und keinen Schlüssel**.
-   Sie ruft nur relative Pfade auf demselben Ursprung auf; das Geheimnis
-   setzt der Server davor (siehe werkstatt/proxy.py). Damit kann die Datei
-   gefahrlos auch in der öffentlichen Demo liegen — dort findet sie schlicht
-   kein Backend.
+   Drei Betriebsarten (`zugangsmodus()`):
+     'proxy'  lokaler Proxy (werkstatt/proxy.py) auf demselben Ursprung. Er setzt
+              den Token selbst; alles ist echt, auch der Rechnungsversand.
+     'direkt' öffentliche Demo mit Zugangscode: Sprache, Foto und KI-Änderung gehen
+              direkt an n8n, der Code wandert als Header mit. Der Rechnungsversand
+              bleibt simuliert (`versandEcht() === false`).
+     'aus'    weder noch: die Oberfläche bleibt bei ihren gekennzeichneten Beispielen.
+
+   Bewusst enthält diese Datei **keinen Schlüssel**. Die Adresse von n8n darf
+   öffentlich stehen — ohne den Code antwortet der Server mit 403. Der Code kommt
+   nie aus dem Quelltext: er wird eingegeben oder per Link (`#z=...`) übergeben und
+   nur im Browser des Nutzers gespeichert (Fachregel 13).
 
    Ein Ergebnis von hier ist immer ein **Vorschlag**, nie ein bestätigter
    Wert: `geprueft` ist stets false, und `fehlend` zählt auf, was nicht
    erkannt wurde. Was fehlt, wird benannt und nicht geraten.
    ============================================ */
 
-const BASIS = '/api';
+const BASIS = '/api';                                    // lokaler Proxy
+const N8N = 'https://n8n.mhassistenz.de/webhook';        // direkter Weg (nur mit Code)
+const N8N_ZIEL = {
+  sprache: 'pt-sprache',
+  foto: 'pt-foto',
+  preiskorrektur: 'pt-preiskorrektur',
+  rechnungskorrektur: 'pt-rechnungskorrektur',
+};
+const CODE_KEY = 'pt-zugangscode';
+
+/* ── Zugangscode ─────────────────────────── */
+
+export function zugangscode() {
+  try { return localStorage.getItem(CODE_KEY) || ''; } catch { return ''; }
+}
+
+export function zugangscodeSetzen(code) {
+  try { localStorage.setItem(CODE_KEY, String(code).trim()); } catch { /* Speicher gesperrt */ }
+  zuruecksetzen();
+}
+
+export function zugangscodeLoeschen() {
+  try { localStorage.removeItem(CODE_KEY); } catch { /* egal */ }
+  zuruecksetzen();
+}
+
+/* Ein Link mit `#z=CODE` schaltet frei und verschwindet sofort aus der Adressleiste.
+   Das muss beim Laden dieses Moduls passieren, noch bevor irgendein anderes Modul
+   `verfuegbar()` fragt — und bevor der Router das Fragment als Seite liest. Klickt
+   jemand den Link in einer schon offenen Seite an, lädt sie danach neu. */
+function codeAusAdresse() {
+  if (typeof location === 'undefined') return false;
+  const treffer = /^#z=([A-Za-z0-9-]{8,64})$/.exec(location.hash);
+  if (!treffer) return false;
+  try { localStorage.setItem(CODE_KEY, treffer[1]); } catch { /* Speicher gesperrt */ }
+  try { history.replaceState(null, '', location.pathname + location.search); } catch { /* egal */ }
+  return true;
+}
+codeAusAdresse();
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', () => { if (codeAusAdresse()) location.reload(); });
+}
 
 /* ── Verfügbarkeit ───────────────────────── */
 
 let bekannt = null;   // null = noch nicht geprüft
+let modus = 'aus';    // 'proxy' | 'direkt' | 'aus'
 
 /**
- * Prüft einmalig, ob ein Backend erreichbar ist. Das Ergebnis wird gemerkt,
- * damit nicht jeder Dialog erneut anfragt.
+ * Prüft einmalig, ob echte Auswertung möglich ist. Das Ergebnis wird gemerkt,
+ * damit nicht jeder Dialog erneut anfragt. Erst der Proxy, dann ein gespeicherter
+ * Zugangscode.
  * @returns {Promise<boolean>}
  */
 export async function verfuegbar() {
@@ -35,15 +85,46 @@ export async function verfuegbar() {
     const abbruch = setTimeout(() => steuerung.abort(), 2000);
     const antwort = await fetch(`${BASIS}/status`, { signal: steuerung.signal });
     clearTimeout(abbruch);
-    bekannt = antwort.ok;
-  } catch {
-    bekannt = false;
-  }
-  return bekannt;
+    if (antwort.ok) { modus = 'proxy'; bekannt = true; return true; }
+  } catch { /* kein Proxy da */ }
+  if (zugangscode()) { modus = 'direkt'; bekannt = true; return true; }
+  modus = 'aus';
+  bekannt = false;
+  return false;
+}
+
+/** Wie die Auswertung gerade läuft. Erst nach `verfuegbar()` verlässlich. */
+export const zugangsmodus = () => modus;
+
+/** Nur über den lokalen Proxy geht eine Rechnung wirklich an sevDesk. */
+export async function versandEcht() {
+  await verfuegbar();
+  return modus === 'proxy';
 }
 
 /** Nur für Tests: erzwingt eine erneute Prüfung. */
-export function zuruecksetzen() { bekannt = null; }
+export function zuruecksetzen() { bekannt = null; modus = 'aus'; }
+
+/* ── Adresse und Kopfzeilen je nach Betriebsart ── */
+
+function ziel(weg, query = '') {
+  const q = query ? `?${query}` : '';
+  return modus === 'direkt' ? `${N8N}/${N8N_ZIEL[weg]}${q}` : `${BASIS}/${weg}${q}`;
+}
+
+function kopfzeilen(typ) {
+  const h = { 'Content-Type': typ };
+  if (modus === 'direkt') h['X-PT-Token'] = zugangscode();
+  return h;
+}
+
+/** Lehnt n8n den Code ab (403), wird er entfernt — ein toter Code soll nicht hängen bleiben. */
+function codeAbgelehnt(antwort) {
+  if (modus !== 'direkt' || antwort.status !== 403) return null;
+  zugangscodeLoeschen();
+  return { ok: false, fehler: 'Der Zugangscode wird nicht akzeptiert und wurde entfernt. '
+    + 'Bitte unter „KI-Funktionen freischalten“ neu eingeben.' };
+}
 
 /* ── Aufnahme ────────────────────────────── */
 
@@ -115,16 +196,19 @@ export async function aufnahmeStarten() {
 /* ── Auswertung ──────────────────────────── */
 
 async function senden(weg, daten, kontext) {
+  await verfuegbar();
   let antwort;
   try {
-    antwort = await fetch(`${BASIS}/${weg}?kontext=${encodeURIComponent(kontext)}`, {
+    antwort = await fetch(ziel(weg, `kontext=${encodeURIComponent(kontext)}`), {
       method: 'POST',
-      headers: { 'Content-Type': daten.type || 'application/octet-stream' },
+      headers: kopfzeilen(daten.type || 'application/octet-stream'),
       body: daten,
     });
   } catch {
     return { ok: false, fehler: 'Die Auswertung ist nicht erreichbar. Läuft der Server noch?' };
   }
+  const abgelehnt = codeAbgelehnt(antwort);
+  if (abgelehnt) return abgelehnt;
 
   let ergebnis;
   try {
@@ -177,12 +261,15 @@ export async function preisAnweisung({ anweisung, position }) {
       preis: position.preis,
     }],
   };
+  await verfuegbar();
   try {
-    const antwort = await fetch(`${BASIS}/preiskorrektur`, {
+    const antwort = await fetch(ziel('preiskorrektur'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: kopfzeilen('application/json'),
       body: JSON.stringify(daten),
     });
+    const abgelehnt = codeAbgelehnt(antwort);
+    if (abgelehnt) return abgelehnt;
     const ergebnis = await antwort.json();
     return (ergebnis && typeof ergebnis === 'object')
       ? ergebnis
@@ -227,12 +314,15 @@ export async function rechnungKorrektur({ anweisung, rechnung }) {
       index: i, text: p.text, menge: p.menge, einheit: p.einheit, preis: p.preis,
     })),
   };
+  await verfuegbar();
   try {
-    const antwort = await fetch(`${BASIS}/rechnungskorrektur`, {
+    const antwort = await fetch(ziel('rechnungskorrektur'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: kopfzeilen('application/json'),
       body: JSON.stringify(daten),
     });
+    const abgelehnt = codeAbgelehnt(antwort);
+    if (abgelehnt) return abgelehnt;
     const ergebnis = await antwort.json();
     return (ergebnis && typeof ergebnis === 'object')
       ? ergebnis
@@ -243,6 +333,11 @@ export async function rechnungKorrektur({ anweisung, rechnung }) {
 }
 
 export async function rechnungUebergeben({ rechnung, auftrag, versandAn, betreff, nachricht }) {
+  // Harte Sperre: nur über den lokalen Proxy geht eine Rechnung wirklich an sevDesk.
+  // Mit Zugangscode in der öffentlichen Demo bleibt der Versand simuliert.
+  if (!(await versandEcht())) {
+    return { ok: false, fehler: 'Der Rechnungsversand ist in dieser Demo simuliert.' };
+  }
   const positionen = (rechnung.positionen || []).map(p => ({
     text: p.text,
     menge: p.menge,
