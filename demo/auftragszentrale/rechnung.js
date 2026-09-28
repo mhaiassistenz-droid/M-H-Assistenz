@@ -12,6 +12,7 @@
 import { esc, icon, fmtEuro, fmtDatum, parseZahl, zahlZuFeld, parseTermin,
          mengePruefen, preisPruefen, istEmail } from './util.js';
 import * as flows from './flows.js';
+import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, badge, hinweisBox } from './ui.js';
 
@@ -500,7 +501,7 @@ function anweisungDialog(rechnungId, positionId, aktualisieren) {
         ${echterDienst
           ? hinweisBox('Der Text geht an die Auswertung. Nennen Sie eine konkrete Zahl oder einen Betrag — '
             + 'ohne Zahl fragt die KI nach, statt selbst einen Preis zu erfinden.', '')
-          : hinweisBox('<strong>Simuliert.</strong> Ohne echten Dienst wird die Anweisung nur lokal nachgebildet.')}
+          : hinweisBox('<strong>Simuliert.</strong> Ohne echten Dienst wird die Anweisung nur lokal nachgebildet.' + freischaltenKnopf())}
         ${frage ? `<div class="card"><div class="card-body zitat">„${esc(frage)}"</div></div>` : ''}
         ${fehler ? `<div class="state-box error">${esc(fehler)}</div>` : ''}
         <div class="f">

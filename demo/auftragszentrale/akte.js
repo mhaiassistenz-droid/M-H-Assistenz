@@ -12,6 +12,7 @@ import { esc, icon, uid, fmtTermin, fmtVerlaufZeit, fmtStunden, parseZahl, zahlZ
 import * as fotos from './fotos.js';
 import * as flows from './flows.js';
 import * as pegel from './pegel.js';
+import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, bestaetigen, toast, badge, hinweisBox, leerZustand } from './ui.js';
 
@@ -714,7 +715,7 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
           ? hinweisBox('Die Aufnahme wird zum Erkennen übertragen und dort nicht gespeichert. '
             + 'Sagen Sie, was Sie gemacht haben, wie lange, und was noch offen ist.', '')
           : hinweisBox('<strong>Aufnahme ist simuliert.</strong> Die Demo greift nicht auf das Mikrofon zu '
-            + 'und zeichnet nichts auf. Start und Stopp zeigen nur den Ablauf.')}
+            + 'und zeichnet nichts auf. Start und Stopp zeigen nur den Ablauf.' + freischaltenKnopf())}
         ${problem ? `<div class="state-box error">${esc(problem)}</div>` : ''}
         ${aufnahmen ? `<div class="hint-note">${aufnahmen} ${aufnahmen === 1 ? 'Aufnahme bleibt' : 'Aufnahmen bleiben'} erhalten. Sie ergänzen jetzt weitere Angaben.</div>` : ''}
         <div class="rec-box ${phase === 'laeuft' ? 'laeuft' : ''}">

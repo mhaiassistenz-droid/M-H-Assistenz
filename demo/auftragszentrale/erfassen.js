@@ -14,6 +14,7 @@ import { esc, icon, uid, toInputDatetime, fmtTermin } from './util.js';
 import * as fotos from './fotos.js';
 import * as flows from './flows.js';
 import * as pegel from './pegel.js';
+import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, hinweisBox } from './ui.js';
 import { akteOeffnen } from './akte.js';
@@ -141,7 +142,7 @@ function einstiegOeffnen(o) {
           + 'mit einem Vorschlag, den Sie danach prüfen und korrigieren.', '')
         : hinweisBox('Foto-Auswertung und Spracherkennung sind in dieser Demo simuliert. '
           + 'Beide füllen das gleiche Formular mit einem gekennzeichneten Beispiel, das Sie danach '
-          + 'korrigieren können.')}`,
+          + 'korrigieren können.' + freischaltenKnopf())}`,
     bind: (el) => {
       el.querySelector('[data-weiter]')?.addEventListener('click', () =>
         sheetErsetzenMitFormular(entwurf, o));
@@ -462,7 +463,7 @@ function sprachWeg(o) {
         ${echt
           ? hinweisBox('Die Aufnahme wird zum Erkennen übertragen und dort nicht gespeichert. '
             + 'Sagen Sie Kunde, Adresse, Aufgabe und Termin in einem Satz.', '')
-          : hinweisBox('<strong>Aufnahme ist simuliert.</strong> Die Demo greift nicht auf das Mikrofon zu.')}
+          : hinweisBox('<strong>Aufnahme ist simuliert.</strong> Die Demo greift nicht auf das Mikrofon zu.' + freischaltenKnopf())}
         ${problem ? `<div class="state-box error">${esc(problem)}</div>` : ''}
         <div class="rec-box ${phase === 'laeuft' ? 'laeuft' : ''}">
           ${phase === 'laeuft' && echt

@@ -18,6 +18,17 @@ const TEXT = {
   aus: 'Bitte keine echten Kundendaten eingeben. Foto-Auswertung, Spracherkennung und Rechnungsversand sind simuliert.',
 };
 
+/* Knopf im Simulations-Hinweis der Dialoge (Einsprechen, Foto, KI-Änderung). Ohne ihn
+   sieht man dort nur „simuliert" und weiß nicht, dass sich das freischalten lässt. */
+export const freischaltenKnopf = () =>
+  '<span class="fz-zeile"><button class="btn btn-sm" data-freischalten-hier type="button">Mit Zugangscode freischalten</button></span>';
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (e) => {
+    if (e.target.closest?.('[data-freischalten-hier]')) freischaltenOeffnen();
+  });
+}
+
 /** Der Hinweis in der Seitenleiste und auf Home — je nach Betriebsart. */
 export function hinweisHtml(modus) {
   const marke = modus === 'proxy' ? '' : '<span class="hinweis-marke">Demo</span> ';

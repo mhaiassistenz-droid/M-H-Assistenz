@@ -1538,3 +1538,7 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .home-focus-body { padding-block: 16px 18px; }
   .home-focus-title { font-size: 20px; }
 }
+
+/* Freischalt-Knopf im Simulations-Hinweis der Dialoge */
+.fz-zeile { display: block; margin-top: 8px; }
+.fz-zeile .btn { min-height: 36px; }
