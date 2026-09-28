@@ -221,7 +221,7 @@ function tagesEintrag(a) {
   const st = state.STATUS[a.status];
 
   return `
-    <button class="tag-ev" data-auftrag="${a.id}" type="button">
+    <button class="tag-ev ${st.art}" data-auftrag="${a.id}" type="button">
       <span class="tag-ev-zeit">${fmtUhr(d)}</span>
       <span class="tag-ev-mid">
         <span class="tag-ev-titel">${esc(a.aufgabe) || 'Ohne Aufgabe'}</span>

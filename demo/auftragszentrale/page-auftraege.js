@@ -94,7 +94,7 @@ function karte(a) {
   const rs = state.RECHNUNGSSTATUS[state.rechnungsStatus(a.id)];
 
   return `
-    <button class="auf-card" data-auftrag="${a.id}" type="button">
+    <button class="auf-card ${st.art}" data-auftrag="${a.id}" type="button">
       <div class="ac-aufgabe">${esc(a.aufgabe) || 'Ohne Aufgabe'}</div>
       <div class="ac-kunde">${esc(a.kunde) || 'Ohne Kunde'}</div>
       ${a.adresse ? `<div class="ac-meta">${icon('ort')}<span>${esc(a.adresse)}</span></div>` : ''}

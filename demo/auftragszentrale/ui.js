@@ -23,6 +23,7 @@ const host = () => document.getElementById('overlay');
  * @param {() => string} o.body      HTML des Inhalts (wird bei render() neu erzeugt)
  * @param {() => string} [o.foot]    HTML der festen Fußleiste
  * @param {(el: HTMLElement, api) => void} [o.bind]  Event-Handler nach jedem Rendern
+ * @param {() => void} [o.vorRender] Aufräumen vor jedem Neuzeichnen (Zeitgeber, Animationen)
  * @param {() => void} [o.onClose]
  */
 export function sheetOeffnen(o) {
@@ -70,6 +71,11 @@ function zeichnen() {
 
   const o = stack[stack.length - 1];
   const zurueck = stack.length > 1;
+
+  // Wer laufende Zeitgeber oder Animationen an das alte DOM gehängt hat,
+  // bekommt hier die Gelegenheit, sie zu lösen. Sonst laufen sie nach dem
+  // Ersetzen des innerHTML ins Leere und stapeln sich bei jedem Rendern.
+  if (o.vorRender) o.vorRender();
 
   h.innerHTML = `
     <div class="sheet-backdrop" data-backdrop>
@@ -167,8 +173,9 @@ export const badge = (label, art = 'neutral', gerahmt = false) =>
  * aber nicht das Lauteste auf dem Bildschirm sein — sonst liest ein Auftraggeber,
  * dem Edin das zeigt, zuerst „Demo".
  */
-export const hinweisBox = (text) =>
-  `<div class="hinweis"><span class="hinweis-marke">Demo</span><span>${text}</span></div>`;
+export const hinweisBox = (text, marke = 'Demo') =>
+  `<div class="hinweis">${marke
+    ? `<span class="hinweis-marke">${esc(marke)}</span>` : ''}<span>${text}</span></div>`;
 
 export const leerZustand = (text, hinweis = '') =>
   `<div class="state-box">${esc(text)}${hinweis ? `<div class="state-hint">${esc(hinweis)}</div>` : ''}</div>`;

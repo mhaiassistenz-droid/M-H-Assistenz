@@ -11,11 +11,12 @@
    Sitzung" gekennzeichnet. Die UI sagt das dem Nutzer.
    ============================================ */
 
-import { uid, parseZahl, istEmail, mengePruefen, preisPruefen } from './util.js';
-import { seedAuftraege, seedRechnungen } from './seed.js';
+import { uid, parseZahl, istEmail, mengePruefen, preisPruefen, tagKey } from './util.js';
 
 const KEY = 'pt-auftragszentrale-v1';
-const VERSION = 1;
+// Version 2 (28.09.2026): die App startet leer. Ein gespeicherter Stand mit
+// anderer Version wird verworfen, damit keine alten Beispielaufträge übrig bleiben.
+const VERSION = 2;
 
 /** Fiktiver Beispiel-Stundensatz. Wird im Entwurf sichtbar als Beispiel markiert. */
 export const BEISPIEL_STUNDENSATZ = 58;
@@ -98,16 +99,16 @@ export function load() {
         return;
       }
     } catch (e) {
-      console.warn('Gespeicherter Stand unlesbar — starte mit Beispieldaten.', e);
+      console.warn('Gespeicherter Stand unlesbar — starte leer.', e);
     }
   }
   zuruecksetzen(false);
 }
 
-/** Beispieldaten wiederherstellen. */
+/** Alles löschen: keine Aufträge, keine Rechnungen. Es gibt keine Beispieldaten mehr. */
 export function zuruecksetzen(melden = true) {
-  store.auftraege  = seedAuftraege();
-  store.rechnungen = seedRechnungen();
+  store.auftraege  = [];
+  store.rechnungen = [];
   save();
   // Bilder liegen in IndexedDB und müssen eigens weg, sonst bleiben Waisen zurück.
   import('./fotos.js').then(f => f.alleLoeschen()).catch(() => {});
@@ -238,13 +239,22 @@ export const rechnungZuAuftrag = (auftragId) =>
 export function rechnungsStatus(auftragId) {
   const r = rechnungZuAuftrag(auftragId);
   if (!r) return 'keine';
-  return r.status === 'versendet' ? 'versendet' : 'entwurf';
+  // 'gestellt' = echt über den Rechnungsdienst versendet. Ohne diesen Zweig hieße
+  // eine herausgegebene Rechnung auf der Karte „Entwurf" (Befund 28.09.2026).
+  // 'erstellt' bleibt bewusst Entwurf: der Versand muss noch nachgeholt werden.
+  return r.status === 'versendet' || r.status === 'gestellt' ? r.status : 'entwurf';
 }
 
 export const RECHNUNGSSTATUS = {
   keine:     { label: 'Keine Rechnung',   art: 'neutral' },
   entwurf:   { label: 'Entwurf',          art: 'geplant' },
+  // Die Rechnung liegt im Rechnungsdienst, ist aber noch nicht beim Kunden.
+  // Eigener Zustand, weil beides falsch waere: als „Versendet" gefuehrt liefe
+  // ihr niemand hinterher, als „Entwurf" entstuende beim naechsten Versuch
+  // eine zweite Rechnung.
+  erstellt:  { label: 'Erstellt',         art: 'geplant' },
   versendet: { label: 'Versendet (Demo)', art: 'fertig'  },
+  gestellt:  { label: 'Versendet',        art: 'fertig'  },
 };
 
 /**
@@ -491,7 +501,115 @@ function belegEinfrieren(r) {
 }
 
 /** True, sobald der Beleg herausgegeben ist — dann ist nichts mehr änderbar. */
-export const istVersendet = (r) => !!r && r.status === 'versendet';
+export const istVersendet = (r) => !!r && (r.status === 'versendet' || r.status === 'gestellt');
+
+/** True, wenn die Rechnung im Rechnungsdienst liegt, aber noch nicht beim Kunden. */
+export const istErstellt = (r) => !!r && r.status === 'erstellt';
+
+/**
+ * Hält fest, dass die Rechnung im Rechnungsdienst angelegt wurde.
+ *
+ * Bewusst getrennt vom Versand: zwischen „liegt dort" und „ist beim Kunden"
+ * kann einiges schiefgehen, und beides als einen Zustand zu führen war der
+ * Fehler, den wir hier gerade nicht machen. Die Nummer kommt vom Dienst —
+ * die App erfindet keine eigene.
+ */
+export function rechnungErstelltVermerken(rechnungId, dienstDaten) {
+  const r = rechnung(rechnungId);
+  if (!r) return { ok: false, grund: 'Rechnung nicht gefunden' };
+  if (istVersendet(r)) return { ok: false, grund: 'Diese Rechnung wurde bereits versendet' };
+
+  r.status = 'erstellt';
+  r.dienst = {
+    name: 'sevDesk',
+    id: dienstDaten?.sevdeskId ?? null,
+    nummer: dienstDaten?.nummer ?? null,
+    referenz: dienstDaten?.referenz ?? r.id,
+    angelegtAm: new Date().toISOString(),
+  };
+  commit();
+  return { ok: true, rechnung: r };
+}
+
+/**
+ * Setzt "Versendet" nach einem echten Versand über den Rechnungsdienst.
+ *
+ * Friert denselben Beleg ein wie der simulierte Versand — Fachregel 4 gilt
+ * hier genauso: was herausgegeben ist, ändert sich nie wieder. Zusätzlich
+ * wird die Nummer des Dienstes übernommen, damit Beleg und Buchhaltung
+ * dieselbe Nummer tragen.
+ */
+export function rechnungGestellt(rechnungId, dienstDaten) {
+  const r = rechnung(rechnungId);
+  if (!r) return { ok: false, grund: 'Rechnung nicht gefunden' };
+  if (istVersendet(r)) return { ok: false, grund: 'Diese Rechnung wurde bereits versendet' };
+
+  if (dienstDaten?.nummer) r.nummer = dienstDaten.nummer;
+
+  r.dienst = {
+    ...(r.dienst || {}),
+    name: 'sevDesk',
+    id: dienstDaten?.sevdeskId ?? r.dienst?.id ?? null,
+    nummer: dienstDaten?.nummer ?? null,
+    referenz: dienstDaten?.referenz ?? r.id,
+    versendetAm: new Date().toISOString(),
+    versendetAn: dienstDaten?.versendetAn ?? null,
+  };
+
+  r.beleg = belegEinfrieren(r);
+  r.status = 'gestellt';
+  r.versand = { am: new Date().toISOString(), an: dienstDaten?.versendetAn ?? null, echt: true };
+  commit();
+  return { ok: true, rechnung: r };
+}
+
+/* ── Zahlungseingang ─────────────────────── */
+
+/**
+ * Ob das Geld da ist, ist eine EIGENE Achse — kein weiterer Rechnungsstatus.
+ *
+ * Genau wie Arbeitsstatus und Rechnungsstatus unabhängig sind (Fachregel 1),
+ * sagt "Versendet" nichts über die Zahlung. Beides in einen Status zu pressen
+ * hiesse entweder, versendeten Rechnungen niemand mehr hinterherläuft, oder
+ * bezahlte Rechnungen als offen zu führen.
+ *
+ * Der Betrag wird beim Vermerken aus dem eingefrorenen Beleg KOPIERT und nie
+ * neu gerechnet: bezahlt wurde der herausgegebene Betrag, nicht der, den eine
+ * spätere Rechnung ergäbe (Fachregel 4).
+ */
+export const istBezahlt = (r) => !!r && !!r.zahlung && !!r.zahlung.am;
+
+/** Summe aller vermerkten Zahlungen. Nur was vermerkt ist, zählt — nie geschätzt. */
+export const bezahlteRechnungen = () => store.rechnungen.filter(istBezahlt);
+
+/**
+ * Hält fest, dass eine herausgegebene Rechnung bezahlt wurde.
+ * `am` ist ein Tagesschlüssel ('YYYY-MM-DD'); ohne Angabe gilt heute.
+ */
+export function zahlungVermerken(rechnungId, am) {
+  const r = rechnung(rechnungId);
+  if (!r) return { ok: false, grund: 'Rechnung nicht gefunden' };
+  // Eine Rechnung, die den Betrieb nie verlassen hat, kann nicht bezahlt sein.
+  if (!istVersendet(r)) return { ok: false, grund: 'Nur eine herausgegebene Rechnung kann bezahlt sein' };
+
+  const betrag = r.beleg?.summen?.brutto;
+  // Kein festgeschriebener Betrag → kein Zahlungsvermerk. Nichts wird geraten.
+  if (!Number.isFinite(betrag)) return { ok: false, grund: 'Kein festgeschriebener Betrag vorhanden' };
+
+  const tag = typeof am === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(am) ? am : tagKey(new Date());
+  r.zahlung = { am: tag, betrag, vermerktAm: new Date().toISOString() };
+  commit();
+  return { ok: true, rechnung: r };
+}
+
+/** Zahlungsvermerk zurücknehmen — ein Vertipper darf korrigierbar bleiben. */
+export function zahlungZuruecknehmen(rechnungId) {
+  const r = rechnung(rechnungId);
+  if (!r) return { ok: false, grund: 'Rechnung nicht gefunden' };
+  r.zahlung = null;
+  commit();
+  return { ok: true, rechnung: r };
+}
 
 /**
  * Setzt "Versendet (Demo)". Der Arbeitsstatus des Auftrags bleibt unberührt.

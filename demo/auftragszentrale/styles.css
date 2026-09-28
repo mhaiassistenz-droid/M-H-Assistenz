@@ -275,6 +275,16 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-2); font-size: 13.5px; line-height: 1.5;
 }
 
+/* Bestätigung einzelner erkannter Angaben (z. B. Material aus einer Sprachnotiz).
+   Die Zeile ist bewusst groß genug zum Antippen mit Arbeitshandschuhen. */
+.f-check {
+  display: flex; align-items: center; gap: 11px;
+  min-height: 44px; padding: 6px 2px;
+  color: var(--text-2); font-size: 15px; cursor: pointer;
+}
+.f-check input { width: 20px; height: 20px; accent-color: var(--aktion); flex: none; }
+.f-check span { min-width: 0; overflow-wrap: anywhere; }
+
 /* Speicherwarnung unter der Topbar */
 .warnleiste {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
@@ -459,34 +469,45 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 /* Handy: Datumsstreifen mit Anzahl statt Punkt */
 .daystrip {
   display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px; padding: 2px 0 12px;
+  gap: 2px; padding: 2px 0 16px;
 }
 .daybtn {
-  min-width: 0; padding: 8px 2px 7px;
-  border-radius: 9px; border: 1px solid var(--line);
-  background: var(--card); text-align: center;
+  min-width: 0; min-height: 68px; padding: 6px 2px 5px;
+  border-radius: 10px; border: 1px solid transparent;
+  background: transparent; text-align: center;
   transition: border-color 0.12s var(--ease), background 0.12s var(--ease);
 }
 .daybtn-wt { font-size: 12px; font-weight: 500; color: var(--text-3); }
-.daybtn-d { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-top: 1px; line-height: 1.15; }
+.daybtn-d {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; margin: 2px auto 0; border-radius: 50%;
+  font-size: 17px; font-weight: 550; letter-spacing: -0.01em; line-height: 1;
+}
 .daybtn-n {
-  display: block; margin-top: 3px; min-height: 17px;
+  display: block; margin-top: 2px; min-height: 15px;
   font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums;
 }
 .daybtn-n.keine { color: #B4B7BC; }
-.daybtn.active { background: var(--aktion); border-color: var(--aktion); }
-.daybtn.active .daybtn-wt, .daybtn.active .daybtn-d { color: #fff; }
-.daybtn.active .daybtn-n { color: #D4D4D8; }
-.daybtn.heute:not(.active) { border-color: var(--text-3); }
+.daybtn:hover { background: #F3F4F6; }
+/* Eine aktive Woche ist keine Warnung: nur das ausgewählte Datum trägt die
+   dunkle Fläche. Dadurch bleibt die gesamte Woche auf einen Blick lesbar. */
+.daybtn.active { background: transparent; border-color: transparent; }
+.daybtn.active .daybtn-d { background: var(--aktion); color: #fff; font-weight: 600; }
+.daybtn.active .daybtn-wt { color: var(--text); font-weight: 550; }
+.daybtn.active .daybtn-n { color: var(--text-2); }
+.daybtn.heute:not(.active) .daybtn-d { box-shadow: inset 0 0 0 1px var(--text-3); }
 .daybtn:focus-visible { outline: 2px solid var(--fokus); outline-offset: 2px; }
 
 /* Tagesliste am Handy */
 .tag-liste { display: flex; flex-direction: column; gap: 10px; }
 .tag-ev {
   display: flex; gap: 14px; width: 100%; text-align: left;
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--r-karte); padding: 14px 16px;
+  background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--st-neutral);
+  border-radius: var(--r-karte); padding: 14px 16px 14px 13px;
 }
+.tag-ev.geplant { border-left-color: var(--st-geplant); }
+.tag-ev.arbeit { border-left-color: var(--st-arbeit); }
+.tag-ev.fertig { border-left-color: var(--st-fertig); }
 .tag-ev:hover { background: var(--card-hover); }
 .tag-ev:focus-visible { outline: 2px solid var(--fokus); outline-offset: 2px; }
 .tag-ev-zeit {
@@ -612,6 +633,15 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   background: var(--bg-2); border: 1px solid var(--line); color: var(--text-2);
 }
 .vl-ico svg { width: 17px; height: 17px; stroke-width: 1.7; }
+/* Farbe nach Eintragstyp — Bedeutung, nicht Schmuck: beim Scrollen durch eine
+   lange Dokumentation soll Foto/Sprache/Zeit/Material auf einen Blick
+   unterscheidbar sein, ohne erst den Text lesen zu müssen. Gedämpft wie der
+   Rest der Statusfarben, nicht knallig. */
+.vl-ico.foto     { background: #ECFEFF; border-color: #A5F3FC; color: #0E7490; }
+.vl-ico.sprache  { background: #FDF4FF; border-color: #F0ABFC; color: #A21CAF; }
+.vl-ico.zeit     { background: #FFF7ED; border-color: #FDBA74; color: #B5541D; }
+.vl-ico.material { background: #EEF2FF; border-color: #C7D2FE; color: #4338CA; }
+.vl-ico.offen    { background: #FEFCE8; border-color: #FDE68A; color: #A16207; }
 .vl-mid { flex: 1; min-width: 0; }
 .vl-top { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 4px; }
 .vl-art { font-size: 13px; font-weight: 600; color: var(--text-2); }
@@ -623,6 +653,8 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .vl-text { font-size: 15px; line-height: 1.5; overflow-wrap: break-word; }
 .vl-detail { font-size: 14px; color: var(--text-2); margin-top: 4px; line-height: 1.45; }
 .vl-akt { display: flex; gap: 4px; flex-shrink: 0; }
+.vl-anhaengen { margin: 4px 18px 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+.vl-anhaengen .btn svg { width: 16px; height: 16px; }
 .vl-akt .icon-btn { width: 36px; height: 36px; }
 .vl-akt .icon-btn svg { width: 16px; height: 16px; }
 
@@ -660,6 +692,29 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 @keyframes pulsieren { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .rec-timer { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .rec-status { font-size: 13.5px; color: var(--text-2); margin-top: 4px; }
+
+/* Aussteuerungsanzeige — senkrechte Balken, die mit der Stimme mitgehen.
+   Bewegt wird ausschließlich transform: scaleY(); die Balken bekommen ihre
+   Höhe also nie über Layout-Eigenschaften, sonst rechnet der Browser bei
+   jedem Bild die Seite neu. */
+.pegel {
+  display: flex; align-items: center; justify-content: center;
+  gap: 3px; height: 72px; margin: 4px 0 16px;
+}
+.pegel span {
+  flex: 1 1 0; min-width: 2px; max-width: 5px; height: 100%;
+  background: var(--text-3); border-radius: 999px;
+  transform: scaleY(0.05); transform-origin: center;
+  transition: transform 0.06s linear;
+}
+/* Während der Aufnahme kräftiger, danach ruhiger als stehendes Bild. */
+.pegel.aktiv span { background: var(--aktion); }
+.pegel.standbild span { transition: transform 0.25s var(--ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pegel span { transition: none; }
+  .rec-box.laeuft .rec-dot { animation: none; }
+}
 
 /* Erfassungs-Einstiege */
 .entry-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -796,6 +851,11 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
              max(16px, env(safe-area-inset-left));
   }
   .page-title { font-size: 23px; }
+  /* Kalender ist ein Navigationswerkzeug, kein Werbebanner: ruhiger als die
+     Startseite, aber mit gleicher Lesbarkeit bei Sonne. */
+  #page-kalender .page-title { font-size: 22px; font-weight: 560; letter-spacing: -0.018em; }
+  #page-kalender .cal-bar { gap: 8px; margin-bottom: 20px; }
+  #page-kalender .cal-bar .btn { min-width: 44px; font-weight: 500; }
 
   /* Bedienflächen bleiben groß — auch mit Handschuh treffbar */
   .page .btn, .sheet .btn { min-height: 46px; font-size: 15px; padding: 12px 16px; }
@@ -809,6 +869,12 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   textarea.inp { min-height: 104px; }
 
   .board { grid-template-columns: minmax(0, 1fr); }
+  .home-geld .home-panel-head { padding: 16px 18px; }
+  .geld-select { font-size: 15px; padding: 8px 32px 8px 12px; }
+  .geld-kopf { padding: 16px 18px 2px; }
+  .geld-summe { font-size: 27px; }
+  .geld-flaeche { padding: 6px 2px 2px; }
+  .geld-legende { padding: 8px 18px 18px; }
   .fields { grid-template-columns: minmax(0, 1fr); }
   .entry-grid { grid-template-columns: minmax(0, 1fr); }
   .entry-btn { flex-direction: row; align-items: center; min-height: 80px; padding: 16px; gap: 16px; }
@@ -962,10 +1028,216 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .home-fuss { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
 .f-leistung { margin-bottom: 12px; }
 .pos-neu { margin-top: 12px; }
-.pos-del { margin-left: auto; }
+.pos-anweisung { margin-left: auto; color: #7C3AED; }
+.pos-del { }
 .sum-erklaerung { font-size: 13px; color: var(--text-3); line-height: 1.45; }
 .beleg-kopfzeile { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .kal-neu { margin-top: 18px; }
+
+/* Orientierung für den gesamten Arbeitsweg. Die Farbe unterstützt immer einen
+   ausgeschriebenen Zustand: Grün ist erledigt, Ocker fordert jetzt eine
+   Prüfung/Aktion, Grau liegt noch vor Edin. */
+.workflow-path {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+  list-style: none; margin: 14px 0 0; padding: 12px 0 0;
+  border-top: 1px solid var(--line);
+}
+.workflow-step {
+  min-width: 0; display: flex; align-items: center; gap: 6px;
+  color: var(--text-3); font-size: 11.5px; font-weight: 500; line-height: 1.3;
+}
+.workflow-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--st-neutral); }
+.workflow-step.is-done { color: var(--st-fertig); }
+.workflow-step.is-done .workflow-dot { background: var(--st-fertig); }
+.workflow-step.is-active { color: var(--st-arbeit); }
+.workflow-step.is-active .workflow-dot { background: var(--st-arbeit); }
+.workflow-rechnung { margin-top: 0; }
+
+.section-intro { margin-top: 4px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
+
+/* Dokumentation und Rechnungsgrundlage werden gezielt unterschieden, ohne die
+   Kacheln vollflächig einzufärben: Blau für Nachweise, Ocker für Werte, die
+   später in die Rechnung einfließen. */
+.doc-ico {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line); border-radius: 8px; background: #F3F4F6; color: var(--text-2);
+}
+.doc-btn .doc-ico svg { width: 18px; height: 18px; color: currentColor; }
+.doc-btn.doc-nachweis .doc-ico { background: #EFF6FF; border-color: #BFDBFE; color: var(--st-geplant); }
+.doc-btn.doc-abrechnung .doc-ico { background: #FFFBEB; border-color: #FDE68A; color: var(--st-arbeit); }
+
+/* Farbleisten machen lange Listen schneller scannbar. Status bleibt zusätzlich
+   als Text-Badge erhalten, damit Farbe nie allein entscheiden muss. */
+.auf-card.geplant { border-left: 4px solid var(--st-geplant); }
+.auf-card.arbeit { border-left: 4px solid var(--st-arbeit); }
+.auf-card.fertig { border-left: 4px solid var(--st-fertig); }
+.row-item.geplant { border-left: 3px solid var(--st-geplant); }
+.row-item.arbeit { border-left: 3px solid var(--st-arbeit); }
+.row-item.fertig { border-left: 3px solid var(--st-fertig); }
+
+/* Im Rechnungsabgleich heißt Blau „vereinbart“, Grün „vor Ort festgehalten“.
+   Beide Texte bleiben vollständig sichtbar – die Linie beschleunigt nur den Blick. */
+.abgleich-sp.vereinbart { border-left: 3px solid var(--st-geplant); background: #F8FBFF; }
+.abgleich-sp.dokumentiert { border-left: 3px solid var(--st-fertig); background: #F7FCF8; }
+
+/* Auf dem Handy hat das Dokumentieren Vorrang vor Kontakt- und Auftragsdetails.
+   Die Informationen bleiben sichtbar, bekommen aber die ruhige, kompakte Form,
+   damit alle sechs großen Aktionen ohne Scrollen erreichbar bleiben. */
+@media (max-width: 880px) {
+  .akte-kopf { padding: 14px; }
+  .akte-status { margin-bottom: 8px; }
+  .akte-zeile { margin-top: 4px; font-size: 13.5px; }
+  .akte-aufgabe { margin-top: 9px; padding: 8px 10px; font-size: 14px; }
+  .workflow-path { margin-top: 10px; padding-top: 9px; gap: 5px; }
+  .workflow-step { gap: 5px; font-size: 11px; }
+  .section-intro { display: none; }
+  .doc-btn { min-height: 74px; padding: 7px 4px; gap: 5px; font-size: 12.5px; }
+  .doc-ico { width: 24px; height: 24px; border-radius: 7px; }
+  .doc-btn .doc-ico svg { width: 16px; height: 16px; }
+}
+
+/* Dokumentations-Dashboard: kompakte Erfassung und Timeline aus echten
+   Verlaufseinträgen. Eigene Klassen begrenzen die Gestaltung auf diese Akte.
+   Auf Wunsch: Rot kennzeichnet hier auch laufende Aufnahme und Abschluss. */
+.sheet-doku { width: min(1120px, 100vw); }
+.sheet-doku .sheet-body { gap: 20px; padding: 24px; }
+.sheet-doku .akte-kopf {
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px;
+  padding: 20px; box-shadow: none;
+}
+.sheet-doku .akte-status, .sheet-doku .workflow-path { grid-column: 1 / -1; }
+.sheet-doku .akte-kunde, .sheet-doku .akte-zeile, .akte-kontakt { grid-column: 1; }
+.sheet-doku .akte-aufgabe { grid-column: 2; grid-row: 2 / span 4; margin-top: 0; align-self: start; }
+.akte-kontakt { margin-top: 8px; font-size: 13px; }
+.akte-kontakt summary { cursor: pointer; color: #2563EB; width: fit-content; min-height: 30px; padding-block: 5px; }
+.akte-kontakt summary:focus-visible { outline: 2px solid var(--fokus); outline-offset: 3px; }
+.akte-kontakt .akte-zeile { font-size: 13px; }
+.sheet-doku .workflow-step.is-active { color: #1D4ED8; }
+.sheet-doku .workflow-step.is-active .workflow-dot { background: #2563EB; box-shadow: 0 0 0 3px #DBEAFE; }
+.doku-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.doku-summary > div { padding: 0 16px; border-left: 2px solid #DCE3ED; }
+.doku-summary dt { color: var(--text-2); font-size: 12px; }
+.doku-summary dd { font-size: 23px; font-weight: 600; letter-spacing: -.025em; line-height: 1.5; }
+.doku-summary small { font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--text-2); }
+.doku-summary > .hat-offene { border-color: var(--st-arbeit); }
+.doku-summary .hat-offene dd { color: var(--st-arbeit); }
+.doku-layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+.doku-layout > * { min-width: 0; }
+.doku-erfassen { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 18px; position: sticky; top: 0; }
+.doku-erfassen .section-head { margin-bottom: 18px; }
+.doku-erfassen .section-title { font-size: 16px; font-weight: 600; }
+.doku-erfassen .doc-actions { display: flex; flex-direction: column; gap: 18px; }
+.doku-erfassen .doc-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.doc-group-title { grid-column: 1 / -1; color: var(--text-2); font-size: 12px; margin-bottom: 2px; }
+.doku-erfassen .doc-btn {
+  min-height: 96px; padding: 12px 6px; gap: 8px; border-color: #E3E8EF;
+  font-size: 12px; font-weight: 500; hyphens: none; background: #FCFDFF;
+}
+.doku-erfassen .doc-btn:hover { background: #EFF6FF; border-color: #93B4EB; }
+.doku-erfassen .doc-abrechnung { background: #FFFEFB; }
+.doku-erfassen .doc-abrechnung:hover { background: #FFFBEB; border-color: #DEC388; }
+.doku-erfassen .doc-ico { width: 36px; height: 36px; border-radius: 11px; border: 0; }
+.doku-erfassen .doc-ico svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.doku-erfassen .doc-nachweis .doc-ico { color: #2563EB; }
+.doku-erfassen .doc-btn[data-akt="sprache"] .doc-ico { background: #2563EB; color: #FFF; }
+.doku-history > .card-head { border: 0; padding: 0 0 18px; }
+.doku-history .card-title { font-size: 17px; font-weight: 600; }
+.doku-hint { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+.doku-count { font-size: 12px; padding: 3px 9px; background: #EAF0F8; color: #49617D; border-radius: 6px; }
+.doku-timeline { list-style: none; gap: 16px; }
+.doku-timeline .vl { position: relative; padding: 0; border: 0; gap: 14px; align-items: flex-start; }
+.doku-timeline .vl::before { content: ''; position: absolute; width: 2px; background: #DAE3EF; left: 17px; top: 18px; bottom: -34px; }
+.doku-timeline .vl:last-child::before { display: none; }
+.doku-timeline .vl-ico {
+  z-index: 1; width: 36px; height: 36px; margin-top: 1px; border: 4px solid #F9FAFB;
+  border-radius: 50%; background: #DBEAFE; color: #2563EB; flex-shrink: 0;
+}
+.doku-timeline .vl-ico.zeit, .doku-timeline .vl-ico.material { background: #FEF3C7; color: #92610C; }
+.doku-timeline .vl-ico.offen { background: #9A6508; color: #FFF; }
+.doku-timeline .vl-mid { background: #FFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 15px 16px 7px; box-shadow: 0 2px 4px rgb(31 41 55 / .025); }
+.doku-timeline .vl-offen .vl-mid { border-color: #E9D4A5; background: #FFFCF5; }
+.doku-timeline .vl-offen .vl-art { color: #92610C; }
+.doku-timeline .vl-top { gap: 6px 12px; margin-bottom: 10px; }
+.doku-timeline .vl-art { color: var(--text); font-size: 13px; font-weight: 600; }
+.doku-timeline .vl-ts { margin-left: auto; font-size: 12px; }
+.doku-timeline .vl-text { font-size: 14px; line-height: 1.6; hyphens: none; overflow-wrap: anywhere; }
+.doku-timeline .vl-detail { margin-top: 8px; font-size: 13px; }
+.doku-timeline .vl-ico.zeit + .vl-mid .vl-detail,
+.doku-timeline .vl-ico.material + .vl-mid .vl-detail { font-weight: 600; color: #92610C; }
+.doku-timeline .vl-foto { max-width: 100%; margin-top: 12px; border-radius: 8px; }
+.doku-timeline .vl-foto img { max-height: 260px; object-fit: contain; background: #F1F5F9; }
+.doku-timeline .vl-akt { justify-content: flex-end; margin-top: 10px; border-top: 1px solid #EDF0F4; padding-top: 2px; }
+.doku-timeline .vl-akt .icon-btn { width: 44px; height: 44px; }
+.doku-timeline .vl-akt [data-vl-edit]:hover { color: #2563EB; background: #EFF6FF; }
+.doku-timeline .vl-akt [data-vl-del]:hover { color: #B42318; background: #FEF3F2; }
+.doku-history .vl-anhaengen { margin: 14px 0 0 50px; border: 0; padding: 0; }
+.doku-ueberblick { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.doku-fakten { background: #FFF; border: 1px solid #DFE6EF; border-left: 3px solid #3A6BA5; border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.doku-fakten h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.doku-fakten h3 svg { width: 18px; height: 18px; flex-shrink: 0; }
+.doku-fakten h3 span { margin-left: auto; font-size: 12px; font-weight: 500; }
+.doku-fakten ul { padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.doku-fakten li { font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-line; }
+.doku-fakten .doku-empty { font-size: 13px; color: var(--text-3); }
+.doku-fakten.offen { border-left-color: #9A6508; background: #FFFCF5; }
+.doku-fakten.offen h3 { color: #92610C; }
+.doku-fakten.wichtig, .sprach-wichtig { background: #FFF5F4; border: 1px solid #F2B8B5; border-left: 3px solid #B42318; border-radius: 10px; padding: 14px 16px; }
+.doku-fakten.wichtig h3, .sprach-wichtig .f-label { color: #B42318; }
+.doku-timeline .vl-wichtig .vl-mid { border-color: #F2B8B5; background: #FFF5F4; }
+.doku-timeline .vl-ico.wichtig { background: #B42318; color: #FFF; }
+.doku-timeline .vl-wichtig .vl-art { color: #B42318; }
+.doku-verlauf-title { font-size: 14px; font-weight: 600; margin: 0 0 14px; display: flex; justify-content: space-between; gap: 10px; }
+.doku-verlauf-title span { font-size: 12px; font-weight: 400; color: var(--text-3); }
+.doku-timeline .vl-text, .doku-timeline .zitat, .sprach-original .zitat { white-space: pre-line; }
+.sprach-original summary { cursor: pointer; padding-block: 12px; font-size: 13px; color: #2563EB; }
+.notiz-diktieren { color: #1D4ED8; background: #EFF6FF; border-color: #BFDBFE; }
+.sheet-doku .sheet-foot [data-starten], .sheet-doku-aufnahme .btn-primaer {
+  background: #2563EB; border-color: #2563EB; color: #FFF;
+}
+.sheet-doku .sheet-foot [data-starten]:hover, .sheet-doku-aufnahme .btn-primaer:hover { background: #1D4ED8; border-color: #1D4ED8; }
+.sheet-doku-aufnahme .sheet-head [data-close] { color: #2563EB; background: #EFF6FF; }
+.sheet-doku-aufnahme .rec-dot { background: #EFF6FF; border-color: #BFDBFE; color: #2563EB; }
+.sheet-doku-aufnahme .rec-box.laeuft { background: #FFF7F6; border-color: #F2B8B5; }
+.sheet-doku-aufnahme .rec-box.laeuft .rec-dot { background: #FEE4E2; border-color: #FDA29B; color: #B42318; }
+.sheet-doku-aufnahme .rec-box.laeuft .rec-timer,
+.sheet-doku-aufnahme .rec-box.laeuft .rec-status { color: #B42318; }
+.sheet-doku-aufnahme .rec-box.laeuft .pegel.aktiv span { background: #B42318; }
+.sheet-doku-aufnahme .rec-stop, .btn.doku-abschluss { background: #B42318; border-color: #B42318; color: #FFF; }
+.sheet-doku-aufnahme .rec-stop:hover, .btn.doku-abschluss:hover { background: #912018; border-color: #912018; }
+.rec-stop-icon { width: 12px; height: 12px; background: currentColor; border-radius: 2px; }
+@media (max-width: 880px) {
+  .sheet-doku .sheet-body { padding: 14px 16px; gap: 16px; }
+  .sheet-doku .akte-kopf { display: block; padding: 14px; }
+  .sheet-doku .akte-kunde { font-size: 17px; }
+  .sheet-doku .akte-aufgabe { margin-top: 7px; padding: 8px 10px; font-size: 13px; line-height: 1.45; }
+  .sheet-doku .akte-aufgabe-l { font-size: 11px; }
+  .sheet-doku .akte-zeile { font-size: 12.5px; margin-top: 3px; }
+  .sheet-doku .workflow-path { margin-top: 8px; padding-top: 8px; }
+  .akte-kontakt { margin-top: 3px; font-size: 12px; }
+  .akte-kontakt summary { min-height: 32px; padding-block: 7px; }
+  .doku-summary { gap: 6px; }
+  .doku-summary > div { padding: 0 7px; }
+  .doku-summary dt { font-size: 10px; white-space: nowrap; }
+  .doku-summary dd { font-size: 19px; }
+  .doku-summary small { font-size: 10px; }
+  .doku-layout { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .doku-erfassen { position: static; padding: 0; border: 0; background: transparent; }
+  .doku-erfassen .section-head { margin-bottom: 10px; }
+  .doku-erfassen .doc-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .doku-erfassen .doc-group { display: contents; }
+  .doku-erfassen .doc-group-title { display: none; }
+  .doku-erfassen .doc-btn { min-height: 80px; padding: 8px 4px; font-size: 11.5px; gap: 6px; }
+  .doku-erfassen .doc-ico { width: 30px; height: 30px; border-radius: 9px; }
+  .doku-erfassen .doc-ico svg { width: 20px; height: 20px; }
+  .doku-history > .card-head { padding-bottom: 14px; }
+  .doku-timeline .vl { gap: 9px; }
+  .doku-timeline .vl-mid { padding: 12px 12px 4px; }
+  .doku-timeline .vl-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .doku-timeline .vl-ts { margin-left: 0; font-size: 11px; }
+  .doku-timeline .vl-marke { width: fit-content; }
+  .doku-timeline .vl-text { font-size: 13.5px; }
+  .doku-history .vl-anhaengen { margin-left: 45px; }
+}
 
 /* Home — Inter, kühle Flächen und ein ruhiges Dashboard-Raster.
    Bewusst auf Home begrenzt; übrige Ansichten behalten ihre Gestaltung. */
@@ -985,10 +1257,17 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .home-date-detail { display: inline-block; padding-left: 12px; margin-left: 10px; border-left: 1px solid #D1D5DB; }
 .home-head > .btn { flex-shrink: 0; }
 #page-home .btn { border-radius: 8px; }
-.home-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
+/* stretch statt start: Geldverlauf und Ueberblick sollen in jeder Breite gleich hoch
+   bleiben, auch wenn Geldverlauf-Diagramm und Ueberblickskreis unterschiedlich mit
+   der Spaltenbreite skalieren (SVG-Seitenverhaeltnis gegen feste Kreisgroesse). */
+.home-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
 .home-panel { min-width: 0; background: #FFF; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 2px 3px rgb(17 24 39 / 0.025), 0 1px 1px rgb(17 24 39 / 0.025); overflow: hidden; }
-.home-current, .home-schedule { grid-column: span 8; }
+.home-current { grid-column: span 8; }
+/* Kein 4-Spalten-Nachbar mehr in dieser Zeile — volle Breite statt Rest-Luecke. */
+.home-schedule { grid-column: 1 / -1; }
 .home-overview, .home-invoices { grid-column: span 4; }
+.home-current { order: -2; }
+.home-overview { order: -1; }
 .home-current, .home-overview { align-self: stretch; }
 .home-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px; border-bottom: 1px solid #EEF0F3; }
 .home-panel-head h2 { font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.4; }
@@ -1004,13 +1283,146 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .home-progress { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 12.5px; }
 .home-current { display: flex; flex-direction: column; }
 .home-focus-foot { margin-top: auto; }
-.home-metrics { padding: 0 24px; }
-.home-metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 23px 0; }
-.home-metric + .home-metric { border-top: 1px solid #EEF0F3; }
-.home-metric dt { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; }
-.home-metric small { display: block; font-size: 11.5px; color: var(--text-2); font-weight: 400; margin-top: 4px; }
-.home-metric-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: #F3F4F6; border-radius: 10px; color: #6B7280; flex-shrink: 0; }
-.home-metric dd { font-size: 32px; letter-spacing: -0.045em; font-weight: 600; line-height: 1.2; }
+.home-overview .heute { --chart-color: hsl(214.7 95% 40%); }
+.home-overview .arbeit { --chart-color: hsl(142.1 76.2% 36.3%); }
+.home-overview .entwurf { --chart-color: hsl(47.9 95.8% 53.1%); }
+
+/* ── Geldverlauf (Home) ──────────────────────
+   Zwei Linien, zwei Achsen: links Euro, rechts Anzahl. Weisse Flaeche wie
+   jede andere Karte; Farbe steht hier fuer Bedeutung (bezahlt / erfasst),
+   nicht fuer Schmuck. Kein Glow, keine Verlaufsflaechen. */
+.home-geld {
+  grid-column: span 8;
+  /* Eigene Farben, absichtlich weder Blau noch Grün noch Gelb — das sind
+     genau die drei Farben im Überblickskreis direkt daneben (heute/arbeit/
+     entwurf). Gleiche Farben nebeneinander verwechseln sich. */
+  --geld-bezahlt: #7C3AED;          /* Violett, sonst nirgends in der App */
+  --geld-auftraege: var(--st-neutral); /* Grau — zusätzlich gestrichelt */
+}
+/* Der Ueberblickskreis steht rechts neben Einsatz UND Geldverlauf und wird
+   dadurch so gross, wie er neben einer Grafik sein muss. */
+.home-geld .home-panel-head { flex-wrap: wrap; }
+.geld-zeitraum { position: relative; display: flex; align-items: center; }
+.geld-select {
+  appearance: none; padding: 6px 30px 6px 11px; border: 1px solid var(--line-stark);
+  border-radius: var(--r-btn); background: var(--card); color: var(--text);
+  font-size: 13px; font-weight: 500; line-height: 1.4; cursor: pointer;
+  transition: background 0.12s var(--ease), border-color 0.12s var(--ease);
+}
+.geld-select:hover { background: var(--card-hover); }
+.geld-select:focus-visible { outline: 2px solid var(--fokus); outline-offset: 2px; }
+.geld-select-pfeil {
+  position: absolute; right: 9px; width: 15px; height: 15px;
+  color: var(--text-3); pointer-events: none;
+}
+.geld-kopf { padding: 20px 24px 2px; }
+.geld-zeitspanne { font-size: 12.5px; font-weight: 500; letter-spacing: 0.02em; color: var(--text-3); }
+.geld-summe-zeile { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.geld-trend {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 9px; border-radius: 6px;
+  font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+  color: #166534; background: #DCFCE7;
+}
+.geld-trend.ab { color: #9A3412; background: #FFEDD5; }
+.geld-trend.ab svg { transform: scaleY(-1); }
+.geld-trend svg { width: 13px; height: 13px; stroke-width: 2; flex-shrink: 0; }
+.geld-summe { margin-top: 6px; font-size: 32px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.geld-summe-label { margin-top: 3px; font-size: 13px; color: var(--text-2); }
+.geld-flaeche { position: relative; padding: 10px 10px 2px; }
+#page-home .geld-flaeche svg { display: block; width: 100%; height: auto; overflow: visible; stroke-width: initial; }
+.geld-raster { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 12; }
+.geld-achse { fill: var(--text-3); font-weight: 500; font-variant-numeric: tabular-nums; }
+.geld-achse.links { text-anchor: end; }
+.geld-achse.rechts { text-anchor: start; }
+.geld-achse.unten { text-anchor: middle; }
+.geld-flaeche-verlauf { fill: url(#geldFlaeche); stroke: none; }
+.geld-faden { stroke: var(--geld-bezahlt); stroke-width: 1; }
+.geld-faden[hidden] { display: none; }
+.geld-spitze { fill: var(--geld-bezahlt); stroke: #FFF; stroke-width: 2; }
+.geld-linie { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.geld-linie.bezahlt { stroke: var(--geld-bezahlt); }
+.geld-linie.auftraege { stroke: var(--geld-auftraege); stroke-dasharray: 8 6; }
+.geld-marker[hidden] { display: none; }
+.geld-punkt { stroke: #FFF; stroke-width: 2.5; }
+.geld-linie { stroke-width: 3; }
+.geld-punkt.bezahlt { fill: var(--geld-bezahlt); }
+.geld-punkt.auftraege { fill: var(--geld-auftraege); }
+.geld-treffer { fill: transparent; }
+.geld-tipp { position: absolute; top: 10px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 3px;
+  padding: 9px 12px; border-radius: 10px; background: var(--aktion); color: #FFF; font-size: 12.5px; line-height: 1.4;
+  white-space: nowrap; pointer-events: none; box-shadow: var(--schatten-overlay); z-index: 2; }
+.geld-tipp[data-seite="rechts"] { transform: translateX(calc(-100% + 8px)); }
+.geld-tipp[data-seite="links"] { transform: translateX(-8px); }
+.geld-tipp[hidden] { display: none; }
+.geld-tipp strong { font-size: 13px; font-weight: 600; }
+.geld-tipp-zeile { display: flex; align-items: center; gap: 7px; color: #E5E7EB; font-variant-numeric: tabular-nums; }
+.geld-tipp-zeile::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* Auf dunklem Grund brauchen dieselben Farben mehr Helligkeit. */
+.geld-tipp-zeile.bezahlt::before { background: #C4B5FD; }
+.geld-tipp-zeile.auftraege::before { background: #D4D4D8; }
+.geld-leer { position: absolute; left: 0; right: 0; top: 42%; margin: 0 auto; max-width: 420px; padding: 0 24px;
+  text-align: center; font-size: 13px; line-height: 1.5; color: var(--text-3); }
+.geld-legende { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 8px 24px 20px; }
+.geld-legende-eintrag { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+.geld-legende-eintrag::before { content: ''; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.geld-legende-eintrag.bezahlt::before { background: var(--geld-bezahlt); }
+.geld-legende-eintrag.auftraege::before {
+  width: 14px; height: 3px; border-radius: 0; background: none;
+  background-image: repeating-linear-gradient(to right, var(--geld-auftraege) 0 5px, transparent 5px 8px);
+}
+.geld-legende-eintrag em { font-style: normal; font-weight: 400; color: var(--text-3); }
+
+/* Zahlungsvermerk auf dem Beleg — steht neben dem Beleg, nicht darin. */
+.beleg-zahlung { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: 9px; background: var(--bg);
+  font-size: 13px; font-weight: 500; color: var(--st-fertig); }
+.beleg-zahlung svg { width: 16px; height: 16px; stroke-width: 1.9; flex-shrink: 0; }
+
+/* Belegvorschau: "Noch etwas ändern?" — steht ausserhalb des eigentlichen
+   Belegs, damit klar bleibt: das ist Werkstatt, nicht Teil des Beleginhalts. */
+.korr-block { margin-top: 18px; }
+.korr-block .card-title { display: flex; align-items: center; gap: 8px; }
+.korr-block .card-title svg { width: 16px; height: 16px; color: #7C3AED; }
+.korr-eingabe { display: flex; gap: 10px; }
+.korr-eingabe .inp { flex: 1; }
+.korr-aktionen { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+@media (max-width: 480px) {
+  .korr-eingabe { flex-direction: column; }
+  .korr-aktionen { flex-direction: column-reverse; }
+  .korr-aktionen .btn { width: 100%; }
+}
+
+.home-metrics { margin: 0 24px 24px; padding: 16px 0 0; border-top: 1px solid var(--line); }
+/* Deutlich kleiner als vorher — steht jetzt neben Geldverlauf, nicht mehr ueber zwei Zeilen. */
+.home-overview-visual { padding: 44px 24px 40px; text-align: center; }
+.home-overview-chart { position: relative; width: min(180px, 100%); aspect-ratio: 1; margin: 0 auto; }
+#page-home .home-overview-chart svg { display: block; width: 100%; height: 100%; overflow: visible; stroke-width: initial; }
+.home-overview-track, .home-overview-segment { fill: none; stroke-width: 30; }
+.home-overview-track { stroke: rgb(229 231 235 / .5); }
+.home-overview-segment {
+  stroke: var(--chart-color); stroke-linecap: round; cursor: pointer;
+  transform-origin: 125px 125px; pointer-events: stroke;
+  stroke-dasharray: 1 2; stroke-dashoffset: 0;
+  animation: overview-draw 1.2s ease-out var(--segment-delay) both;
+  transition: filter .2s ease-out, transform .2s ease-out;
+}
+.home-overview-segment.is-active { filter: drop-shadow(0 0 6px var(--chart-color)) brightness(1.1); transform: scale(1.03); }
+@keyframes overview-draw { from { stroke-dashoffset: 1; opacity: 0; } to { stroke-dashoffset: 0; opacity: 1; } }
+.home-overview-centre { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; pointer-events: none; }
+.home-overview-centre strong { max-width: 60%; overflow-wrap: anywhere; font-size: 26px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; }
+.home-overview-centre small { color: var(--text-2); font-size: 11px; font-weight: 500; line-height: 1.35; max-width: 100px; }
+.home-metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 8px; min-height: 44px; border-radius: 6px; transition: background .2s; }
+.home-metric + .home-metric { margin-top: 8px; }
+.home-metric.is-active { background: #F3F4F6; }
+.home-metric dt { flex: 1; min-width: 0; }
+.home-metric-control { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; text-align: left; font-size: 14px; font-weight: 500; border-radius: 6px; }
+.home-metric-dot { width: 12px; height: 12px; flex-shrink: 0; border-radius: 50%; background: var(--chart-color); }
+.home-metric dd { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text-2); }
+@media (prefers-reduced-motion: reduce) {
+  .home-overview-segment { animation: none; transition: none; }
+  .home-overview-segment.is-active { transform: none; }
+}
 .home-link, .home-panel-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 500; }
 .home-link { color: var(--text-2); min-height: 32px; flex-shrink: 0; }
 .home-panel-link { padding: 16px 24px; border-top: 1px solid #EEF0F3; min-height: 48px; }
@@ -1034,6 +1446,32 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .home-invoice-total { display: block; font-size: 22px; font-weight: 600; margin-top: 19px; }
 .home-invoice-total .badge { font-size: 12.5px; }
 .home-invoice-action { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; margin-top: 20px; }
+.invoice-approval-card { display: flex; flex-direction: column; padding: 20px; gap: 16px; }
+.invoice-approval-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.invoice-approval-head h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.35; }
+.invoice-approval-icon { color: var(--text-3); }
+.invoice-approval-icon svg { width: 20px; height: 20px; stroke-width: 1.8; }
+/* Die Vorlage markiert die Fläche rot. Hier signalisiert sie einen normalen
+   Arbeitsstatus: warmes Ocker ist klar erkennbar, aber kein Fehlersignal. */
+.invoice-approval-status { padding: 24px; border: 1px solid #E7C77C; border-radius: 12px; background: #FFFBEB; color: #6D4A05; }
+.invoice-approval-status-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.invoice-approval-status-head p { font-size: 14px; font-weight: 600; }
+.invoice-approval-status-head svg { width: 19px; height: 19px; stroke-width: 1.8; }
+.invoice-approval-number { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.invoice-approval-count { font-size: 56px; font-weight: 650; letter-spacing: -0.05em; line-height: 1; color: var(--text); }
+.invoice-approval-number span, .invoice-approval-copy { color: #7B5713; }
+.invoice-approval-number span { font-size: 16px; }
+.invoice-approval-copy { margin-top: 16px; font-size: 14px; line-height: 1.55; }
+.invoice-approval-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 12px; background: #F3F4F6; }
+.invoice-approval-foot > span { color: var(--text-2); font-size: 14px; font-weight: 600; }
+.invoice-link { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 9px 14px; border-radius: 8px; background: var(--aktion); color: #FFF; font-size: 13px; font-weight: 600; line-height: 1.25; transition: background .12s var(--ease); }
+.invoice-link:hover { background: var(--aktion-hover); }
+.invoice-link svg { width: 16px; height: 16px; stroke-width: 1.8; }
+/* Aus der gelieferten Komponente übernommen: der Fokus legt sich um die ganze
+   Klickfläche und nicht nur um ihren Text. */
+.invoice-link::after { content: ""; position: absolute; inset: 0; border-radius: 1rem; }
+.invoice-link:focus-visible { outline: none; }
+.invoice-link:focus-visible::after { outline: 2px solid var(--fokus); outline-offset: -3px; }
 .home-list-label { font-size: 13px; font-weight: 600; padding: 14px 24px; background: #F9FAFB; border-block: 1px solid #EEF0F3; }
 .home-unbilled { grid-column: 1 / -1; }
 .home-empty { padding: 26px 24px; font-size: 14px; }
@@ -1046,7 +1484,8 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 #page-home a:focus-visible, #page-home button:focus-visible { outline: 2px solid #4B5563; outline-offset: -3px; }
 
 @media (min-width: 881px) and (max-width: 1150px) {
-  .home-current, .home-schedule { grid-column: span 7; }
+  .home-current, .home-geld { grid-column: span 7; }
+  .home-schedule { grid-column: 1 / -1; }
   .home-overview, .home-invoices { grid-column: span 5; }
   .home-focus-foot { flex-wrap: wrap; }
   .home-head { align-items: flex-start; }
@@ -1060,6 +1499,10 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .home-date-detail { display: block; padding: 0; margin: 4px 0 0; border: 0; }
   .home-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .home-panel { grid-column: 1; border-radius: 12px; }
+  /* Draußen zählt die nächste Handlung: erst der aktuelle Einsatz, dann
+     Einordnung und spätere Büroschritte. Die Desktop-Reihenfolge bleibt
+     bewusst unverändert. */
+  .home-geld { display: none; }   /* Handy zeigt nur den Ueberblickskreis, nicht den Kurvenverlauf */
   .home-panel-head { padding: 16px 18px; gap: 8px; }
   .home-panel-head h2 { font-size: 15px; }
   .home-panel-head .badge { font-size: 12px; }
@@ -1068,13 +1511,11 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .home-address { font-size: 13px; }
   .home-focus-foot { padding: 16px 18px; flex-wrap: wrap; gap: 14px; }
   .home-focus-foot .btn { width: 100%; justify-content: space-between; }
-  .home-overview .home-panel-head { display: none; }
-  .home-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 18px 0; }
-  .home-metric { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0 15px; }
-  .home-metric + .home-metric { border-top: 0; border-left: 1px solid var(--line); }
-  .home-metric dt { font-size: 11.5px; }
-  .home-metric-icon, .home-metric small { display: none; }
-  .home-metric dd { font-size: 28px; }
+  /* Der Überblick bleibt eine echte Karte, nicht drei lose Kennzahlen:
+     draußen auf dem Handy ist Titel + Erklärung schneller zu erfassen. */
+  .home-overview .home-panel-head { display: flex; }
+  .home-overview-visual { padding: 22px 18px 10px; }
+  .home-metrics { margin: 12px 18px 18px; }
   .home-job { grid-template-columns: 52px minmax(0, 1fr) 14px; gap: 10px; padding: 20px 18px; }
   .home-job-title { font-size: 15px; }
   .home-job-time { font-size: 13px; overflow-wrap: anywhere; }
@@ -1082,6 +1523,11 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .home-link { min-height: 44px; }
   .home-panel-link, .home-list-label { padding-inline: 18px; }
   .home-invoice { padding: 20px 18px; }
+  .invoice-approval-card { padding: 18px; }
+  .invoice-approval-status { padding: 22px; }
+  .invoice-approval-count { font-size: 52px; }
+  .invoice-approval-foot { padding: 12px; }
+  .invoice-link { width: 100%; }
   .home-empty { padding: 22px 18px; }
 }
 

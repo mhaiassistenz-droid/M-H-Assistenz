@@ -11,8 +11,18 @@
 
 import { esc, icon, fmtEuro, fmtDatum, parseZahl, zahlZuFeld, parseTermin,
          mengePruefen, preisPruefen, istEmail } from './util.js';
+import * as flows from './flows.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, badge, hinweisBox } from './ui.js';
+
+/* Ob ein echter Rechnungsdienst dahintersteht. Wird beim Laden einmal
+   ermittelt; bis dahin gilt die vorsichtigere Annahme „Demo". Davon haengt
+   nur die Beschriftung ab — was tatsaechlich passiert, entscheidet die
+   Weiche in versandOeffnen(). */
+let echterDienst = false;
+flows.verfuegbar().then(ja => { echterDienst = ja; });
+
+const VERSAND_LABEL = () => echterDienst ? 'Rechnung stellen' : 'Versand simulieren';
 
 /* Fiktive Absenderdaten für die Belegvorschau. */
 const ABSENDER = {
@@ -52,9 +62,9 @@ export function entwurfOeffnen(rechnungId, danach) {
   const holen = () => state.rechnung(rechnungId);
   if (!holen()) return;
 
-  if (holen().status === 'versendet') return belegOeffnen(rechnungId, { ersetzen: false, danach });
+  if (state.istVersendet(holen())) return belegOeffnen(rechnungId, { ersetzen: false, danach });
 
-  sheetOeffnen({
+  const sheet = sheetOeffnen({
     titel: 'Rechnungsentwurf',
     body: () => editorKoerper(holen()),
     foot: () => {
@@ -69,11 +79,13 @@ export function entwurfOeffnen(rechnungId, danach) {
           </span>
         </div>
         <button class="btn" data-vorschau type="button">${icon('rechnung')} Vorschau</button>
-        <button class="btn btn-primaer" data-versand type="button">${icon('senden')} Versand simulieren</button>`;
+        <button class="btn btn-primaer" data-versand type="button">${icon('senden')} ${VERSAND_LABEL()}</button>`;
     },
     bind: (el, api) => editorBinden(el, api, rechnungId, danach),
     onClose: () => danach?.(),
   });
+
+  beschriftungNachziehen(sheet);
 }
 
 /* ── Editor ──────────────────────────────── */
@@ -94,13 +106,19 @@ function editorKoerper(r) {
       <span class="section-hint">vom ${esc(fmtDatum(parseTermin(r.datum)))}</span>
     </div>
 
+    <ol class="workflow-path workflow-rechnung" aria-label="Ablauf für diesen Rechnungsentwurf">
+      <li class="workflow-step is-done"><span class="workflow-dot"></span><span>Dokumentation</span></li>
+      <li class="workflow-step is-active"><span class="workflow-dot"></span><span>Entwurf prüfen</span></li>
+      <li class="workflow-step is-next"><span class="workflow-dot"></span><span>Versand bestätigen</span></li>
+    </ol>
+
     <!-- Abgleich: was angefragt war vs. was dokumentiert wurde -->
     <div class="abgleich">
-      <div class="abgleich-sp">
+      <div class="abgleich-sp vereinbart">
         <div class="abgleich-l">Ursprünglich vereinbart</div>
         <div class="abgleich-t">${esc(a?.aufgabe) || '—'}</div>
       </div>
-      <div class="abgleich-sp">
+      <div class="abgleich-sp dokumentiert">
         <div class="abgleich-l">Tatsächlich dokumentiert</div>
         <div class="abgleich-t">${esc(a?.abschluss?.ergebnis) || '—'}</div>
       </div>
@@ -212,6 +230,8 @@ function positionZeile(p, i) {
         ${p.herkunft === 'manuell'      ? '<span class="pos-marke">Manuell ergänzt</span>' : ''}
         ${p.zusatz                       ? '<span class="pos-marke">Zusätzlich zur Anfrage</span>' : ''}
         ${p.preisIstBeispiel             ? '<span class="pos-marke">Beispielpreis</span>' : ''}
+        <button class="icon-btn pos-anweisung" data-pos-anweisung="${p.id}" type="button"
+                aria-label="Preis per Anweisung ändern">${icon('funke')}</button>
         <button class="icon-btn pos-del" data-pos-del="${p.id}" type="button"
                 aria-label="Position entfernen">${icon('papierkorb')}</button>
       </div>
@@ -311,6 +331,15 @@ function editorBinden(el, api, rechnungId, danach) {
       });
     });
 
+    box.querySelector('[data-pos-anweisung]').addEventListener('click', () => {
+      const p = r().positionen.find(x => x.id === posId);
+      if (p) anweisungDialog(rechnungId, p.id, () => {
+        zeileAktualisieren(box, state.rechnung(rechnungId).positionen.find(x => x.id === posId));
+        el.querySelector('[data-summen]').innerHTML = summenKoerper(r());
+        fussSummeAktualisieren(el, r());
+      });
+    });
+
     box.querySelector('[data-pos-del]').addEventListener('click', async () => {
       const ja = await bestaetigen({
         titel: 'Position entfernen',
@@ -343,6 +372,20 @@ function editorBinden(el, api, rechnungId, danach) {
 
   el.querySelector('[data-versand]')?.addEventListener('click', () =>
     versandOeffnen(rechnungId, danach));
+}
+
+/**
+ * Die Verfügbarkeitsprüfung ist asynchron und liegt beim ersten Rendern noch
+ * nicht vor. Steht ein echter Dienst bereit, muss der Knopf aber sagen, dass
+ * er wirklich versendet — sonst verspricht die Oberfläche eine Demo und
+ * verschickt eine Rechnung.
+ */
+function beschriftungNachziehen(sheet) {
+  flows.verfuegbar().then((ja) => {
+    if (!ja) return;
+    echterDienst = true;
+    sheet.render();
+  });
 }
 
 /**
@@ -404,6 +447,131 @@ function zeileAktualisieren(box, p) {
   }
 }
 
+/* ── Preiskorrektur per Anweisung ────────── */
+
+/**
+ * Edin gibt eine kurze Anweisung zu genau EINER Position ("die Dichtung war
+ * teurer, mach 16 Euro rein"). Antwortet die Auswertung mit einer Zahl, ist
+ * das ein Vorschlag, den Edin bestätigen muss — genau wie jede andere
+ * Preisansage (Rang 5 der Preis-Rangfolge, `09-rechnung-sevdesk.md`).
+ * Fehlt eine Zahl, fragt die KI aktiv danach, statt zu raten oder zu
+ * blockieren (Fachregel 5).
+ */
+function anweisungDialog(rechnungId, positionId, aktualisieren) {
+  let phase = 'eingabe';      // eingabe → wertetAus → vorschlag | frage
+  let text = '';
+  let frage = null;
+  let vorschlag = null;
+  let fehler = null;
+
+  const position = () => state.rechnung(rechnungId)?.positionen.find(p => p.id === positionId);
+
+  const sheet = sheetOeffnen({
+    titel: 'Preis per Anweisung ändern',
+    body: () => {
+      const p = position();
+      if (!p) return '';
+
+      if (phase === 'wertetAus') {
+        return `<div class="state-box">Wird ausgewertet …</div>`;
+      }
+
+      if (phase === 'vorschlag') {
+        return `
+          ${hinweisBox('<strong>Vorschlag aus Ihrer Anweisung.</strong> Noch nicht übernommen — bitte prüfen.', 'Vorschlag')}
+          <div class="card">
+            <div class="card-head"><div class="card-title">${esc(p.text) || 'Position'}</div></div>
+            <div class="card-body stapel">
+              <div class="sum-zeile"><span>Bisheriger Preis</span>
+                <span class="sum-wert">${vorschlag.alterPreis !== null ? fmtEuro(vorschlag.alterPreis) : 'offen'}</span></div>
+              <div class="sum-zeile gesamt"><span>Neuer Preis</span><span class="sum-wert">${fmtEuro(vorschlag.neuerPreis)}</span></div>
+              ${vorschlag.begruendung ? `<div class="hint-note">${esc(vorschlag.begruendung)}</div>` : ''}
+            </div>
+          </div>`;
+      }
+
+      return `
+        ${echterDienst
+          ? hinweisBox('Der Text geht an die Auswertung. Nennen Sie eine konkrete Zahl oder einen Betrag — '
+            + 'ohne Zahl fragt die KI nach, statt selbst einen Preis zu erfinden.', '')
+          : hinweisBox('<strong>Simuliert.</strong> Ohne echten Dienst wird die Anweisung nur lokal nachgebildet.')}
+        ${frage ? `<div class="card"><div class="card-body zitat">„${esc(frage)}"</div></div>` : ''}
+        ${fehler ? `<div class="state-box error">${esc(fehler)}</div>` : ''}
+        <div class="f">
+          <label class="f-label" for="pa-text">${frage ? 'Ihre Antwort' : 'Anweisung'}</label>
+          <textarea class="inp" id="pa-text" rows="3"
+            placeholder="z. B. „Die Dichtung war teurer, mach 16 Euro rein."">${esc(text)}</textarea>
+        </div>`;
+    },
+    foot: () => {
+      if (phase === 'wertetAus') return `<button class="btn btn-block" disabled type="button">Wird ausgewertet …</button>`;
+      if (phase === 'vorschlag') return `
+        <button class="btn" data-verwerfen type="button">Verwerfen</button>
+        <button class="btn btn-primaer" data-uebernehmen type="button">Übernehmen</button>`;
+      return `<button class="btn" data-abbrechen type="button">Abbrechen</button>
+              <button class="btn btn-primaer" data-senden type="button">${icon('funke')} Senden</button>`;
+    },
+    bind: (el) => {
+      el.querySelector('#pa-text')?.addEventListener('input', (e) => { text = e.target.value; });
+
+      el.querySelector('[data-abbrechen]')?.addEventListener('click', sheetSchliessen);
+      el.querySelector('[data-verwerfen]')?.addEventListener('click', () => {
+        phase = 'eingabe'; vorschlag = null; frage = null; text = '';
+        sheet.render();
+      });
+
+      el.querySelector('[data-uebernehmen]')?.addEventListener('click', () => {
+        state.positionUpdate(rechnungId, positionId, {
+          preis: vorschlag.neuerPreis,
+          preisIstBeispiel: false,
+        });
+        sheetSchliessen();
+        aktualisieren();
+        toast('Preis übernommen.');
+      });
+
+      el.querySelector('[data-senden]')?.addEventListener('click', async () => {
+        const anweisung = text.trim();
+        if (!anweisung) return toast('Bitte eine Anweisung eingeben.');
+        fehler = null;
+        phase = 'wertetAus';
+        sheet.render();
+
+        const p = position();
+        let antwort;
+        if (echterDienst) {
+          antwort = await flows.preisAnweisung({ anweisung, position: p });
+        } else {
+          // Demo ohne Dienst: einfache lokale Nachbildung, klar gekennzeichnet.
+          const gefunden = anweisung.match(/(\d+(?:[.,]\d+)?)/);
+          antwort = gefunden
+            ? { ok: true, ergebnis: 'vorschlag', alterPreis: p.preis,
+                neuerPreis: Number(gefunden[1].replace(',', '.')),
+                begruendung: 'Simuliert: erste Zahl aus dem Text übernommen.' }
+            : { ok: true, ergebnis: 'frage',
+                frage: `(Simuliert) Um wie viel soll der Preis für „${p.text || 'diese Position'}" geändert werden?` };
+        }
+
+        if (!antwort.ok) {
+          fehler = antwort.fehler || 'Die Auswertung ist fehlgeschlagen.';
+          phase = 'eingabe'; text = anweisung;
+          sheet.render();
+          return;
+        }
+        if (antwort.ergebnis === 'frage') {
+          frage = antwort.frage;
+          phase = 'eingabe'; text = '';
+          sheet.render();
+          return;
+        }
+        vorschlag = antwort;
+        phase = 'vorschlag';
+        sheet.render();
+      });
+    },
+  });
+}
+
 /* ── Belegvorschau ───────────────────────── */
 
 export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
@@ -411,16 +579,113 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
   const r = holen();
   if (!r) return;
 
+  // Zustand des "Noch etwas ändern?"-Chats in der Vorschau — nur relevant,
+  // solange nichts versendet ist. Lebt hier, nicht in belegKoerper(), weil
+  // die Vorschau bei jedem render() neu gebaut wird und den Zustand sonst
+  // verlöre.
+  let korrPhase = 'eingabe';   // eingabe → wertetAus → vorschlag
+  let korrText = '';
+  let korrFrage = null;
+  let korrVorschlag = null;
+  let korrFehler = null;
+
   const konfig = {
-    titel: r.status === 'versendet' ? 'Rechnung (Demo-Versand)' : 'Rechnungsvorschau',
-    body: () => belegKoerper(holen()),
-    foot: () => holen().status === 'versendet'
-      ? `<button class="btn btn-block" data-zu type="button">Schließen</button>`
-      : `<button class="btn" data-zu type="button">Zurück zum Entwurf</button>
-         <button class="btn btn-primaer" data-versand type="button">${icon('senden')} Versand simulieren</button>`,
-    bind: (el) => {
+    titel: state.istVersendet(r)
+      ? (r.status === 'gestellt' ? 'Rechnung (versendet)' : 'Rechnung (Demo-Versand)')
+      : 'Rechnungsvorschau',
+    body: () => belegKoerper(holen(), state.istVersendet(holen()) ? null : {
+      phase: korrPhase, text: korrText, frage: korrFrage, vorschlag: korrVorschlag, fehler: korrFehler,
+    }),
+    foot: () => {
+      const akt = holen();
+      if (!state.istVersendet(akt)) {
+        return `<button class="btn" data-zu type="button">Zurück zum Entwurf</button>
+         <button class="btn btn-primaer" data-versand type="button">${icon('senden')} ${VERSAND_LABEL()}</button>`;
+      }
+      // Der Beleg bleibt eingefroren — der Zahlungsvermerk steht daneben,
+      // nicht darin, und ändert am herausgegebenen Beleg nichts.
+      return `<button class="btn" data-zu type="button">Schließen</button>
+         ${state.istBezahlt(akt)
+           ? `<button class="btn" data-zahlung-weg type="button">Zahlung zurücknehmen</button>`
+           : `<button class="btn btn-primaer" data-zahlung type="button">${icon('check')} Zahlung vermerken</button>`}`;
+    },
+    bind: (el, api) => {
       el.querySelector('[data-zu]').addEventListener('click', sheetSchliessen);
       el.querySelector('[data-versand]')?.addEventListener('click', () => versandOeffnen(rechnungId, danach));
+
+      el.querySelector('#korr-text')?.addEventListener('input', (e) => { korrText = e.target.value; });
+
+      el.querySelector('[data-korr-verwerfen]')?.addEventListener('click', () => {
+        korrPhase = 'eingabe'; korrVorschlag = null; korrFrage = null; korrText = '';
+        api.render();
+      });
+
+      el.querySelector('[data-korr-uebernehmen]')?.addEventListener('click', () => {
+        const v = korrVorschlag;
+        if (v.ziel === 'position') {
+          const rechnung = holen();
+          const pos = rechnung.positionen[v.positionIndex];
+          if (pos) state.positionUpdate(rechnungId, pos.id, { [v.feld]: v.neuerWert, preisIstBeispiel: false });
+        } else if (v.ziel === 'empfaenger') {
+          state.rechnungUpdate(rechnungId, { empfaenger: { ...holen().empfaenger, [v.feld]: v.neuerWert } });
+        }
+        korrPhase = 'eingabe'; korrVorschlag = null; korrFrage = null; korrText = '';
+        toast('Änderung übernommen.');
+        api.render();
+      });
+
+      el.querySelector('[data-korr-senden]')?.addEventListener('click', async () => {
+        const anweisung = korrText.trim();
+        if (!anweisung) return toast('Bitte eine Anweisung eingeben.');
+        korrFehler = null;
+        korrPhase = 'wertetAus';
+        api.render();
+
+        const rechnung = holen();
+        let antwort;
+        if (echterDienst) {
+          antwort = await flows.rechnungKorrektur({ anweisung, rechnung });
+        } else {
+          // Demo ohne Dienst: einfache lokale Nachbildung, klar gekennzeichnet.
+          const treffer = rechnung.positionen
+            .map((p, i) => ({ p, i, ueberlappt: anweisung.toLowerCase().includes((p.text || '').toLowerCase().slice(0, 6)) }))
+            .find(x => x.ueberlappt) || (rechnung.positionen.length === 1 ? { p: rechnung.positionen[0], i: 0 } : null);
+          const zahl = anweisung.match(/(\d+(?:[.,]\d+)?)/);
+          antwort = (treffer && zahl)
+            ? { ok: true, ergebnis: 'vorschlag', ziel: 'position', positionIndex: treffer.i, positionText: treffer.p.text,
+                feld: 'preis', alterWert: treffer.p.preis, neuerWert: Number(zahl[1].replace(',', '.')),
+                begruendung: 'Simuliert: erste Zahl aus dem Text übernommen.' }
+            : { ok: true, ergebnis: 'frage',
+                frage: '(Simuliert) Welche Position oder welcher Wert genau ist gemeint?' };
+        }
+
+        if (!antwort.ok) {
+          korrFehler = antwort.fehler || 'Die Auswertung ist fehlgeschlagen.';
+          korrPhase = 'eingabe'; korrText = anweisung;
+          api.render();
+          return;
+        }
+        if (antwort.ergebnis === 'frage') {
+          korrFrage = antwort.frage;
+          korrPhase = 'eingabe'; korrText = '';
+          api.render();
+          return;
+        }
+        korrVorschlag = antwort;
+        korrPhase = 'vorschlag';
+        api.render();
+      });
+      el.querySelector('[data-zahlung]')?.addEventListener('click', () => {
+        const antwort = state.zahlungVermerken(rechnungId);
+        if (!antwort.ok) return toast(antwort.grund);
+        toast('Zahlungseingang vermerkt.');
+        belegOeffnen(rechnungId, { ersetzen: true, danach });
+      });
+      el.querySelector('[data-zahlung-weg]')?.addEventListener('click', () => {
+        state.zahlungZuruecknehmen(rechnungId);
+        toast('Zahlungsvermerk entfernt.');
+        belegOeffnen(rechnungId, { ersetzen: true, danach });
+      });
     },
     onClose: () => danach?.(),
   };
@@ -455,7 +720,7 @@ function belegDaten(r) {
   };
 }
 
-function belegKoerper(r) {
+function belegKoerper(r, korr) {
   const b = belegDaten(r);
   const versendet = state.istVersendet(r);
   const vollstaendig = b.eingefroren ? true : b.vollstaendig;
@@ -521,13 +786,65 @@ function belegKoerper(r) {
         <div class="sum-zeile gesamt"><span>Gesamt</span><span class="sum-wert">${fmtEuro(b.summen.brutto)}</span></div>
       </div>
 
+      ${state.istBezahlt(r) ? `<div class="beleg-zahlung">${icon('check')}
+        Bezahlt am ${esc(fmtDatum(parseTermin(r.zahlung.am)))} · ${esc(fmtEuro(r.zahlung.betrag))}</div>` : ''}
+
       <div class="beleg-fuss">
         ${esc(ABSENDER.steuernr)}<br>
         Zahlbar innerhalb von 14 Tagen ohne Abzug.${vollstaendig ? '' : ' Entwurf — noch nicht vollständig.'}<br>
         <em>Beispielbeleg aus einer Demo. Keine gültige Rechnung.</em>
       </div>
+    </div>
+
+    ${korr ? korrekturBlock(korr) : ''}`;
+}
+
+/**
+ * "Noch etwas ändern?" — freier Chat direkt in der Vorschau, nur solange
+ * nichts versendet ist. Bezieht sich auf die ganze Rechnung (jede Position,
+ * Empfängerdaten), nicht nur eine — anders als der Anweisungs-Knopf an der
+ * einzelnen Position im Entwurf, der bewusst enger bleibt.
+ */
+function korrekturBlock(korr) {
+  if (korr.phase === 'wertetAus') {
+    return `<div class="card korr-block"><div class="state-box">Wird ausgewertet …</div></div>`;
+  }
+
+  if (korr.phase === 'vorschlag') {
+    const v = korr.vorschlag;
+    const ziel = v.ziel === 'position' ? esc(v.positionText) : 'Empfänger · ' + esc(FELD_LABEL[v.feld] || v.feld);
+    const fmt = (x) => (v.feld === 'preis' || v.feld === 'menge') && typeof x === 'number' ? zahlZuFeld(x) : esc(x);
+    return `
+      <div class="card korr-block">
+        <div class="card-head"><div class="card-title">${icon('funke')} Vorschlag: ${ziel}</div></div>
+        <div class="card-body stapel">
+          <div class="sum-zeile"><span>Bisher</span><span class="sum-wert">${v.alterWert !== null && v.alterWert !== undefined ? fmt(v.alterWert) : '—'}</span></div>
+          <div class="sum-zeile gesamt"><span>Neu</span><span class="sum-wert">${fmt(v.neuerWert)}</span></div>
+          ${v.begruendung ? `<div class="hint-note">${esc(v.begruendung)}</div>` : ''}
+          <div class="korr-aktionen">
+            <button class="btn" data-korr-verwerfen type="button">Verwerfen</button>
+            <button class="btn btn-primaer" data-korr-uebernehmen type="button">Übernehmen</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="card korr-block">
+      <div class="card-head"><div class="card-title">Noch etwas ändern?</div></div>
+      <div class="card-body stapel">
+        ${korr.frage ? `<div class="hinweis"><span>${esc(korr.frage)}</span></div>` : ''}
+        ${korr.fehler ? `<div class="state-box error">${esc(korr.fehler)}</div>` : ''}
+        <div class="korr-eingabe">
+          <input class="inp" id="korr-text" placeholder="z. B. „Der Dichtungssatz war teurer, mach 16 Euro rein."" value="${esc(korr.text)}">
+          <button class="btn btn-primaer" data-korr-senden type="button">${icon('funke')} Senden</button>
+        </div>
+      </div>
     </div>`;
 }
+
+const FELD_LABEL = { preis: 'Preis', menge: 'Menge', einheit: 'Einheit', text: 'Text',
+  name: 'Name', adresse: 'Adresse', email: 'E-Mail', ansprechpartner: 'Ansprechpartner' };
 
 /* ── Simulierter Versand ─────────────────── */
 
@@ -541,15 +858,178 @@ function hindernisseZeigen(hindernisse) {
         <ul class="liste-offen">${hindernisse.map(h => `<li>${esc(h)}</li>`).join('')}</ul>
       </div>
       <div class="hint-note">Solange Angaben fehlen oder unzulässig sind, bleibt der
-        Demo-Versand gesperrt. Eine Rechnung mit negativer Menge oder ungültiger
-        Adresse würde in der Praxis niemand herausgeben.</div>`,
+        ${echterDienst ? 'Versand' : 'Demo-Versand'} gesperrt. Eine Rechnung mit negativer
+        Menge oder ungültiger Adresse würde in der Praxis niemand herausgeben.</div>`,
     foot: () => `<button class="btn btn-primaer btn-block" data-zu type="button">Zurück zum Entwurf</button>`,
     bind: (el) => el.querySelector('[data-zu]').addEventListener('click', sheetSchliessen),
   });
 }
 
 
-function versandOeffnen(rechnungId, danach) {
+/**
+ * Rechnung wirklich stellen: in sevDesk anlegen und per E-Mail versenden.
+ *
+ * Drei Zustände sind möglich, und alle drei werden unterschieden:
+ *   versendet   — Rechnung liegt im Dienst und ist beim Empfänger
+ *   erstellt    — Rechnung liegt im Dienst, Versand ist gescheitert
+ *   gar nichts  — Übergabe abgelehnt, nichts wurde angelegt
+ *
+ * Der mittlere Fall ist der wichtige: die Rechnung existiert dann wirklich.
+ * Ein zweiter Versuch darf keine zweite erzeugen, sondern muss den Versand
+ * nachholen — dafür sorgt die Referenz im Dienst.
+ */
+function rechnungStellenOeffnen(rechnungId, danach) {
+  const r = state.rechnung(rechnungId);
+  if (!r) return;
+
+  const hindernisse = state.versandHindernisse(r);
+  if (hindernisse.length) { hindernisseZeigen(hindernisse); return; }
+
+  const a = state.auftrag(r.auftragId);
+  const s = state.summen(r);
+
+  // Beispieladressen enden auf .example. Die darf niemand anschreiben, also
+  // wird das Feld in dem Fall leer gelassen statt stillschweigend gefüllt.
+  const kundenMail = (r.empfaenger.email || '').trim();
+  const istBeispiel = /\.example$/i.test(kundenMail);
+
+  let empfaenger = istBeispiel ? '' : kundenMail;
+  let phase = 'bereit';        // bereit → laeuft → fehler
+  let ergebnis = null;
+
+  const betreff = `Rechnung ${ABSENDER.firma} — ${a?.aufgabe ? a.aufgabe.slice(0, 60) : 'Arbeiten'}`;
+  const nachricht =
+    `Guten Tag${r.empfaenger.ansprechpartner ? ' ' + r.empfaenger.ansprechpartner : ''},\n\n`
+    + `anbei die Rechnung über ${fmtEuro(s.brutto)} für die ausgeführten Arbeiten.\n\n`
+    + `Mit freundlichen Grüßen\n${ABSENDER.inhaber}\n${ABSENDER.firma}`;
+
+  const sheet = sheetOeffnen({
+    titel: 'Rechnung stellen',
+    body: () => {
+      if (phase === 'laeuft') {
+        return `<div class="state-box">Rechnung wird gestellt …
+          <div class="state-hint">Kunde anlegen oder finden, Rechnung erzeugen, versenden.
+            Das dauert ein paar Sekunden.</div>
+        </div>`;
+      }
+
+      if (phase === 'fehler' && ergebnis) {
+        const erstellt = ergebnis.zustand === 'erstellt';
+        return `
+          <div class="state-box error">
+            <strong>${esc(ergebnis.fehler || 'Die Rechnung konnte nicht gestellt werden.')}</strong>
+            ${ergebnis.punkte?.length
+              ? `<ul class="liste-offen">${ergebnis.punkte.map(pt => `<li>${esc(pt)}</li>`).join('')}</ul>`
+              : ''}
+            ${ergebnis.hinweis ? `<div class="state-hint">${esc(ergebnis.hinweis)}</div>` : ''}
+          </div>
+          ${erstellt ? `<div class="hint-note"><strong>Wichtig:</strong> Die Rechnung liegt bereits
+            im Rechnungsdienst. Ein erneuter Versuch versendet sie nur — es entsteht
+            keine zweite Rechnung.</div>` : ''}`;
+      }
+
+      return `
+        ${hinweisBox('Die Rechnung wird wirklich im Rechnungsdienst angelegt und per E-Mail '
+          + 'versendet. Danach ist der Beleg festgeschrieben und nicht mehr änderbar.', '')}
+        ${istBeispiel ? `<div class="state-box">Die hinterlegte Adresse „${esc(kundenMail)}" ist
+          eine Beispieladresse und wird nicht angeschrieben.
+          <div class="state-hint">Bitte eine echte Empfängeradresse eintragen.</div></div>` : ''}
+        <div class="f">
+          <label class="f-label" for="vm">Rechnung senden an</label>
+          <input class="inp" id="vm" type="email" inputmode="email"
+                 value="${esc(empfaenger)}" placeholder="name@firma.de">
+        </div>
+        <div class="mail">
+          <div class="mail-kopf">
+            <div class="mail-z"><span class="mail-k">Betreff</span><span class="mail-v">${esc(betreff)}</span></div>
+          </div>
+          <div class="mail-body">${esc(nachricht)}</div>
+        </div>
+        <div class="summen">${summenKoerper(r)}</div>`;
+    },
+    foot: () => {
+      if (phase === 'laeuft') return `<button class="btn btn-block" disabled type="button">Wird gestellt …</button>`;
+      if (phase === 'fehler') return `
+        <button class="btn" data-zu type="button">Schließen</button>
+        <button class="btn btn-primaer" data-nochmal type="button">Nochmal versuchen</button>`;
+      return `
+        <button class="btn" data-ab type="button">Abbrechen</button>
+        <button class="btn btn-primaer" data-ok type="button">${icon('check')} Rechnung stellen</button>`;
+    },
+    bind: (el) => {
+      el.querySelector('[data-ab]')?.addEventListener('click', sheetSchliessen);
+      el.querySelector('[data-zu]')?.addEventListener('click', sheetSchliessen);
+
+      const stellen = async () => {
+        const feld = el.querySelector('#vm');
+        if (feld) empfaenger = feld.value.trim();
+
+        if (!istEmail(empfaenger)) {
+          toast('Bitte eine gültige Empfängeradresse eintragen.');
+          return;
+        }
+
+        phase = 'laeuft';
+        sheet.render();
+
+        const antwort = await flows.rechnungUebergeben({
+          rechnung: state.rechnung(rechnungId),
+          auftrag: state.auftrag(r.auftragId),
+          versandAn: empfaenger,
+          betreff,
+          nachricht,
+        });
+
+        // Die Rechnung liegt im Dienst, der Versand ging schief: das wird
+        // festgehalten, damit ein zweiter Versuch nichts doppelt anlegt.
+        if (!antwort.ok && antwort.zustand === 'erstellt') {
+          state.rechnungErstelltVermerken(rechnungId, antwort);
+        }
+
+        if (!antwort.ok) {
+          ergebnis = antwort;
+          phase = 'fehler';
+          sheet.render();
+          return;
+        }
+
+        const erg = state.rechnungGestellt(rechnungId, antwort);
+        if (!erg.ok) {
+          ergebnis = { fehler: erg.grund };
+          phase = 'fehler';
+          sheet.render();
+          return;
+        }
+
+        sheetSchliessen();
+        belegOeffnen(rechnungId, { ersetzen: true, danach });
+        toast(antwort.nummer
+          ? `Rechnung ${antwort.nummer} versendet. Der Auftrag bleibt „Erledigt".`
+          : 'Rechnung versendet. Der Auftrag bleibt „Erledigt".');
+      };
+
+      el.querySelector('[data-ok]')?.addEventListener('click', stellen);
+      el.querySelector('[data-nochmal]')?.addEventListener('click', () => {
+        phase = 'bereit';
+        ergebnis = null;
+        sheet.render();
+      });
+    },
+  });
+}
+
+/**
+ * Weiche zwischen Demo-Versand und echtem Rechnungsversand.
+ *
+ * Ohne Rechnungsdienst bleibt alles wie bisher — die öffentliche Demo darf
+ * sich nicht ändern. Steht einer bereit, geht die Rechnung wirklich hinaus.
+ */
+async function versandOeffnen(rechnungId, danach) {
+  if (await flows.verfuegbar()) return rechnungStellenOeffnen(rechnungId, danach);
+  return demoVersandOeffnen(rechnungId, danach);
+}
+
+function demoVersandOeffnen(rechnungId, danach) {
   const r = state.rechnung(rechnungId);
   if (!r) return;
 

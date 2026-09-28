@@ -10,8 +10,10 @@
    Öffnen alles noch da.
    ============================================ */
 
-import { esc, icon, uid, toInputDatetime } from './util.js';
+import { esc, icon, uid, toInputDatetime, fmtTermin } from './util.js';
 import * as fotos from './fotos.js';
+import * as flows from './flows.js';
+import * as pegel from './pegel.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, hinweisBox } from './ui.js';
 import { akteOeffnen } from './akte.js';
@@ -88,8 +90,9 @@ export function erfassungOeffnen(o = {}) {
 
 function einstiegOeffnen(o) {
   const angefangen = entwurf && Object.values(entwurf).some(v => v && v !== 'manuell');
+  let echt = false;
 
-  sheetOeffnen({
+  const sheet = sheetOeffnen({
     titel: 'Auftrag erfassen',
     body: () => `
       <div class="hint-note">Kunde, Aufgabe und Termin wurden bereits mit dem Kunden
@@ -133,9 +136,12 @@ function einstiegOeffnen(o) {
         </button>
       </div>
 
-      ${hinweisBox('Foto-Auswertung und Spracherkennung sind in dieser Demo simuliert. '
-        + 'Beide füllen das gleiche Formular mit einem gekennzeichneten Beispiel, das Sie danach '
-        + 'korrigieren können.')}`,
+      ${echt
+        ? hinweisBox('Foto und Sprache werden wirklich ausgewertet. Beide füllen dasselbe Formular '
+          + 'mit einem Vorschlag, den Sie danach prüfen und korrigieren.', '')
+        : hinweisBox('Foto-Auswertung und Spracherkennung sind in dieser Demo simuliert. '
+          + 'Beide füllen das gleiche Formular mit einem gekennzeichneten Beispiel, das Sie danach '
+          + 'korrigieren können.')}`,
     bind: (el) => {
       el.querySelector('[data-weiter]')?.addEventListener('click', () =>
         sheetErsetzenMitFormular(entwurf, o));
@@ -160,6 +166,12 @@ function einstiegOeffnen(o) {
       }));
     },
   });
+
+  flows.verfuegbar().then((ja) => {
+    if (!ja) return;
+    echt = true;
+    sheet.render();
+  });
 }
 
 function sheetErsetzenMitFormular(daten, o) {
@@ -170,13 +182,55 @@ function sheetErsetzenMitFormular(daten, o) {
 
 function fotoWeg(o) {
   let vorschau = null;     // {name, fotoId}
-  let phase = 'waehlen';   // waehlen → gewaehlt → ausgewertet
-  let problem = null;      // verständlicher Grund, wenn das Bild nicht abgelegt werden konnte
+  let datei = null;        // die Originaldatei, für die echte Auswertung
+  let phase = 'waehlen';   // waehlen → gewaehlt → laeuft → ausgewertet
+  let problem = null;      // verständlicher Grund, wenn etwas nicht klappte
+  let echt = false;        // Backend erreichbar?
+  let ergebnis = null;     // echte Antwort des Flows
 
   const sheet = sheetErsetzen({
     titel: 'Auftrag per Foto erfassen',
     body: () => {
+      if (phase === 'laeuft') {
+        return `
+          ${vorschau ? bildVorschau([vorschau]) : ''}
+          <div class="state-box">Das Bild wird gelesen …
+            <div class="state-hint">Das dauert meist ein paar Sekunden.</div>
+          </div>`;
+      }
+
       if (phase === 'ausgewertet') {
+        // Echte Auswertung: zeigen, was gelesen wurde — und was nicht.
+        if (echt && ergebnis) {
+          const v = ergebnis.vorschlag;
+          const offen = flows.fehlendText(ergebnis.fehlend);
+          if (!v) {
+            return `
+              ${vorschau ? bildVorschau([vorschau]) : ''}
+              <div class="state-box error">Auf dem Bild war nichts Lesbares zu erkennen.
+                <div class="state-hint">Es wurde bewusst nichts übernommen. Anderes Bild versuchen
+                  oder die Angaben von Hand eintragen.</div>
+              </div>`;
+          }
+          return `
+            ${hinweisBox('<strong>Aus dem Bild gelesen.</strong> Die Angaben sind ein Vorschlag und '
+              + 'nicht geprüft. Bitte im nächsten Schritt kontrollieren.', 'Vorschlag')}
+            ${vorschau ? bildVorschau([vorschau]) : ''}
+            <div class="card">
+              <div class="card-head"><div class="card-title">Erkannte Angaben</div></div>
+              <div class="card-body stapel">
+                ${zeile('Kunde', v.kunde || NICHT_ERKANNT)}
+                ${zeile('Ansprechpartner', v.ansprechpartner || NICHT_ERKANNT)}
+                ${zeile('Adresse', v.adresse || NICHT_ERKANNT)}
+                ${zeile('Aufgabe', v.aufgabe || NICHT_ERKANNT)}
+                ${zeile('Termin', terminText(v.termin))}
+              </div>
+            </div>
+            ${offen ? `<div class="state-box">Nicht erkannt und bewusst offen gelassen: ${esc(offen)}
+              <div class="state-hint">Diese Felder bleiben leer, statt geraten zu werden.</div></div>` : ''}`;
+        }
+
+        // Ohne Backend bleibt es beim gekennzeichneten Beispiel.
         return `
           ${hinweisBox('<strong>Beispielauswertung.</strong> Diese Angaben wurden nicht aus dem Bild '
             + 'gelesen — sie sind im Demo-Code hinterlegt, damit Sie sehen, wie das Ergebnis aussähe. '
@@ -193,9 +247,13 @@ function fotoWeg(o) {
             </div>
           </div>`;
       }
+
       return `
-        ${hinweisBox('Das Bild bleibt auf dem Gerät. Es wird nichts hochgeladen und nichts '
-          + 'automatisch gelesen — die Auswertung im nächsten Schritt ist ein hinterlegtes Beispiel.')}
+        ${echt
+          ? hinweisBox('Das Bild wird zum Lesen an den Auswertungsdienst übertragen und dort nicht '
+            + 'gespeichert. Was erkannt wird, ist ein Vorschlag, den Sie danach korrigieren können.', '')
+          : hinweisBox('Das Bild bleibt auf dem Gerät. Es wird nichts hochgeladen und nichts '
+            + 'automatisch gelesen — die Auswertung im nächsten Schritt ist ein hinterlegtes Beispiel.')}
         ${problem ? `<div class="state-box error">${esc(problem)}</div>` : ''}
         ${vorschau ? bildVorschau([vorschau]) : `
           <div class="state-box">Noch kein Bild gewählt.
@@ -208,12 +266,19 @@ function fotoWeg(o) {
         <input type="file" accept="image/*" capture="environment" data-f-kamera hidden>
         <input type="file" accept="image/*" data-f-galerie hidden>`;
     },
-    foot: () => phase === 'ausgewertet'
-      ? `<button class="btn" data-zurueck type="button">Anderes Bild</button>
-         <button class="btn btn-primaer" data-uebernehmen type="button">Angaben übernehmen</button>`
-      : `<button class="btn btn-primaer btn-block" data-auswerten type="button" ${phase === 'waehlen' ? 'disabled' : ''}>
-           ${icon('funke')} Beispielauswertung anzeigen
-         </button>`,
+    foot: () => {
+      if (phase === 'laeuft') {
+        return `<button class="btn btn-block" disabled type="button">Wird gelesen …</button>`;
+      }
+      if (phase === 'ausgewertet') {
+        const nichts = echt && ergebnis && !ergebnis.vorschlag;
+        return `<button class="btn" data-zurueck type="button">Anderes Bild</button>
+                ${nichts ? '' : `<button class="btn btn-primaer" data-uebernehmen type="button">Angaben übernehmen</button>`}`;
+      }
+      return `<button class="btn btn-primaer btn-block" data-auswerten type="button" ${phase === 'waehlen' ? 'disabled' : ''}>
+                ${icon('funke')} ${echt ? 'Bild auswerten' : 'Beispielauswertung anzeigen'}
+              </button>`;
+    },
     bind: (el) => {
       const waehlen = (sel) => el.querySelector(sel).click();
       el.querySelector('[data-kamera]')?.addEventListener('click', () => waehlen('[data-f-kamera]'));
@@ -221,37 +286,77 @@ function fotoWeg(o) {
 
       ['[data-f-kamera]', '[data-f-galerie]'].forEach(sel =>
         el.querySelector(sel)?.addEventListener('change', async (e) => {
-          const datei = e.target.files?.[0];
+          const gewaehlt = e.target.files?.[0];
           e.target.value = '';
-          if (!datei) return;
+          if (!gewaehlt) return;
 
           const fotoId = uid('foto');
-          const erg = await fotos.speichern(fotoId, datei);
+          const erg = await fotos.speichern(fotoId, gewaehlt);
           if (!erg.ok) {
             problem = erg.grund;
             sheet.render();
             return;
           }
           problem = null;
-          vorschau = { name: datei.name, fotoId };
+          datei = gewaehlt;
+          vorschau = { name: gewaehlt.name, fotoId };
           phase = 'gewaehlt';
           sheet.render();
         }));
 
-      el.querySelector('[data-auswerten]')?.addEventListener('click', () => {
+      el.querySelector('[data-auswerten]')?.addEventListener('click', async () => {
+        if (!echt) {
+          phase = 'ausgewertet';
+          sheet.render();
+          return;
+        }
+        phase = 'laeuft';
+        sheet.render();
+        const antwort = await flows.fotoAuswerten(datei, 'erfassen');
+        if (!antwort.ok) {
+          // Ein Fehlschlag darf nie wie ein Ergebnis aussehen.
+          problem = antwort.fehler || 'Die Auswertung ist fehlgeschlagen.';
+          phase = 'gewaehlt';
+          sheet.render();
+          return;
+        }
+        ergebnis = antwort;
         phase = 'ausgewertet';
         sheet.render();
       });
+
       el.querySelector('[data-zurueck]')?.addEventListener('click', () => {
+        ergebnis = null;
         phase = vorschau ? 'gewaehlt' : 'waehlen';
         sheet.render();
       });
+
       el.querySelector('[data-uebernehmen]')?.addEventListener('click', () => {
         if (vorschau) bilder = [vorschau];
-        sheetErsetzenMitFormular({ ...LEER, ...FOTO_BEISPIEL, erfasstUeber: 'foto' }, o);
+        const werte = (echt && ergebnis)
+          ? flows.alsFormularwerte(ergebnis.vorschlag)
+          : FOTO_BEISPIEL;
+        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'foto' }, o);
       });
     },
   });
+
+  // Nachträglich: sobald bekannt ist, ob echt ausgewertet werden kann,
+  // ändern sich Hinweistext und Beschriftung des Knopfs.
+  flows.verfuegbar().then((ja) => {
+    if (!ja) return;
+    echt = true;
+    sheet.render();
+  });
+}
+
+const NICHT_ERKANNT = 'Nicht erkannt — bitte eintragen';
+
+/** „Freitag" ist kein Datum. Ohne Datum bleibt der Termin ausdrücklich offen. */
+function terminText(termin) {
+  if (!termin || !termin.datum) return NICHT_ERKANNT;
+  // Gleiche Schreibweise wie überall sonst — „2026-10-02" liest draußen niemand gern.
+  return fmtTermin(`${termin.datum}T${termin.zeit || '08:00'}`);
 }
 
 const zeile = (k, v) => `
@@ -267,16 +372,72 @@ function bildVorschau(liste) {
 /* ── Weg 2: Sprache ──────────────────────── */
 
 function sprachWeg(o) {
-  let phase = 'bereit';
+  let phase = 'bereit';    // bereit → laeuft → wertetAus → pruefen
   let sekunden = 0, ticker = null;
+  let echt = false;
+  let aufnahme = null;     // laufende Aufnahme
+  let messer = null;       // Lautstärkemessung am Mikrofonstrom
+  let anzeige = null;      // laufende Balkenanzeige
+  let welle = [];          // Verlauf der Aufnahme, für das stehende Bild
+  let ergebnis = null;     // echte Antwort des Flows
+  let problem = null;
 
   const uhrzeit = () =>
     `${String(Math.floor(sekunden / 60)).padStart(2, '0')}:${String(sekunden % 60).padStart(2, '0')}`;
 
+  /** Beendet Messung und Anzeige und merkt sich das Bild der Aufnahme. */
+  const pegelBeenden = () => {
+    if (anzeige) { welle = anzeige.stoppen(); anzeige = null; }
+    if (messer) { messer.schliessen(); messer = null; }
+  };
+
   const sheet = sheetErsetzen({
     titel: 'Auftrag einsprechen',
     body: () => {
+      if (phase === 'wertetAus') {
+        return `
+          <div class="rec-box">
+            ${pegel.pegelFeld('standbild')}
+            <div class="rec-status">Aufnahme: ${esc(uhrzeit())}</div>
+          </div>
+          <div class="state-box">Aufnahme wird ausgewertet …
+            <div class="state-hint">Erst wird der Text erkannt, dann werden die Angaben herausgezogen.</div>
+          </div>`;
+      }
+
       if (phase === 'pruefen') {
+        // Echtes Ergebnis
+        if (echt && ergebnis) {
+          const v = ergebnis.vorschlag || {};
+          const offen = flows.fehlendText(ergebnis.fehlend);
+          return `
+            ${hinweisBox('<strong>Aus Ihrer Aufnahme erkannt.</strong> Die Angaben sind ein Vorschlag '
+              + 'und nicht geprüft. Bitte im nächsten Schritt kontrollieren.', 'Vorschlag')}
+            <div class="rec-box">
+              ${pegel.pegelFeld('standbild')}
+              <div class="rec-status">Aufnahme: ${esc(uhrzeit())}</div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div class="card-title">Transkript</div></div>
+              <div class="card-body zitat">
+                „${esc(ergebnis.transkript || '')}"
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div class="card-title">Daraus abgeleitete Angaben</div></div>
+              <div class="card-body stapel">
+                ${zeile('Kunde', v.kunde || NICHT_ERKANNT)}
+                ${zeile('Ansprechpartner', v.ansprechpartner || NICHT_ERKANNT)}
+                ${zeile('Adresse', v.adresse || NICHT_ERKANNT)}
+                ${zeile('Aufgabe', v.aufgabe || NICHT_ERKANNT)}
+                ${zeile('Termin', terminText(v.termin))}
+              </div>
+            </div>
+            ${offen ? `<div class="state-box">Nicht erkannt und bewusst offen gelassen: ${esc(offen)}
+              <div class="state-hint">Diese Felder bleiben leer, statt geraten zu werden.</div></div>` : ''}`;
+        }
+
+        // Ohne Backend bleibt das hinterlegte Beispiel
         return `
           ${hinweisBox('<strong>Beispieltranskript.</strong> Es wurde nichts aufgenommen und nichts erkannt. '
             + 'Der Text ist im Demo-Code hinterlegt und zeigt, wie das Ergebnis aussähe.')}
@@ -296,38 +457,122 @@ function sprachWeg(o) {
             </div>
           </div>`;
       }
+
       return `
-        ${hinweisBox('<strong>Aufnahme ist simuliert.</strong> Die Demo greift nicht auf das Mikrofon zu.')}
+        ${echt
+          ? hinweisBox('Die Aufnahme wird zum Erkennen übertragen und dort nicht gespeichert. '
+            + 'Sagen Sie Kunde, Adresse, Aufgabe und Termin in einem Satz.', '')
+          : hinweisBox('<strong>Aufnahme ist simuliert.</strong> Die Demo greift nicht auf das Mikrofon zu.')}
+        ${problem ? `<div class="state-box error">${esc(problem)}</div>` : ''}
         <div class="rec-box ${phase === 'laeuft' ? 'laeuft' : ''}">
-          <div class="rec-dot">${icon('mikro')}</div>
-          <div class="rec-timer">${uhrzeit()}</div>
-          <div class="rec-status">${phase === 'laeuft' ? 'Aufnahme läuft (simuliert)' : 'Bereit'}</div>
+          ${phase === 'laeuft' && echt
+            ? pegel.pegelFeld('pegel')
+            : `<div class="rec-dot">${icon('mikro')}</div>`}
+          <div class="rec-timer" data-uhr>${uhrzeit()}</div>
+          <div class="rec-status">${phase === 'laeuft'
+            ? (echt ? 'Aufnahme läuft — sprechen Sie' : 'Aufnahme läuft (simuliert)')
+            : 'Bereit'}</div>
         </div>`;
     },
     foot: () => {
+      if (phase === 'wertetAus') return `<button class="btn btn-block" disabled type="button">Wird ausgewertet …</button>`;
       if (phase === 'bereit') return `<button class="btn btn-primaer btn-block" data-start type="button">${icon('mikro')} Aufnahme starten</button>`;
       if (phase === 'laeuft') return `<button class="btn btn-primaer btn-block" data-stop type="button">Aufnahme stoppen</button>`;
       return `<button class="btn" data-nochmal type="button">Nochmal</button>
               <button class="btn btn-primaer" data-ok type="button">Angaben übernehmen</button>`;
     },
     bind: (el) => {
-      el.querySelector('[data-start]')?.addEventListener('click', () => {
+      // Die laufende Aufnahme darf das Sheet NICHT neu zeichnen: zeichnen()
+      // ersetzt das gesamte innerHTML, und einmal pro Sekunde sah das aus
+      // wie Flackern. Uhr und Balken werden deshalb direkt am Element
+      // nachgezogen.
+      if (phase === 'laeuft') {
+        const uhrEl = el.querySelector('[data-uhr]');
+        ticker = setInterval(() => {
+          sekunden++;
+          if (uhrEl) uhrEl.textContent = uhrzeit();
+        }, 1000);
+
+        const feld = el.querySelector('[data-pegel]');
+        if (feld && messer) {
+          feld.classList.add('aktiv');
+          anzeige = pegel.anzeigeStarten(feld, messer);
+        }
+      }
+
+      // Stehendes Bild der fertigen Aufnahme.
+      const standEl = el.querySelector('[data-standbild]');
+      if (standEl) {
+        standEl.classList.add('standbild');
+        pegel.standbildZeichnen(standEl, pegel.standbild(welle));
+      }
+
+      el.querySelector('[data-start]')?.addEventListener('click', async () => {
+        problem = null;
+        welle = [];
+        if (echt) {
+          try {
+            aufnahme = await flows.aufnahmeStarten();
+            messer = pegel.messerStarten(aufnahme.stream);
+          } catch (e) {
+            problem = e.message;
+            sheet.render();
+            return;
+          }
+        }
         phase = 'laeuft'; sekunden = 0;
-        ticker = setInterval(() => { sekunden++; sheet.render(); }, 1000);
         sheet.render();
       });
-      el.querySelector('[data-stop]')?.addEventListener('click', () => {
-        clearInterval(ticker); ticker = null; phase = 'pruefen'; sheet.render();
+
+      el.querySelector('[data-stop]')?.addEventListener('click', async () => {
+        clearInterval(ticker); ticker = null;
+        pegelBeenden();
+
+        if (!echt) { phase = 'pruefen'; sheet.render(); return; }
+
+        phase = 'wertetAus';
+        sheet.render();
+        const blob = await aufnahme.stoppen();
+        aufnahme = null;
+        const antwort = await flows.spracheAuswerten(blob, 'erfassen');
+        if (!antwort.ok) {
+          problem = antwort.fehler || 'Die Auswertung ist fehlgeschlagen.';
+          phase = 'bereit'; sekunden = 0;
+          sheet.render();
+          return;
+        }
+        ergebnis = antwort;
+        phase = 'pruefen';
+        sheet.render();
       });
+
       el.querySelector('[data-nochmal]')?.addEventListener('click', () => {
-        phase = 'bereit'; sekunden = 0; sheet.render();
+        phase = 'bereit'; sekunden = 0; ergebnis = null; welle = [];
+        sheet.render();
       });
+
       el.querySelector('[data-ok]')?.addEventListener('click', () => {
-        // Termin bewusst offen lassen: "Freitag um zehn" ist kein Datum.
-        sheetErsetzenMitFormular({ ...LEER, ...FOTO_BEISPIEL, termin: '', erfasstUeber: 'sprache' }, o);
+        // Termin bewusst offen lassen, wenn kein echtes Datum gefallen ist:
+        // "Freitag um zehn" ist keines.
+        const werte = (echt && ergebnis)
+          ? flows.alsFormularwerte(ergebnis.vorschlag)
+          : { ...FOTO_BEISPIEL, termin: '' };
+        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'sprache' }, o);
       });
     },
-    onClose: () => { if (ticker) clearInterval(ticker); },
+    onClose: () => {
+      if (ticker) clearInterval(ticker);
+      pegelBeenden();
+      if (aufnahme) aufnahme.abbrechen();
+    },
+    /** Vor jedem Neuzeichnen: laufende Zeitgeber lösen, sonst laufen sie doppelt. */
+    vorRender: () => { if (ticker) { clearInterval(ticker); ticker = null; } },
+  });
+
+  flows.verfuegbar().then((ja) => {
+    if (!ja) return;
+    echt = true;
+    sheet.render();
   });
 }
 

@@ -192,6 +192,8 @@ export const ICON = {
   offen:     '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
   play:      '<polygon points="5 3 19 12 5 21 5 3"/>',
   check:     '<path d="M20 6 9 17l-5-5"/>',
+  trendauf:  '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+  chevronab: '<path d="m6 9 6 6 6-6"/>',
   zurueck:   '<path d="m15 18-6-6 6-6"/>',
   vor:       '<path d="m9 18 6-6-6-6"/>',
   schliessen:'<path d="M18 6 6 18M6 6l12 12"/>',

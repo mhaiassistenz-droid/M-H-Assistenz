@@ -7,6 +7,7 @@
    ============================================ */
 
 import { $, esc, icon, HANDY_MQ } from './util.js';
+import * as flows from './flows.js';
 import * as state from './state.js';
 import { bestaetigen, toast, alleSheetsSchliessen } from './ui.js';
 import { bilderNachladen } from './fotos.js';
@@ -110,7 +111,7 @@ function uhr() {
     `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-function start() {
+async function start() {
   state.load();
 
   // Jede Datenänderung zeichnet die sichtbare Seite und die Zähler neu.
@@ -121,8 +122,8 @@ function start() {
   $('#btnReset').addEventListener('click', async () => {
     const ja = await bestaetigen({
       titel: 'Demo zurücksetzen',
-      text: 'Alle in der Demo erfassten Aufträge, Notizen und Rechnungsentwürfe werden gelöscht '
-          + 'und die vier Beispielaufträge wiederhergestellt. Das lässt sich nicht rückgängig machen.',
+      text: 'Alle erfassten Aufträge, Notizen, Fotos und Rechnungsentwürfe werden gelöscht. '
+          + 'Danach ist die App leer. Das lässt sich nicht rückgängig machen.',
       jaText: 'Zurücksetzen',
       warnend: true,
     });
@@ -130,7 +131,7 @@ function start() {
     alleSheetsSchliessen();
     state.zuruecksetzen();
     gehe('home');
-    toast('Demo auf den Ausgangszustand zurückgesetzt.');
+    toast('Alles gelöscht. Die App ist leer.');
   });
 
   window.addEventListener('hashchange', () => {
@@ -144,6 +145,23 @@ function start() {
 
   uhr();
   setInterval(uhr, 30000);
+
+  // Einmal klären, ob ein echter Dienst dahintersteht, BEVOR die erste Seite
+  // entsteht. Sonst behaupten Fußzeile und Knöpfe im ersten Moment „Demo",
+  // obwohl wirklich ausgewertet und versendet wird.
+  const echterDienst = await flows.verfuegbar();
+
+  // Der Hinweis in der Seitenleiste steht fest im HTML. Laeuft wirklich ein
+  // Dienst dahinter, darf dort nicht weiter „simuliert" stehen — die Daten
+  // bleiben erfunden, die Verarbeitung ist es nicht.
+  if (echterDienst) {
+    const hinweis = $('[data-demo-hinweis]');
+    if (hinweis) {
+      hinweis.innerHTML = 'Fiktive Kundendaten. Foto-Auswertung, Spracherkennung und '
+        + 'Rechnungsversand laufen \u00fcber echte Dienste.';
+    }
+  }
+
   gehe(location.hash.replace('#', '') || 'home', { scrollTop: false });
 }
 

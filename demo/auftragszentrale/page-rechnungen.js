@@ -13,12 +13,23 @@ import { akteOeffnen } from './akte.js';
 
 let filter = 'alle';   // alle | entwurf | versendet
 
+/* Home verlinkt ausdrücklich auf die vollständige Rechnungsliste. Ein zuvor
+   gewählter Filter darf diesen Weg daher nicht zu einer leeren Liste machen. */
+export function rechnungsFilterSetzen(wert) {
+  filter = ['alle', 'entwurf', 'versendet'].includes(wert) ? wert : 'alle';
+}
+
 export function renderRechnungen(el) {
   const alle = [...state.alleRechnungen()]
     .sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
 
-  const entwuerfe = alle.filter(r => r.status === 'entwurf');
-  const versendet = alle.filter(r => r.status === 'versendet');
+  // „Erstellt" heisst: liegt im Rechnungsdienst, ist aber noch nicht beim
+  // Kunden. Fuer Edin ist das weiterhin offen, also steht es bei den
+  // Entwuerfen — mit eigenem Schild, damit der Unterschied sichtbar bleibt.
+  const entwuerfe = alle.filter(r => !state.istVersendet(r));
+  // Demo-Versand und echter Versand gehoeren in dieselbe Gruppe: fuer Edin
+  // ist beides "raus".
+  const versendet = alle.filter(r => state.istVersendet(r));
   const liste = filter === 'entwurf' ? entwuerfe : filter === 'versendet' ? versendet : alle;
 
   // Erledigte Aufträge ohne jede Rechnung — sonst wären sie hier unsichtbar.
@@ -38,8 +49,8 @@ export function renderRechnungen(el) {
       <div class="filterzeile">
         <div class="chips">
         ${[['alle', 'Alle', alle.length],
-           ['entwurf', 'Entwurf', entwuerfe.length],
-           ['versendet', 'Versendet (Demo)', versendet.length]].map(([id, label, n]) => `
+           ['entwurf', 'Offen', entwuerfe.length],
+           ['versendet', 'Versendet', versendet.length]].map(([id, label, n]) => `
           <button class="chip ${filter === id ? 'active' : ''}" data-filter="${id}" type="button">
             ${label}<span class="chip-count">${n}</span>
           </button>`).join('')}
@@ -65,10 +76,11 @@ export function renderRechnungen(el) {
 function zeile(r) {
   const a = state.auftrag(r.auftragId);
   const s = state.summen(r);
-  const rs = state.RECHNUNGSSTATUS[r.status === 'versendet' ? 'versendet' : 'entwurf'];
+  const rs = state.RECHNUNGSSTATUS[r.status] || state.RECHNUNGSSTATUS.entwurf;
+  const art = s.vollstaendig ? rs.art : 'arbeit';
 
   return `
-    <button class="row-item" data-rechnung="${r.id}" type="button">
+    <button class="row-item ${art}" data-rechnung="${r.id}" type="button">
       <span class="row-mid">
         <span class="row-t">${esc(r.empfaenger.name) || 'Ohne Kunde'}</span>
         <span class="row-s">
