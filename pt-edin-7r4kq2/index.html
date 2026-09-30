@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data: blob:; connect-src 'self' https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
+<meta name="robots" content="noindex,nofollow">
+<title>Fragen zur Auftragszentrale · PT Hausmeisterservice</title>
+<link rel="icon" href="../favicon.png">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,500,600,700&display=swap">
+<style>
+  :root{
+    --blue:#2F5CFF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
+    --ink:#0F0F0F; --gray:#3F3F46; --muted:#6B6B73; --line:#E4E4E7; --bg:#F5F5F5;
+    --green:#0F7A45; --green-soft:#E8F5EE; --red:#B42318; --red-soft:#FEF3F2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:28px 12px 60px;-webkit-text-size-adjust:100%;}
+  .card{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .head{padding:28px 30px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .head img{display:block;height:46px;}
+  .body{padding:20px 30px 30px;}
+  h1{font-size:24px;line-height:1.2;margin-bottom:10px;letter-spacing:-.01em;}
+  h2.block{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin:34px 0 4px;padding-top:22px;border-top:1px solid var(--line);}
+  .intro{font-size:15px;color:var(--gray);line-height:1.6;margin-bottom:12px;}
+  .intro b{color:var(--ink);}
+  .note{display:flex;gap:10px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;color:var(--gray);margin:14px 0 6px;}
+  .note svg{flex:none;margin-top:2px;}
+  .progress{height:5px;background:var(--line);border-radius:3px;margin:22px 0 4px;overflow:hidden;}
+  .progress i{display:block;height:100%;width:3%;background:var(--blue);border-radius:3px;transition:width .3s;}
+  .progress-t{font-size:12.5px;color:var(--muted);}
+  .q{margin-top:26px;}
+  .q-num{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;}
+  .q-label{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:6px;}
+  .q-text{font-size:15px;color:var(--gray);line-height:1.55;margin-bottom:6px;}
+  .q-hint{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;line-height:1.5;color:var(--ink);resize:vertical;min-height:150px;background:#FAFAFA;}
+  textarea:focus{outline:none;border-color:var(--blue);background:#fff;}
+  .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center;}
+  .btn{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .btn:hover{background:#F4F4F5;}
+  .btn.mic{color:#1D4ED8;background:#EFF6FF;border-color:#BFDBFE;}
+  .btn.mic.an{background:var(--red);border-color:var(--red);color:#fff;}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .btn svg{width:17px;height:17px;flex:none;}
+  .diktat-live{font-size:13px;color:var(--muted);font-style:italic;min-height:0;}
+  .files{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+  .file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 8px 8px 12px;font-size:14px;background:#FAFAFA;min-width:0;}
+  .file span{flex:1;min-width:0;overflow-wrap:anywhere;}
+  .file small{color:var(--muted);white-space:nowrap;}
+  .file button{flex:none;width:36px;height:36px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;}
+  .file button:hover{background:#EDEDED;}
+  input[type=file]{display:none;}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  /* Chat */
+  .chat{border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;background:#FCFCFD;}
+  .msgs{display:flex;flex-direction:column;gap:10px;padding:14px;max-height:520px;overflow-y:auto;}
+  .msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px;}
+  .msg.assistant{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;}
+  .msg.info{align-self:center;background:none;color:var(--muted);font-size:13px;text-align:center;}
+  .msg.fehler{align-self:center;background:var(--red-soft);color:var(--red);font-size:13.5px;}
+  .chat-in{border-top:1px solid var(--line);padding:12px;background:#fff;}
+  .chat-in textarea{min-height:80px;}
+  .chat-in .tools{justify-content:space-between;}
+  .vorschlaege{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px;}
+  .vorschlag{border:1px solid var(--blue-border);background:var(--blue-soft);color:#1D4ED8;border-radius:999px;padding:7px 12px;font:inherit;font-size:13.5px;cursor:pointer;}
+  /* Absenden */
+  .submit{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;min-height:54px;font-size:16px;font-weight:700;cursor:pointer;margin-top:30px;font-family:inherit;}
+  .submit:disabled{opacity:.55;cursor:default;}
+  .status{text-align:center;font-size:13.5px;color:var(--muted);margin-top:10px;min-height:18px;line-height:1.5;}
+  .status.ok{color:var(--green);} .status.err{color:var(--red);}
+  .foot{padding:18px 30px 24px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.6;}
+  .foot a{color:var(--muted);}
+  .state{padding:30px 0 12px;text-align:center;}
+  .state h2{font-size:20px;margin:14px 0 8px;}
+  .state p{font-size:15px;color:var(--gray);line-height:1.6;max-width:440px;margin:0 auto;}
+  .state .icon{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--green-soft);}
+  .hidden{display:none !important;}
+  @media (max-width:520px){ body{padding:12px 8px 40px;} .head{padding:22px 18px 0;} .head img{height:38px;} .body{padding:16px 18px 24px;} .foot{padding:16px 18px 20px;} h1{font-size:21px;} .msg{max-width:94%;} }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><img src="../logo-wide.png" alt="M&amp;H Assistenz"></div>
+
+  <div class="body hidden" id="viewDone">
+    <div class="state">
+      <span class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0F7A45" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <h2>Danke, Edin!</h2>
+      <p>Alles ist bei Matthias angekommen: deine Antworten, die Anhänge und der Chat. Er meldet sich bei dir.</p>
+    </div>
+  </div>
+
+  <div class="body" id="viewForm">
+    <h1>Hallo Edin, ein paar Fragen zur Auftragszentrale</h1>
+    <p class="intro">Damit die App genau so arbeitet wie du: Schreib oder sprich zu jeder Frage <b>so ausführlich, wie du magst</b> — lieber zu viel als zu wenig. Beispiele aus deinem Alltag helfen am meisten. Rechnungen, Preislisten oder Fotos kannst du direkt an die Frage hängen.</p>
+    <p class="intro">Ganz unten kannst du mit einem <b>Assistenten</b> Fragen stellen und Ideen sammeln. Mit dem Knopf ganz unten geht <b>alles zusammen an Matthias</b>.</p>
+    <div class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6" fill="#2F5CFF"/></svg>
+      <span>Du musst nicht alles auf einmal machen: Alles wird <b>auf diesem Gerät</b> zwischengespeichert, auch die Anhänge. Einfach später wieder öffnen und weitermachen. Fragen, zu denen dir nichts einfällt, lässt du leer.</span></div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="progress-t" id="barText">0 von 0 Fragen beantwortet</div>
+
+    <input class="hp" type="text" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div id="fragen"></div>
+
+    <h2 class="block">Sonst noch etwas?</h2>
+    <div class="q" data-nr="zusatz">
+      <div class="q-label">Alles, was oben keinen Platz hatte</div>
+      <div class="q-hint">Wünsche, Ärger, Ideen — und weitere Dateien (z. B. deine CSV-Preisliste).</div>
+      <textarea data-feld="zusatz" placeholder="Was dir sonst noch wichtig ist …"></textarea>
+      <div class="tools"></div>
+      <div class="files"></div>
+    </div>
+
+    <h2 class="block">Fragen stellen &amp; Ideen sammeln</h2>
+    <p class="q-text">Der Assistent kennt die Auftragszentrale und erklärt dir, wie etwas heute funktioniert. Du kannst mit ihm auch neue Ideen durchspielen. Deine Kunden kennt er nicht — nenn ihm bitte keine Namen, Adressen oder Kontodaten. Der Chat geht beim Abschicken mit an Matthias.</p>
+    <div class="chat">
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <div class="vorschlaege" id="vorschlaege">
+        <button class="vorschlag" type="button">Wie erfasse ich einen Auftrag per Sprache?</button>
+        <button class="vorschlag" type="button">Wie funktionieren Kostenstellen?</button>
+        <button class="vorschlag" type="button">Was geht heute noch nicht?</button>
+        <button class="vorschlag" type="button">Ich hab eine Idee …</button>
+      </div>
+      <div class="chat-in" data-nr="chat">
+        <textarea id="chatText" data-feld="chat" placeholder="Deine Frage oder Idee …"></textarea>
+        <div class="tools"><span class="chat-tools"></span>
+          <button class="btn" id="chatSenden" type="button" style="background:var(--ink);color:#fff;border-color:var(--ink)">Senden</button></div>
+      </div>
+    </div>
+
+    <button class="submit" id="btnSubmit" type="button">Alles an Matthias abschicken</button>
+    <div class="status" id="status">Deine Eingaben werden auf diesem Gerät automatisch gespeichert.</div>
+  </div>
+
+  <div class="foot">M&amp;H Assistenz · Matthias Heuchemer<br>
+    <a href="https://mhassistenz.de/impressum.html">Impressum</a> · <a href="https://mhassistenz.de/datenschutz.html">Datenschutz</a> ·
+    Antworten und Anhänge gehen per Mail nur an Matthias. Der Chat läuft über Azure OpenAI (Rechenzentrum Schweden, EU) und bekommt keine Anhänge. Diktieren nutzt die Spracherkennung deines Geräts bzw. Browsers.</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const N8N = 'https://n8n.mhassistenz.de/webhook';
+  const KEY = 'pt-edin-fragebogen-v1';
+  const MAX_BYTES = 14 * 1024 * 1024;   // unter der Grenze von n8n und Gmail
+  const $ = (s, r = document) => r.querySelector(s);
+
+  /* ── Die Fragen ─────────────────────────── */
+  const BLOECKE = [
+    ['Rechnungen und Kostenstellen', [
+      ['Eine Rechnung oder mehrere?', 'Du hast geschrieben, dass aus einem Arbeitstag schon mal 5 Arbeiten entstehen — jede für eine andere Kostenstelle, aber an dieselbe Mailadresse. Soll daraus eine Rechnung mit getrennten Zeilen werden, oder je Kostenstelle eine eigene Rechnung?', 'Erzähl am besten an einem echten Beispiel, wie du es heute machst — und warum.'],
+      ['Deine Kostenstellen', 'Woher kommen die Kostenstellen — gibt der Kunde sie vor? Wie sehen sie aus (Nummer, Name, Haus)? Wo sollen sie auf der Rechnung stehen: an jeder Zeile oder oben?', 'Gern eine (geschwärzte) Rechnung anhängen, auf der man es sieht.'],
+      ['Material und Arbeit getrennt?', 'Auf einer deiner Rechnungen steht: „Arbeitsleistungen werden nach Abschluss separat abgerechnet“. Wann rechnest du Material und Arbeit getrennt ab, wann alles auf einer Rechnung? Wie ist das mit Vorkasse für Material?', ''],
+      ['Empfänger und Adressen', 'Ist der Rechnungsempfänger immer die Verwaltung/Hauptstelle? Soll die Einsatzadresse zusätzlich auf die Rechnung? Wer ist Ansprechpartner — und steht der auf der Rechnung?', ''],
+    ]],
+    ['Preise', [
+      ['Stundensätze', 'Welche Stundensätze hast du — konkrete Zahlen? Unterscheiden sie sich je Arbeit oder je Kunde? Rechnest du Anfahrt extra?', ''],
+      ['Pauschalen', 'Welche Arbeiten rechnest du pauschal oder pro Stück ab, z. B. Siphon wechseln, Armatur wechseln? Mit welchem Preis?', 'Am besten deine CSV-Preisliste hier anhängen — auch wenn noch Preise fehlen.'],
+      ['Materialpreise', 'Wie kommst du auf den Materialpreis: Einkauf plus Aufschlag, fester Preis, Tagespreis? Wo kaufst du meistens ein?', ''],
+      ['Zahlungsziel, Rabatt, Mahnung', 'Wann heißt es „zahlbar sofort“, wann 14 Tage? Wer bekommt den Stammkunden-Rabatt (−10 %)? Schreibst du Mahnungen, und wenn ja, wann?', ''],
+    ]],
+    ['Vor Ort und Dokumentation', [
+      ['Zeit erfassen', 'Schreibst du die Zeit je Arbeit auf oder nur für den ganzen Einsatz? Wenn du 4,5 Stunden für mehrere Arbeiten hattest: Wie verteilst du das heute?', ''],
+      ['Bericht und Unterschrift', 'Was soll in der fertigen Dokumentation stehen? Wer bekommt sie — der Kunde, die Verwaltung, nur du? Was soll der Kunde mit seiner Unterschrift bestätigen: nur die Arbeiten oder auch Stunden und Material? Du hast gesagt, du willst später auch sehen, wie lange welche Arbeit dauert — was genau möchtest du da auswerten?', ''],
+      ['Notizen und Aufgaben', 'Wie nutzt du Zwischennotizen im Alltag? Die App hat jetzt einen Bereich „Aufgaben“ zum Abhaken (z. B. „Zaunpfosten bestellen“). Passt das so, oder fehlt dir etwas?', ''],
+    ]],
+    ['Dein Alltag', [
+      ['Wie Aufträge reinkommen', 'Wie kommen neue Aufträge zu dir — Telefon, WhatsApp, Mail, Portal? Wann schreibst du vorher ein Angebot, wann legst du direkt los?', ''],
+      ['sevDesk', 'Was machst du heute in sevDesk (Angebote, Rechnungen, Zahlungseingang, Mahnungen)? Was soll weiter in sevDesk passieren, was soll die App übernehmen?', ''],
+      ['Das Wichtigste', 'Was nervt dich im Alltag am meisten? Was soll die App als Erstes perfekt können, damit sie dir wirklich Zeit spart?', ''],
+    ]],
+  ];
+
+  /* ── Rendern ─────────────────────────────── */
+  const box = $('#fragen');
+  let nr = 0;
+  const FRAGEN = [];
+  for (const [block, fragen] of BLOECKE) {
+    const h = document.createElement('h2'); h.className = 'block'; h.textContent = block; box.appendChild(h);
+    for (const [titel, frage, hinweis] of fragen) {
+      nr++;
+      FRAGEN.push({ nr, titel, frage });
+      const q = document.createElement('div');
+      q.className = 'q'; q.dataset.nr = String(nr);
+      q.innerHTML = `<div class="q-num">Frage ${nr}</div><div class="q-label"></div><div class="q-text"></div>
+        ${hinweis ? '<div class="q-hint"></div>' : ''}
+        <textarea placeholder="Schreib oder sprich hier ruhig ausführlich …"></textarea>
+        <div class="tools"></div><div class="files"></div>`;
+      q.querySelector('.q-label').textContent = titel;
+      q.querySelector('.q-text').textContent = frage;
+      if (hinweis) q.querySelector('.q-hint').textContent = hinweis;
+      q.querySelector('textarea').dataset.feld = String(nr);
+      box.appendChild(q);
+    }
+  }
+
+  const ICON_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>';
+  const ICON_CLIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>';
+
+  /* ── Speichern auf dem Gerät ─────────────── */
+  let stand = { antworten: {}, chat: [] };
+  try { stand = Object.assign(stand, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { /* frisch */ }
+  let speicherTimer = null;
+  const sichern = () => {
+    clearTimeout(speicherTimer);
+    speicherTimer = setTimeout(() => {
+      try { localStorage.setItem(KEY, JSON.stringify(stand)); } catch (e) { melde('Speichern auf diesem Gerät klappt gerade nicht — bitte bald abschicken.', 'err'); }
+    }, 400);
+  };
+
+  // Dateien: IndexedDB, damit sie ein Neuladen überstehen.
+  const idb = new Promise((ok) => {
+    try {
+      const r = indexedDB.open('pt-edin-dateien', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('dateien', { keyPath: 'id' });
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => ok(null);
+    } catch (e) { ok(null); }
+  });
+  const dateien = [];   // { id, frage, name, size, blob }
+  async function idbTx(mode, fn) {
+    const db = await idb; if (!db) return null;
+    return new Promise((ok) => { const tx = db.transaction('dateien', mode); const st = tx.objectStore('dateien'); const r = fn(st); tx.oncomplete = () => ok(r && r.result); tx.onerror = () => ok(null); });
+  }
+
+  /* ── Diktieren (Spracherkennung des Browsers) ── */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let aktivesDiktat = null;
+  function diktat(textarea, knopf, live) {
+    if (aktivesDiktat && aktivesDiktat.knopf !== knopf) aktivesDiktat.stopp();
+    if (aktivesDiktat) { aktivesDiktat.stopp(); return; }
+    const rec = new SR();
+    rec.lang = 'de-DE'; rec.continuous = true; rec.interimResults = true;
+    let laeuft = true;
+    const stopp = () => { laeuft = false; try { rec.stop(); } catch (e) {} knopf.classList.remove('an'); knopf.innerHTML = ICON_MIC + ' Diktieren'; live.textContent = ''; aktivesDiktat = null; };
+    rec.onresult = (e) => {
+      let zwischen = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          const alt = textarea.value.replace(/\s+$/, '');
+          textarea.value = (alt ? alt + ' ' : '') + t.trim();
+          textarea.dispatchEvent(new Event('input'));
+        } else zwischen += t;
+      }
+      live.textContent = zwischen ? '… ' + zwischen : '';
+    };
+    rec.onerror = (e) => {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { stopp(); melde('Das Mikrofon ist nicht freigegeben. Bitte in den Browser-Einstellungen erlauben — oder die Mikrofon-Taste der Tastatur nutzen.', 'err'); }
+    };
+    rec.onend = () => { if (laeuft) { try { rec.start(); } catch (e) { stopp(); } } };   // Safari hört nach Pausen auf
+    try { rec.start(); } catch (e) { melde('Diktieren konnte nicht starten.', 'err'); return; }
+    knopf.classList.add('an'); knopf.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stopp';
+    aktivesDiktat = { knopf, stopp };
+  }
+
+  /* ── Werkzeuge an jedes Feld hängen ──────── */
+  function werkzeuge(q) {
+    const ta = q.querySelector('textarea');
+    const feld = ta.dataset.feld;
+    const tools = q.querySelector('.chat-tools') || q.querySelector('.tools');
+    if (SR) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn mic'; b.innerHTML = ICON_MIC + ' Diktieren';
+      const live = document.createElement('div'); live.className = 'diktat-live';
+      b.addEventListener('click', () => diktat(ta, b, live));
+      tools.appendChild(b);
+      (q.querySelector('.tools') || tools).after(live);
+    }
+    if (feld !== 'chat') {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true;
+      inp.accept = 'image/*,application/pdf,.csv,.xlsx,.xls,.doc,.docx,.txt';
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn'; b.innerHTML = ICON_CLIP + ' Datei anhängen';
+      b.addEventListener('click', () => inp.click());
+      inp.addEventListener('change', async () => { const liste = [...inp.files]; inp.value = ''; for (const f of liste) await dateiDazu(feld, f); });
+      tools.appendChild(b); tools.appendChild(inp);
+      ta.value = stand.antworten[feld] || '';
+    }
+    ta.addEventListener('input', () => {
+      if (feld === 'chat') return;
+      stand.antworten[feld] = ta.value; sichern(); fortschritt();
+    });
+  }
+  document.querySelectorAll('.q, .chat-in').forEach(werkzeuge);
+  if (!SR) melde('Tipp: Zum Diktieren die Mikrofon-Taste auf der Tastatur benutzen.', '');
+
+  /* ── Dateien ─────────────────────────────── */
+  const fmtKB = (n) => n > 1024 * 1024 ? (n / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+  async function verkleinern(f) {
+    if (!/^image\/(jpeg|png|webp|heic|heif)$/i.test(f.type) || f.size < 600 * 1024) return f;
+    try {
+      const bmp = await createImageBitmap(f);
+      const s = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas'); c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.82));
+      if (!blob || blob.size >= f.size) return f;
+      return new File([blob], f.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch (e) { return f; }
+  }
+  async function dateiDazu(frage, f) {
+    const klein = await verkleinern(f);
+    const d = { id: 'd' + Date.now() + Math.random().toString(36).slice(2, 7), frage, name: klein.name, size: klein.size, blob: klein };
+    dateien.push(d);
+    await idbTx('readwrite', st => st.put(d));
+    zeigeDateien(); groesseCheck();
+  }
+  async function dateiWeg(id) {
+    const i = dateien.findIndex(d => d.id === id); if (i >= 0) dateien.splice(i, 1);
+    await idbTx('readwrite', st => st.delete(id));
+    zeigeDateien(); groesseCheck();
+  }
+  function zeigeDateien() {
+    document.querySelectorAll('.q').forEach(q => {
+      const feld = q.querySelector('textarea').dataset.feld;
+      const liste = q.querySelector('.files'); liste.innerHTML = '';
+      dateien.filter(d => d.frage === feld).forEach(d => {
+        const z = document.createElement('div'); z.className = 'file';
+        const n = document.createElement('span'); n.textContent = d.name;
+        const g = document.createElement('small'); g.textContent = fmtKB(d.size);
+        const x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', 'Datei entfernen: ' + d.name); x.textContent = '×';
+        x.addEventListener('click', () => dateiWeg(d.id));
+        z.append(n, g, x); liste.appendChild(z);
+      });
+    });
+    fortschritt();
+  }
+  const gesamtGroesse = () => dateien.reduce((s, d) => s + d.size, 0);
+  function groesseCheck() {
+    if (gesamtGroesse() > MAX_BYTES) { melde(`Die Anhänge sind zusammen ${fmtKB(gesamtGroesse())} groß — höchstens 14 MB passen in eine Mail. Bitte ein paar entfernen und den Rest per WhatsApp schicken.`, 'err'); return false; }
+    return true;
+  }
+  idbTx('readonly', st => st.getAll()).then(alle => { (alle || []).forEach(d => dateien.push(d)); zeigeDateien(); });
+
+  /* ── Fortschritt ─────────────────────────── */
+  function fortschritt() {
+    const fertig = FRAGEN.filter(f => (stand.antworten[f.nr] || '').trim() || dateien.some(d => d.frage === String(f.nr))).length;
+    $('#bar').style.width = Math.max(3, Math.round(fertig / FRAGEN.length * 100)) + '%';
+    $('#barText').textContent = `${fertig} von ${FRAGEN.length} Fragen beantwortet`;
+  }
+
+  /* ── Status ──────────────────────────────── */
+  function melde(text, art) { const s = $('#status'); s.textContent = text; s.className = 'status' + (art ? ' ' + art : ''); }
+
+  /* ── Chat ────────────────────────────────── */
+  const msgs = $('#msgs');
+  function blase(rolle, text) {
+    const m = document.createElement('div'); m.className = 'msg ' + rolle; m.textContent = text; msgs.appendChild(m);
+    msgs.scrollTop = msgs.scrollHeight; return m;
+  }
+  function chatZeigen() {
+    msgs.innerHTML = '';
+    if (!stand.chat.length) blase('info', 'Frag einfach los — zum Beispiel, wie etwas in der App funktioniert, oder erzähl eine Idee.');
+    stand.chat.forEach(m => blase(m.role, m.content));
+  }
+  chatZeigen();
+  let chatLaeuft = false;
+  async function chatSenden(text) {
+    text = String(text || '').trim();
+    if (!text || chatLaeuft) return;
+    if (aktivesDiktat) aktivesDiktat.stopp();
+    chatLaeuft = true; $('#chatSenden').disabled = true;
+    if (!stand.chat.length) msgs.innerHTML = '';
+    stand.chat.push({ role: 'user', content: text }); sichern();
+    blase('user', text); $('#chatText').value = '';
+    const warte = blase('info', 'Assistent schreibt …');
+    try {
+      const r = await fetch(N8N + '/pt-edin-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: stand.chat, website: $('#website').value }) });
+      const d = await r.json().catch(() => ({}));
+      warte.remove();
+      if (!r.ok || !d.ok || !d.antwort) {
+        blase('fehler', d.fehler || 'Der Assistent antwortet gerade nicht. Versuch es gleich noch einmal.');
+        stand.chat.pop(); sichern(); $('#chatText').value = text;
+      } else {
+        stand.chat.push({ role: 'assistant', content: d.antwort }); sichern();
+        blase('assistant', d.antwort);
+      }
+    } catch (e) {
+      warte.remove(); blase('fehler', 'Keine Verbindung. Deine Nachricht steht noch im Feld.');
+      stand.chat.pop(); sichern(); $('#chatText').value = text;
+    } finally { chatLaeuft = false; $('#chatSenden').disabled = false; }
+  }
+  $('#chatSenden').addEventListener('click', () => chatSenden($('#chatText').value));
+  $('#chatText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) chatSenden($('#chatText').value); });
+  document.querySelectorAll('.vorschlag').forEach(b => b.addEventListener('click', () => {
+    if (b.textContent.endsWith('…')) { $('#chatText').value = 'Ich hab eine Idee: '; $('#chatText').focus(); return; }
+    chatSenden(b.textContent);
+  }));
+
+  /* ── Absenden ────────────────────────────── */
+  $('#btnSubmit').addEventListener('click', async () => {
+    const btn = $('#btnSubmit');
+    if (aktivesDiktat) aktivesDiktat.stopp();
+    const fragen = FRAGEN.map(f => ({ ...f, antwort: stand.antworten[f.nr] || '',
+      dateien: dateien.filter(d => d.frage === String(f.nr)).map(d => d.name) }));
+    const zusatz = stand.antworten.zusatz || '';
+    const irgendwas = fragen.some(f => f.antwort.trim() || f.dateien.length) || zusatz.trim() || stand.chat.length || dateien.length;
+    if (!irgendwas) { melde('Es ist noch nichts ausgefüllt.', 'err'); return; }
+    if (!groesseCheck()) return;
+    btn.disabled = true; btn.textContent = 'Wird geschickt …'; melde('Das kann bei vielen Anhängen einen Moment dauern.', '');
+    const fd = new FormData();
+    fd.append('daten', JSON.stringify({ name: 'Edin', fragen, zusatz,
+      zusatzDateien: dateien.filter(d => d.frage === 'zusatz').map(d => d.name), chat: stand.chat }));
+    fd.append('website', $('#website').value);
+    dateien.forEach((d, i) => {
+      const praefix = d.frage === 'zusatz' ? 'Sonstiges' : 'Frage' + d.frage;
+      fd.append('datei' + i, d.blob, praefix + '_' + d.name);
+    });
+    try {
+      const r = await fetch(N8N + '/pt-edin-absenden', { method: 'POST', body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.ok) throw new Error(d.fehler || 'Fehler');
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      await idbTx('readwrite', st => st.clear());
+      $('#viewForm').classList.add('hidden'); $('#viewDone').classList.remove('hidden');
+      window.scrollTo({ top: 0 });
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Alles an Matthias abschicken';
+      melde((e && e.message && e.message !== 'Fehler' ? e.message : 'Das Abschicken hat nicht geklappt.') + ' Deine Eingaben sind noch da — bitte gleich noch einmal versuchen.', 'err');
+    }
+  });
+
+  fortschritt();
+})();
+</script>
+</body>
+</html>
