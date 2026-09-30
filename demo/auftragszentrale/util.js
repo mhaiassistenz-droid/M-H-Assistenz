@@ -178,6 +178,7 @@ export const zahlZuFeld = (n) =>
 /* ── Icons (inline SVG, Stroke folgt currentColor) ── */
 
 export const ICON = {
+  aufgaben:  '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
   home:      '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
   auftraege: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M7 11h6M7 15h4"/>',
   kalender:  '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',

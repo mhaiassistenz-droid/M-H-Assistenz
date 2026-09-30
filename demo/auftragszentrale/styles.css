@@ -1673,3 +1673,28 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   body.druckt-bericht .sheet-body > :not(.druck-ziel) { display: none !important; }
   body.druckt-bericht .druck-ziel { border: 0; box-shadow: none; padding: 0; }
 }
+
+/* Aufgaben (Reiter links). Haken groß genug für Arbeitshandschuhe; Erledigtes
+   ruhig durchgestrichen, kein Rot — erledigt ist kein Fehler. */
+.aufgabe-neu { margin-bottom: 4px; }
+.aufgabe-neu-akt { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px 14px; flex-wrap: wrap; }
+.aufgabe-neu-akt .voicing { flex: 1 1 220px; }
+.aufgabe { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); min-width: 0; }
+.aufgabe:last-child { border-bottom: none; }
+.aufgabe-haken { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; cursor: pointer; flex-shrink: 0; }
+.aufgabe-haken input { width: 24px; height: 24px; accent-color: var(--aktion); }
+.aufgabe-mitte { flex: 1 1 auto; min-width: 0; }
+.aufgabe-text { display: block; font-size: 15px; color: var(--text); overflow-wrap: anywhere; }
+.aufgabe-meta { display: block; font-size: 13px; color: var(--text-2); margin-top: 2px; overflow-wrap: anywhere; }
+.aufgabe-link { font: inherit; color: #1D4ED8; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.aufgabe.erledigt .aufgabe-text { color: var(--text-3); text-decoration: line-through; }
+.vl-marke-aufgabe { justify-self: start; align-self: start; width: max-content; max-width: 100%; display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 500; color: var(--text-2); border: 1px solid var(--line-stark); border-radius: 5px; padding: 1px 6px; }
+.vl-marke-aufgabe svg { width: 13px; height: 13px; }
+.vl-akt .vl-als-aufgabe { margin-right: auto; }
+.vl-als-aufgabe svg { width: 15px; height: 15px; }
+/* Fünf Tabs seit dem Aufgaben-Reiter: auf sehr schmalen Handys nicht „Rechnun-gen" trennen. */
+.tab span { white-space: nowrap; hyphens: none; }
+@media (max-width: 360px) {
+  .tab { padding-inline: 1px; font-size: 10.5px; }
+}

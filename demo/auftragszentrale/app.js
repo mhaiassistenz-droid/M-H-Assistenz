@@ -17,11 +17,13 @@ import { renderHome }       from './page-home.js';
 import { renderAuftraege }  from './page-auftraege.js';
 import { renderKalender }   from './page-kalender.js';
 import { renderRechnungen } from './page-rechnungen.js';
+import { renderAufgaben, aufgabenVerlassen } from './page-aufgaben.js';
 
 const ROUTEN = [
   { id: 'home',       label: 'Home',       ikone: 'home',      render: renderHome },
   { id: 'auftraege',  label: 'Aufträge',   ikone: 'auftraege', render: renderAuftraege },
   { id: 'kalender',   label: 'Kalender',   ikone: 'kalender',  render: renderKalender },
+  { id: 'aufgaben',   label: 'Aufgaben',   ikone: 'aufgaben',  render: renderAufgaben },
   { id: 'rechnungen', label: 'Rechnungen', ikone: 'rechnung',  render: renderRechnungen },
 ];
 
@@ -34,6 +36,7 @@ function navZeichnen() {
     home: null,
     auftraege: state.alleAuftraege().filter(a => a.status !== 'erledigt').length,
     kalender: null,
+    aufgaben: state.offeneAufgaben().length,
     rechnungen: state.alleRechnungen().filter(r => r.status === 'entwurf').length,
   };
 
@@ -59,6 +62,7 @@ function navZeichnen() {
 
 export function gehe(id, { scrollTop = true } = {}) {
   if (!ROUTEN.some(r => r.id === id)) id = 'home';
+  if (aktiv === 'aufgaben' && id !== 'aufgaben') aufgabenVerlassen();
   aktiv = id;
   if (location.hash !== '#' + id) location.hash = id;
 

@@ -28,6 +28,10 @@ const SPRACH_AUFBEREITUNG = {
   offen: 'Eine weitere Stelle ist noch offen.',
 };
 
+/** Diese Einträge können mit einem Tipp zur Aufgabe werden — Zeit und Material nicht,
+    die gehören auf die Rechnung. */
+const ALS_AUFGABE = new Set(['notiz', 'offen', 'wichtig']);
+
 const ART = {
   notiz:    { label: 'Notiz',       ikone: 'notiz' },
   foto:     { label: 'Foto',        ikone: 'bilder' },
@@ -165,6 +169,7 @@ function dokumentationsUeberblick(a) {
   const wichtig = a.verlauf.filter(v => v.typ === 'wichtig');
   const notizen = a.verlauf.filter(v => v.typ === 'notiz');
   const ohneKst = state.ohneKostenstelle(a).length;
+  const aufgaben = state.aufgabenZuAuftrag(a.id);
   const liste = (eintraege, text, leer) => eintraege.length
     ? `<ul>${eintraege.map(v => `<li>${esc(text(v))}</li>`).join('')}</ul>`
     : `<p class="doku-empty">${leer}</p>`;
@@ -179,6 +184,7 @@ function dokumentationsUeberblick(a) {
         </div>` : ''}</section>
     <section class="doku-fakten material"><h3>${icon('material')} Material <span>${material.length} Posten</span></h3>
       ${liste(material, v => `${zahlZuFeld(v.menge) || 'Menge offen'} ${v.einheit || ''} — ${v.text || 'Ohne Bezeichnung'} · ${kstText(v)}`, 'Noch kein Material erfasst.')}</section>
+    ${aufgaben.length ? `<section class="doku-fakten aufgaben"><h3>${icon('aufgaben')} Aufgaben <span>${aufgaben.length}</span></h3>${liste(aufgaben, x => x.text, '')}</section>` : ''}
     <section class="doku-fakten offen"><h3>${icon('offen')} Offene Punkte <span>${offen.length}</span></h3>
       ${liste(offen, v => v.text, 'Keine offenen Punkte dokumentiert.')}</section>
     <section class="doku-fakten notizen"><h3>${icon('notiz')} Notizen <span>${notizen.length}</span></h3>
@@ -240,10 +246,13 @@ function verlaufZeile(v) {
           <span class="vl-art">${art.label}</span>
           <time class="vl-ts" datetime="${esc(v.ts)}">${esc(fmtVerlaufZeit(v.ts))}</time>
           ${v.simuliert ? '<span class="vl-marke">Beispiel</span>' : ''}
+          ${ALS_AUFGABE.has(v.typ) && state.aufgabeZuEintrag(v.id) ? `<span class="vl-marke-aufgabe">${icon('aufgaben')} Als Aufgabe angelegt</span>` : ''}
         </div>
         <div class="vl-text">${esc(v.text) || '<span class="f-val leer">Ohne Text</span>'}</div>
         ${detail}
       <div class="vl-akt">
+        ${ALS_AUFGABE.has(v.typ) && !state.aufgabeZuEintrag(v.id)
+          ? `<button class="btn btn-sm vl-als-aufgabe" data-vl-aufgabe="${v.id}" type="button">${icon('aufgaben')} Als Aufgabe</button>` : ''}
         <button class="icon-btn" data-vl-edit="${v.id}" type="button" aria-label="Eintrag bearbeiten">${icon('stift')}</button>
         <button class="icon-btn" data-vl-del="${v.id}" type="button" aria-label="Eintrag entfernen">${icon('papierkorb')}</button>
       </div>
@@ -303,6 +312,14 @@ function binden(el, api, auftragId) {
   });
 
   el.querySelector('[data-taetigkeiten]')?.addEventListener('click', () => taetigkeitenDialog(auftragId, neuZeichnen));
+
+  el.querySelectorAll('[data-vl-aufgabe]').forEach(b => b.addEventListener('click', () => {
+    const v = a().verlauf.find(x => x.id === b.dataset.vlAufgabe);
+    if (!v || state.aufgabeZuEintrag(v.id)) return;
+    state.aufgabeAnlegen({ text: v.text, auftragId, quelleEintragId: v.id });
+    neuZeichnen();
+    toast('Aufgabe angelegt — steht links unter „Aufgaben".');
+  }));
 
   /* ── Noch nicht übernommene Aufnahme ── */
   el.querySelector('[data-offen-pruefen]')?.addEventListener('click', () => offeneAufnahmeOeffnen(auftragId, neuZeichnen));
@@ -526,6 +543,8 @@ function notizDialog(auftragId, neuZeichnen, v = null) {
   let wichtig = wiederhergestellt ? !!gesichert.wichtig : original.wichtig;
   let beispiel = wiederhergestellt ? !!gesichert.beispiel : original.beispiel;
   let zeigeWiederhergestellt = wiederhergestellt;
+  let alsAufgabe = false;
+  const aufgabeMoeglich = !v || !state.aufgabeZuEintrag(v.id);
 
   /** Nur ein abweichender Stand ist ein Entwurf; sonst gibt es nichts zu sichern. */
   const sichern = () => {
@@ -546,6 +565,7 @@ function notizDialog(auftragId, neuZeichnen, v = null) {
       </div>
       <button class="btn notiz-diktieren" data-notiz-sprache type="button">${icon('mikro')} Per Sprache ergänzen</button>
       <label class="f-check"><input type="checkbox" data-wichtig ${wichtig ? 'checked' : ''}> Als wichtigen Hinweis rot hervorheben</label>
+      ${aufgabeMoeglich ? `<label class="f-check"><input type="checkbox" data-als-aufgabe ${alsAufgabe ? 'checked' : ''}> Auch als Aufgabe zum Abhaken merken</label>` : ''}
       <div class="hint-note">Gesprochene Ergänzungen werden an diesen Text angehängt. Erst „Notiz speichern“ übernimmt die Notiz.
         Bis dahin bleibt der Entwurf auf diesem Gerät erhalten.</div>`,
     foot: () => `
@@ -555,6 +575,7 @@ function notizDialog(auftragId, neuZeichnen, v = null) {
       const ta = el.querySelector('#nz');
       ta.addEventListener('input', () => { entwurf = ta.value; sichern(); });
       el.querySelector('[data-wichtig]').addEventListener('change', e => { wichtig = e.target.checked; sichern(); });
+      el.querySelector('[data-als-aufgabe]')?.addEventListener('change', e => { alsAufgabe = e.target.checked; });
       el.querySelector('[data-notiz-verwerfen]')?.addEventListener('click', () => {
         ({ text: entwurf, wichtig, beispiel } = original);
         zeigeWiederhergestellt = false;
@@ -582,10 +603,12 @@ function notizDialog(auftragId, neuZeichnen, v = null) {
         const text = ta.value.trim();
         if (!text) return toast('Bitte zuerst etwas eintragen.');
         const daten = { typ: wichtig ? 'wichtig' : 'notiz', text, simuliert: beispiel };
-        if (v) state.verlaufUpdate(auftragId, v.id, daten);
-        else state.verlaufHinzufuegen(auftragId, daten);
+        const eintrag = v ? state.verlaufUpdate(auftragId, v.id, daten) : state.verlaufHinzufuegen(auftragId, daten);
+        const mitAufgabe = alsAufgabe && eintrag && !state.aufgabeZuEintrag(eintrag.id);
+        if (mitAufgabe) state.aufgabeAnlegen({ text, auftragId, quelleEintragId: eintrag.id });
         notizEntwurfLoeschen(key);
-        sheetSchliessen(); neuZeichnen(); toast('Notiz gespeichert.');
+        sheetSchliessen(); neuZeichnen();
+        toast(mitAufgabe ? 'Notiz gespeichert und als Aufgabe angelegt.' : 'Notiz gespeichert.');
       });
     },
     // X, Klick daneben, Esc: den Stand aus dem Feld noch sichern.
@@ -775,6 +798,7 @@ function zuordnungRueckfrage(auftragId, neuZeichnen) {
         <button class="btn" data-rf="notiz" type="button">${icon('notiz')} Als Notiz</button>
         <button class="btn" data-rf="offen" type="button">${icon('offen')} Als offenen Punkt</button>
         <button class="btn" data-rf="wichtig" type="button">${icon('offen')} Als wichtigen Hinweis</button>
+        <button class="btn" data-rf="aufgabe" type="button">${icon('aufgaben')} Als Aufgabe (zum Abhaken)</button>
       </div>
       <div class="hint-note">Nichts davon wird eine Rechnungsposition. Arbeitszeit und Material
         bitte über „Zeit erfassen“ bzw. „Material erfassen“ eintragen.</div>`,
@@ -794,10 +818,15 @@ function zuordnungRueckfrage(auftragId, neuZeichnen) {
           typ: 'sprache', text: st.beispiel ? 'Sprachnotiz aufgenommen (Beispiel)' : 'Sprachnotiz aufgenommen',
           transkript: st.transkript || inhalt, simuliert: !!st.beispiel,
         });
-        state.verlaufHinzufuegen(auftragId, { typ: b.dataset.rf, text: inhalt, simuliert: !!st.beispiel });
+        if (b.dataset.rf === 'aufgabe') {
+          state.aufgabeAnlegen({ text: inhalt, auftragId });
+        } else {
+          state.verlaufHinzufuegen(auftragId, { typ: b.dataset.rf, text: inhalt, simuliert: !!st.beispiel });
+        }
         offeneAufnahmeLoeschen(auftragId);
         sheetSchliessen(); neuZeichnen();
-        toast(`Als ${ART[b.dataset.rf].label} übernommen.`);
+        toast(b.dataset.rf === 'aufgabe' ? 'Als Aufgabe angelegt — steht links unter „Aufgaben".'
+          : `Als ${ART[b.dataset.rf].label} übernommen.`);
       }));
       el.querySelector('[data-rf-weg]').addEventListener('click', async () => {
         const ja = await bestaetigen({

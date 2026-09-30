@@ -28,7 +28,7 @@ const KOSTENSTELLE_MAX = 60;
 /** Fiktiver Beispiel-Stundensatz. Wird im Entwurf sichtbar als Beispiel markiert. */
 export const BEISPIEL_STUNDENSATZ = 58;
 
-const store = { auftraege: [], rechnungen: [], kunden: [] };
+const store = { auftraege: [], rechnungen: [], kunden: [], aufgaben: [] };
 const hoerer = new Set();
 
 /* ── Persistenz ──────────────────────────── */
@@ -67,6 +67,7 @@ export function save() {
       auftraege: store.auftraege.map(fuerSpeicher),
       rechnungen: store.rechnungen,
       kunden: store.kunden,
+      aufgaben: store.aufgaben,
     }));
     const vorher = speicher.status;
     speicher.status = 'ok';
@@ -105,6 +106,10 @@ export function load() {
         store.auftraege  = daten.auftraege;
         store.rechnungen = Array.isArray(daten.rechnungen) ? daten.rechnungen : [];
         store.kunden     = Array.isArray(daten.kunden) ? daten.kunden : [];
+        // Aufgaben kamen nach dem Ausliefern von Version 3 dazu (30.09.2026). Bewusst
+        // KEIN Versionssprung: die Liste ist rein additiv, ein älterer Stand lädt
+        // einfach ohne sie. Ein Sprung hätte jeden Browser — auch Edins — geleert.
+        store.aufgaben   = Array.isArray(daten.aufgaben) ? daten.aufgaben : [];
         return;
       }
     } catch (e) {
@@ -119,6 +124,7 @@ export function zuruecksetzen(melden = true) {
   store.auftraege  = [];
   store.rechnungen = [];
   store.kunden     = [];
+  store.aufgaben   = [];
   save();
   // Bilder liegen in IndexedDB und müssen eigens weg, sonst bleiben Waisen zurück.
   import('./fotos.js').then(f => f.alleLoeschen()).catch(() => {});
@@ -200,6 +206,63 @@ export function kundeMerken(daten) {
   return k;
 }
 
+/* ── Aufgaben ────────────────────────────── */
+
+/*
+ * Dinge, die zu erledigen sind, aber keine Arbeit vor Ort und keine Rechnungsposition:
+ * „Zaunpfosten nachbestellen", „Silikon kaufen". Optional an einen Auftrag gebunden.
+ * Abgehakte bleiben einen Tag sichtbar (zum Rückgängigmachen) und verschwinden dann
+ * aus der Liste. Ob etwas eine Aufgabe ist, entscheidet Edin — die App rät das nicht.
+ */
+const AUFGABE_SICHTBAR_MS = 24 * 60 * 60 * 1000;
+
+/** Offene Aufgaben zuerst (älteste oben), danach die heute abgehakten. */
+export function sichtbareAufgaben(jetzt = Date.now()) {
+  const offen = store.aufgaben.filter(x => !x.erledigtAm)
+    .sort((a, b) => (a.angelegtAm || '').localeCompare(b.angelegtAm || ''));
+  const kuerzlich = store.aufgaben
+    .filter(x => x.erledigtAm && jetzt - Date.parse(x.erledigtAm) < AUFGABE_SICHTBAR_MS)
+    .sort((a, b) => (b.erledigtAm || '').localeCompare(a.erledigtAm || ''));
+  return { offen, kuerzlich };
+}
+
+export const offeneAufgaben = () => store.aufgaben.filter(x => !x.erledigtAm);
+/** Die Aufgabe, die aus einem Dokumentationseintrag entstand — damit sie nicht doppelt entsteht. */
+export const aufgabeZuEintrag = (eintragId) => store.aufgaben.find(x => x.quelleEintragId === eintragId) || null;
+export const aufgabenZuAuftrag = (auftragId) => store.aufgaben.filter(x => x.auftragId === auftragId && !x.erledigtAm);
+
+export function aufgabeAnlegen({ text, auftragId = null, quelleEintragId = null }) {
+  // Großzügige Grenze nur gegen Missbrauch — normale Notizen werden nie gekürzt.
+  const t = String(text || '').trim().slice(0, 2000);
+  if (!t) return null;
+  const neu = {
+    id: uid('t'), text: t,
+    auftragId: auftragId && auftrag(auftragId) ? auftragId : null,
+    quelleEintragId: quelleEintragId || null,
+    angelegtAm: new Date().toISOString(), erledigtAm: null,
+  };
+  store.aufgaben.push(neu);
+  commit();
+  return neu;
+}
+
+/** Abhaken oder zurücknehmen. */
+export function aufgabeErledigt(id, erledigt = true) {
+  const x = store.aufgaben.find(a => a.id === id);
+  if (!x) return null;
+  x.erledigtAm = erledigt ? new Date().toISOString() : null;
+  commit();
+  return x;
+}
+
+export function aufgabeEntfernen(id) {
+  const i = store.aufgaben.findIndex(a => a.id === id);
+  if (i < 0) return false;
+  store.aufgaben.splice(i, 1);
+  commit();
+  return true;
+}
+
 /* ── Aufträge schreiben ──────────────────── */
 
 export function auftragAnlegen(daten) {
@@ -258,10 +321,18 @@ export function verlaufUpdate(auftragId, eintragId, patch) {
   const e = a && a.verlauf.find(v => v.id === eintragId);
   if (!e) return null;
   Object.assign(e, patch);
+  // Eine offene Aufgabe, die aus diesem Eintrag entstand, folgt seiner Korrektur —
+  // sonst stünde in „Aufgaben" weiter der alte Wortlaut. Erledigte bleiben, wie sie waren.
+  if (typeof patch.text === 'string' && patch.text.trim()) {
+    const t = store.aufgaben.find(x => x.quelleEintragId === eintragId && !x.erledigtAm);
+    if (t) t.text = patch.text.trim().slice(0, 2000);
+  }
   commit();
   return e;
 }
 
+/* Bewusst: Eine Aufgabe, die aus diesem Eintrag entstand, bleibt beim Löschen erhalten.
+   Wer eine Notiz entfernt, soll nicht nebenbei eine offene Aufgabe verlieren. */
 export function verlaufEntfernen(auftragId, eintragId) {
   const a = auftrag(auftragId);
   if (!a) return false;
