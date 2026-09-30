@@ -346,7 +346,13 @@
   // Die erste Nachricht schreibt die Seite selbst — so beginnt jedes Gespräch gleich.
   const GRUSS = 'Hallo Edin! Falls du wissen willst, wie etwas in der Auftragszentrale funktioniert, schreib mir einfach.\n\nUnd lass uns zusammen brainstormen: Was möchtest du noch dazu haben, und wie soll es laufen? Ich frage so lange nach, bis Matthias genau versteht, wie du es meinst.\n\nWomit fangen wir an?';
   function blase(rolle, text) {
-    const m = document.createElement('div'); m.className = 'msg ' + rolle; m.textContent = text; msgs.appendChild(m);
+    const m = document.createElement('div'); m.className = 'msg ' + rolle;
+    // Die KI setzt trotz Anweisung manchmal **fett**: als <strong> zeigen, nie als HTML deuten.
+    String(text).split(/\*\*(.+?)\*\*/g).forEach((teil, i) => {
+      if (i % 2) { const s = document.createElement('strong'); s.textContent = teil; m.appendChild(s); }
+      else m.appendChild(document.createTextNode(rolle === 'assistant' ? teil.replace(/\*/g, '') : teil));
+    });
+    msgs.appendChild(m);
     msgs.scrollTop = msgs.scrollHeight; return m;
   }
   function chatZeigen() {
