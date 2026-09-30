@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self'; script-src 'none'; frame-ancestors 'self'; form-action 'none';">
+<meta name="robots" content="noindex,nofollow">
+<title>Übungsauftrag Auftragszentrale · PT Hausmeisterservice</title>
+<link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,500,600,700&display=swap">
+<style>
+  :root{
+    --blue:#2F5CFF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
+    --ink:#0F0F0F; --gray:#3F3F46; --muted:#6B6B73; --line:#E4E4E7; --bg:#F5F5F5;
+    --rot:#E5292F; --gelb-soft:#FFF8E6; --gelb-border:#F2D48A; --gruen-soft:#E8F5EE; --gruen-border:#B5DEC6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:28px 12px 60px;-webkit-text-size-adjust:100%;line-height:1.55;}
+  .card{max-width:900px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .head{padding:28px 30px 0;}
+  .head img{display:block;height:46px;}
+  .body{padding:20px 30px 34px;}
+  h1{font-size:26px;line-height:1.2;margin-bottom:10px;letter-spacing:-.01em;}
+  h2{font-size:21px;line-height:1.25;margin:46px 0 6px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em;scroll-margin-top:12px;}
+  h2 .nr{color:var(--blue);margin-right:8px;}
+  h3{font-size:17px;line-height:1.35;margin-bottom:10px;}
+  p{font-size:15.5px;color:var(--gray);margin-bottom:10px;}
+  p b, li b, td b{color:var(--ink);}
+  .intro{font-size:16px;}
+  .kasten{background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:12px;padding:14px 16px;margin:16px 0;}
+  .kasten.gelb{background:var(--gelb-soft);border-color:var(--gelb-border);}
+  .kasten p{margin:0;font-size:15px;}
+  .kasten ul, .kasten ol{margin:6px 0 0 20px;font-size:15px;color:var(--gray);}
+  .kasten li{margin:4px 0;}
+  .dl{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 4px;}
+  .dl a{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 10px;text-decoration:none;color:var(--ink);background:#fff;font-weight:600;font-size:15px;}
+  .dl img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line);}
+  .dl small{display:block;font-weight:400;color:var(--muted);font-size:13px;}
+  .marke{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--rot);color:#fff;font-size:12.5px;font-weight:700;vertical-align:1px;}
+  nav.inhalt{margin:18px 0 6px;border:1px solid var(--line);border-radius:12px;padding:14px 18px;}
+  nav.inhalt b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  nav.inhalt ol{margin-left:20px;columns:2;column-gap:28px;font-size:15px;list-style:upper-alpha;}
+  nav.inhalt li{margin:3px 0;break-inside:avoid;}
+  nav.inhalt a{color:var(--blue);text-decoration:none;}
+  .schritt{display:grid;grid-template-columns:1fr 290px;gap:28px;align-items:start;margin-top:30px;padding-top:26px;border-top:1px dashed var(--line);}
+  h2 + .schritt, h2 + p + .schritt{border-top:0;padding-top:0;}
+  .snr{font-size:12.5px;font-weight:700;color:var(--blue);letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
+  .b{border-radius:12px;padding:11px 14px;margin-bottom:10px;}
+  .b p{margin:0;font-size:15.5px;}
+  .b .k{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px;}
+  .b.tipp{background:#FFF5F5;border:1px solid #F6C9CB;}
+  .b.tipp .k{color:var(--rot);}
+  .b.sprich{background:var(--blue-soft);border:1px solid var(--blue-border);}
+  .b.sprich .k{color:var(--blue);}
+  .b.sprich p{font-size:17px;color:var(--ink);font-weight:500;line-height:1.5;}
+  .b.ein{background:var(--gruen-soft);border:1px solid var(--gruen-border);}
+  .b.ein .k{color:#0F7A45;}
+  .b.ein table{border-collapse:collapse;width:100%;font-size:15px;}
+  .b.ein th{text-align:left;font-weight:500;color:var(--muted);padding:4px 10px 4px 0;vertical-align:top;width:48%;}
+  .b.ein tr + tr th, .b.ein tr + tr td{border-top:1px solid rgba(15,122,69,.12);}
+  .b.ein td{font-weight:600;color:var(--ink);padding:4px 0;font-size:15px;word-break:break-word;}
+  .b.info{background:#FAFAFA;border:1px solid var(--line);}
+  .b.info p{font-size:14.5px;}
+  figure{margin:0;}
+  figure img{display:block;width:100%;height:auto;border-radius:22px;border:1px solid #D4D4D8;box-shadow:0 8px 24px rgba(15,15,15,.08);background:#fff;}
+  .fertig{background:var(--gruen-soft);border:1px solid var(--gruen-border);border-radius:12px;padding:18px 20px;margin-top:34px;}
+  .fertig h3{margin-bottom:6px;}
+  .knopf{display:inline-block;margin-top:10px;margin-right:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;padding:13px 20px;border-radius:12px;font-size:16px;}
+  .knopf.hell{background:#fff;color:var(--ink);border:1px solid var(--line);}
+  .fuss{font-size:13px;color:var(--muted);margin-top:26px;}
+  @media (max-width:720px){
+    body{padding:14px 8px 40px;}
+    .head{padding:20px 18px 0;}
+    .body{padding:16px 18px 26px;}
+    h1{font-size:23px;}
+    .schritt{grid-template-columns:1fr;gap:12px;}
+    .schritt figure{max-width:300px;}
+    nav.inhalt ol{columns:1;}
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><img src="../../logo-wide.png" alt="M&amp;H Assistenz"></div>
+  <div class="body">
+
+    <h1>Übungsauftrag: einmal alles selbst machen</h1>
+    <p class="intro">Hallo Edin, hier machst du einmal einen <b>ganzen Auftrag selbst</b> — vom Zettel bis zur bezahlten Rechnung, mit Unterschrift und allem, was die App kann. Neben jedem Bild steht genau, was du <b>tippst</b>, <b>eintippst</b> oder <b>einsprichst</b>. Dauert etwa <b>30 Minuten</b>.</p>
+
+    <div class="kasten">
+      <p><b>So liest du jeden Schritt:</b></p>
+      <ul>
+        <li><b style="color:var(--rot)">Tippen</b> — auf den Knopf mit dem roten Rahmen und der Nummer <span class="marke">1</span> im Bild.</li>
+        <li><b style="color:var(--blue)">🎤 Einsprechen</b> — diesen Satz ruhig und deutlich sagen.</li>
+        <li><b style="color:#0F7A45">⌨️ Eintippen</b> — genau das ins genannte Feld schreiben.</li>
+      </ul>
+    </div>
+
+    <div class="kasten gelb">
+      <p><b>Bevor du anfängst:</b></p>
+      <ol>
+        <li>Öffne die App am Handy über den <b>Link von Matthias</b> (dann laufen Sprache, Foto und KI wirklich). Ganz unten auf der Startseite muss „Zugangscode entfernen“ stehen.</li>
+        <li><b>Speichere die zwei Übungsbilder</b> auf deinem Handy: antippen, dann lange auf das Bild drücken → „In Fotos sichern“ bzw. „Bild herunterladen“.</li>
+        <li>Erkennt die App etwas <b>anders als auf den Bildern</b>? Kein Problem — einfach im Feld korrigieren. Genau dafür zeigt sie dir alles vorher.</li>
+        <li>Alles ist erfunden. Es geht nichts raus, und es landet nichts bei Kunden.</li>
+      </ol>
+      <div class="dl">
+        <a href="auftragszettel.jpg"><img src="auftragszettel.jpg" alt="">Übungszettel<small>für Schritt 3</small></a>
+        <a href="zaunfoto.jpg"><img src="zaunfoto.jpg" alt="">Zaunfoto<small>für Schritt 18</small></a>
+      </div>
+    </div>
+
+    <nav class="inhalt" aria-label="Inhalt">
+      <b>Ablauf</b>
+      <ol><li><a href="#a">Erster Auftrag — per Foto</a></li><li><a href="#b">Zweiter Auftrag — per Einsprechen</a></li><li><a href="#c">Zurück zur Diakonie — vor Ort dokumentieren</a></li><li><a href="#d">Zwischendurch — Notiz beim anderen Auftrag</a></li><li><a href="#e">Kostenstellen verteilen</a></li><li><a href="#f">Einsatzbericht, Unterschrift, PDF</a></li><li><a href="#g">Arbeit abschließen</a></li><li><a href="#h">Rechnung — bis zum Ende</a></li></ol>
+    </nav>
+
+    <h2 id="a"><span class="nr">A</span>Erster Auftrag — per Foto</h2>
+    <p>Du legst den Diakonie-Auftrag vom Übungszettel an.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 1</div>
+        <h3>Auftrag erfassen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag erfassen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u01-home-leer.jpg" alt="Auftrag erfassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 2</div>
+        <h3>Weg wählen: Foto</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Foto / Screenshot</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u02-wege.jpg" alt="Weg wählen: Foto" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 3</div>
+        <h3>Übungszettel nehmen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aus Galerie wählen</b> <span class="marke">2</span> und nimm den <b>Übungszettel</b>, den du oben gespeichert hast.</p></div><div class="b info"><p>Oder: <b>Foto aufnehmen</b> <span class="marke">1</span> und den Zettel am PC-Bildschirm abfotografieren.</p></div>
+      </div>
+      <figure><img src="bilder/u03-foto-waehlen.jpg" alt="Übungszettel nehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 4</div>
+        <h3>Auswerten lassen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bild auswerten</b> <span class="marke">1</span>. Das dauert ein paar Sekunden.</p></div>
+      </div>
+      <figure><img src="bilder/u04-foto-auswerten.jpg" alt="Auswerten lassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 5</div>
+        <h3>Prüfen und übernehmen</h3>
+        <div class="b info"><p>Kunde, Adresse und Aufgabe sind erkannt. Der <b>Termin fehlt</b> — der steht nicht auf dem Zettel. Die App rät ihn nicht.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Angaben übernehmen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u05-foto-ergebnis.jpg" alt="Prüfen und übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 6</div>
+        <h3>Fehlendes einsprechen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe oben auf <b>Per Sprache ergänzen</b> <span class="marke">1</span>. Der Knopf wird rot.</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Termin morgen um acht Uhr. Ansprechpartner Herr Neumann, Telefon 0228 5550120.“</p></div>
+      </div>
+      <figure><img src="bilder/u06-sprache-ergaenzen.jpg" alt="Fehlendes einsprechen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 7</div>
+        <h3>Aufnahme beenden</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Fertig gesprochen? Tippe nochmal auf den Knopf <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u07-sprache-laeuft.jpg" alt="Aufnahme beenden" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 8</div>
+        <h3>Ergänzung übernehmen</h3>
+        <div class="b info"><p>Die App zeigt, was sie eintragen will: Termin, Ansprechpartner, Telefon. Mit den Häkchen könntest du etwas abwählen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u08-ergaenzung-pruefen.jpg" alt="Ergänzung übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 9</div>
+        <h3>E-Mail und Rechnungsadresse</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>E-Mail (für die Rechnung)</th><td>rechnung@diakonie-test.example</td></tr><tr><th>Rechnungsadresse</th><td>Diakonie Testverbund, Verwaltung, Postfach 1020, 53111 Bonn</td></tr></table></div><div class="b info"><p>Die Rechnung geht an die Verwaltung, gearbeitet wird am Musterweg (Objektadresse).</p></div>
+      </div>
+      <figure><img src="bilder/u09-email-rechnungsadresse.jpg" alt="E-Mail und Rechnungsadresse" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 10</div>
+        <h3>Kunde merken und anlegen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Setz das Häkchen <b>Kunde für weitere Aufträge merken</b> <span class="marke">1</span>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag anlegen</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u10-kunde-merken.jpg" alt="Kunde merken und anlegen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 11</div>
+        <h3>Arbeit starten</h3>
+        <div class="b info"><p>Die Auftragsakte geht auf. Stell dir vor, du bist jetzt beim Kunden.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe unten auf <b>Arbeit starten</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u11-akte-neu.jpg" alt="Arbeit starten" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="b"><span class="nr">B</span>Zweiter Auftrag — per Einsprechen</h2>
+    <p>Ein zweiter Kunde ruft an. Den sprichst du einfach ein.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 12</div>
+        <h3>Neuer Auftrag, Weg: Einsprechen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Schließ die Akte mit dem <b>X</b> oben links. Unten auf <b>Home</b>, dann <b>Auftrag erfassen</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Einsprechen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u12-wege-sprache.jpg" alt="Neuer Auftrag, Weg: Einsprechen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 13</div>
+        <h3>Aufnahme starten</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme starten</b> <span class="marke">1</span> und sag in einem Satz:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Bürohaus Kastanienallee, Kastanienallee 7 in 53175 Bonn. Heizungsverteiler im Technikraum prüfen und entlüften. Heute um 14 Uhr.“</p></div>
+      </div>
+      <figure><img src="bilder/u13-aufnahme-starten.jpg" alt="Aufnahme starten" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 14</div>
+        <h3>Aufnahme stoppen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme stoppen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u14-aufnahme-stoppen.jpg" alt="Aufnahme stoppen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 15</div>
+        <h3>Prüfen und übernehmen</h3>
+        <div class="b info"><p>Oben steht, was die App gehört hat, darunter die Angaben daraus.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Angaben übernehmen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u15-sprache-ergebnis.jpg" alt="Prüfen und übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 16</div>
+        <h3>Anlegen und starten</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag anlegen</b> <span class="marke">1</span>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>In der Akte gleich unten auf <b>Arbeit starten</b>. Jetzt sind <b>zwei Aufträge gleichzeitig in Arbeit</b>.</p></div>
+      </div>
+      <figure><img src="bilder/u16-anlegen-2.jpg" alt="Anlegen und starten" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="c"><span class="nr">C</span>Zurück zur Diakonie — vor Ort dokumentieren</h2>
+    <p>Du wechselst zurück zum ersten Auftrag und hältst fest, was du gemacht hast.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 17</div>
+        <h3>Zum ersten Auftrag wechseln</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Akte mit <b>X</b> schließen. Auf <b>Home</b> ein Stück runterscrollen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Unter <b>Weitere laufende Arbeiten</b> tippst du auf den <b>Diakonie-Auftrag</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u17-home-zwei.jpg" alt="Zum ersten Auftrag wechseln" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 18</div>
+        <h3>Foto dazu</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bilder hinzufügen</b> <span class="marke">1</span> und nimm das <b>Zaunfoto</b> von oben — oder <b>Foto aufnehmen</b> und fotografier irgendetwas.</p></div><div class="b info"><p>Die App gibt dem Foto selbst einen Namen, z. B. „Zaun hinten, Pfosten schief“.</p></div>
+      </div>
+      <figure><img src="bilder/u18-bilder-hinzufuegen.jpg" alt="Foto dazu" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 19</div>
+        <h3>Alles in einem Satz erzählen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Schnell diktieren</b> <span class="marke">1</span> und sag:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Tür nachgestellt, Licht getauscht, Ablauf gereinigt und den Zaun repariert. Insgesamt viereinhalb Stunden, zwei Zaunlatten verbaut. Der zweite Zaunpfosten wackelt noch. Als Aufgabe: Zaunpfosten nachbestellen.“</p></div>
+      </div>
+      <figure><img src="bilder/u19-schnell-diktieren.jpg" alt="Alles in einem Satz erzählen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 20</div>
+        <h3>Aufnahme stoppen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme stoppen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u20-diktat-stoppen.jpg" alt="Aufnahme stoppen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 21</div>
+        <h3>Prüfen und übernehmen</h3>
+        <div class="b info"><p>Die App hat sortiert: ausgeführte Arbeit, 4,5 Stunden, 2 Zaunlatten, offener Punkt (Zaunpfosten wackelt) — und unter <b>Als Aufgabe gesagt</b> „Zaunpfosten nachbestellen“.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Lass das Häkchen bei der Aufgabe <span class="marke">1</span> drin und tippe auf <b>Übernehmen</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u21-diktat-uebernehmen.jpg" alt="Prüfen und übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 22</div>
+        <h3>Etwas, das keine Arbeit ist</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe nochmal auf <b>Schnell diktieren</b> und sag:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Der Hausmeister war informiert und hat den Keller aufgeschlossen.“</p></div><div class="b tipp"><span class="k">Tippen</span><p>Stoppen. Die App fragt <b>Wohin gehört das?</b> — tippe auf <b>Als Notiz</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u22-wohin.jpg" alt="Etwas, das keine Arbeit ist" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 23</div>
+        <h3>Material von Hand</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Material erfassen</b>.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Bezeichnung</th><td>Leuchtmittel LED E27</td></tr><tr><th>Menge</th><td>2</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Speichern</b> <span class="marke">3</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u23-material.jpg" alt="Material von Hand" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="d"><span class="nr">D</span>Zwischendurch — Notiz beim anderen Auftrag</h2>
+    <p>Beim Bürohaus fällt dir etwas ein. Du schreibst es auf, ohne die Akte zu öffnen.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 24</div>
+        <h3>Notiz von der Startseite</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Akte mit <b>X</b> schließen, <b>Home</b>. Oben steht das Bürohaus unter „Aktuell in Arbeit“.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe dort auf <b>Notiz</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u24-home-notiz.jpg" alt="Notiz von der Startseite" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 25</div>
+        <h3>Notiz + Aufgabe</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Was ist vor Ort passiert?</th><td>Ventil im 2. OG klemmt, Ersatzventil bestellen.</td></tr></table></div><div class="b info"><p>Statt tippen geht auch <b>Per Sprache ergänzen</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Häkchen <b>Auch als Aufgabe zum Abhaken merken</b> <span class="marke">2</span>, dann <b>Notiz speichern</b> <span class="marke">3</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u25-notiz-aufgabe.jpg" alt="Notiz + Aufgabe" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 26</div>
+        <h3>Aufgaben ansehen und abhaken</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Unten auf <b>Aufgaben</b> <span class="marke">1</span>. Da stehen jetzt beide: Zaunpfosten und Ventil.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Stell dir vor, du hast das Ventil bestellt: Hake <b>Ventil …</b> ab <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u26-aufgaben.jpg" alt="Aufgaben ansehen und abhaken" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 27</div>
+        <h3>Erledigt</h3>
+        <div class="b info"><p>Die Aufgabe rutscht nach <b>Heute erledigt</b> und verschwindet nach einem Tag. Aus Versehen abgehakt? Einfach nochmal tippen.</p></div>
+      </div>
+      <figure><img src="bilder/u27-aufgabe-erledigt.jpg" alt="Erledigt" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="e"><span class="nr">E</span>Kostenstellen verteilen</h2>
+    <p>Vier Arbeiten, drei Kostenstellen — wie bei deinen Diakonie-Aufträgen.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 28</div>
+        <h3>Zurück zur Diakonie</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Unten auf <b>Aufträge</b>, oben auf <b>In Arbeit</b> <span class="marke">1</span>, dann den <b>Diakonie-Auftrag</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u28-auftraege.jpg" alt="Zurück zur Diakonie" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 29</div>
+        <h3>Tätigkeiten &amp; Kostenstellen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>In der Akte runterscrollen bis „Dokumentation“. Bei Arbeitszeit auf <b>Tätigkeiten &amp; Kostenstellen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u29-uebersicht.jpg" alt="Tätigkeiten &amp; Kostenstellen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 30</div>
+        <h3>Teilen</h3>
+        <div class="b info"><p>Deine 4,5 Stunden stehen noch in einer Zeile.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Teilen</b> <span class="marke">1</span>. Die App macht aus deinem Satz vier Zeilen.</p></div>
+      </div>
+      <figure><img src="bilder/u30-teilen-knopf.jpg" alt="Teilen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 31</div>
+        <h3>Stunden und Kostenstelle je Arbeit</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>1 · Tür nachgestellt — Stunden</th><td>1</td></tr><tr><th>1 · Tür nachgestellt — Kostenstelle</th><td>KST 4100 Haus A</td></tr><tr><th>2 · Licht getauscht — Stunden</th><td>1</td></tr><tr><th>2 · Licht getauscht — Kostenstelle</th><td>KST 4100 Haus A</td></tr><tr><th>3 · Ablauf gereinigt — Stunden</th><td>1,5</td></tr><tr><th>3 · Ablauf gereinigt — Kostenstelle</th><td>KST 4200 Haus B</td></tr><tr><th>4 · Zaun repariert — Stunden</th><td>1</td></tr><tr><th>4 · Zaun repariert — Kostenstelle</th><td>KST 4300 Außenanlage</td></tr></table></div><div class="b info"><p>Je Zeile oben <b>Stunden</b> <span class="marke">1</span>, darunter <b>Kostenstelle</b> <span class="marke">2</span>. Weißt du eine Stunde nicht, lass sie leer — die App schätzt nie.</p></div>
+      </div>
+      <figure><img src="bilder/u31-teilen-ausfuellen.jpg" alt="Stunden und Kostenstelle je Arbeit" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 32</div>
+        <h3>Aufteilen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufteilen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u32-aufteilen.jpg" alt="Aufteilen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 33</div>
+        <h3>Material zuordnen</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Zaunlatte</th><td>KST 4300 Außenanlage</td></tr><tr><th>Leuchtmittel LED E27</th><td>KST 4100 Haus A</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Dann <b>Fertig</b> <span class="marke">3</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u33-material-kst.jpg" alt="Material zuordnen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="f"><span class="nr">F</span>Einsatzbericht, Unterschrift, PDF</h2>
+    <p>Der Bericht baut sich aus deiner Dokumentation selbst.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 34</div>
+        <h3>Bericht öffnen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bericht</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u34-bericht-knopf.jpg" alt="Bericht öffnen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 35</div>
+        <h3>Durchlesen, bestätigen lassen</h3>
+        <div class="b info"><p>Scroll einmal durch: Arbeiten mit Stunden und Kostenstelle, Material, offene Punkte, Fotos. Unter „Was steht im Bericht?“ kannst du Fotos und Notizen an- und abwählen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bestätigen lassen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u35-bericht.jpg" alt="Durchlesen, bestätigen lassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 36</div>
+        <h3>Unterschreiben lassen</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Name der Person, die bestätigt</th><td>Herr Neumann</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Mit dem Finger ins Feld unterschreiben <span class="marke">2</span>, dann <b>Speichern (Demo)</b> <span class="marke">3</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u36-unterschrift.jpg" alt="Unterschreiben lassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 37</div>
+        <h3>Als PDF sichern</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Drucken / PDF</b> <span class="marke">1</span>. Am iPhone: im Druckfenster oben auf das <b>Teilen-Symbol</b> → <b>In Dateien sichern</b>. Am Android: Drucker <b>Als PDF speichern</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Danach mit dem Pfeil oben links zurück in die Akte.</p></div>
+      </div>
+      <figure><img src="bilder/u37-bericht-pdf.jpg" alt="Als PDF sichern" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="g"><span class="nr">G</span>Arbeit abschließen</h2>
+    
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 38</div>
+        <h3>Abschließen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe unten auf <b>Arbeit abschließen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u38-abschliessen.jpg" alt="Abschließen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 39</div>
+        <h3>Ergebnis für den Kunden</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Ergebnis für den Kunden</th><td>Tür, Licht, Ablauf und Zaun erledigt. Zaunpfosten folgt.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Als erledigt markieren</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u39-erledigt.jpg" alt="Ergebnis für den Kunden" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <h2 id="h"><span class="nr">H</span>Rechnung — bis zum Ende</h2>
+    <p>Die Rechnung entsteht aus dem, was du dokumentiert hast.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 40</div>
+        <h3>Rechnung erstellen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Rechnung erstellen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u40-rechnung-erstellen.jpg" alt="Rechnung erstellen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 41</div>
+        <h3>Preis per KI ändern</h3>
+        <div class="b info"><p>Jede Arbeit und jedes Material ist eine Zeile. 58 € ist nur ein Beispiel-Stundensatz.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe bei der ersten Zeile auf das <b>Funken-Symbol</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u41-entwurf-funken.jpg" alt="Preis per KI ändern" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 42</div>
+        <h3>Sagen, was anders sein soll</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Was soll anders sein?</th><td>Setz den Stundensatz auf 62 Euro.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Senden</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u42-funken-schreiben.jpg" alt="Sagen, was anders sein soll" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 43</div>
+        <h3>Vorschlag übernehmen</h3>
+        <div class="b info"><p>Die KI zeigt vorher und nachher. Sie ändert nichts, bevor du zustimmst.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u43-funken-uebernehmen.jpg" alt="Vorschlag übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 44</div>
+        <h3>Fehlende Preise eintragen</h3>
+        <div class="b info"><p>Runterscrollen: Bei Material ist der Preis <b>offen</b> (gelb). Solange etwas fehlt, gibt es keinen Gesamtbetrag.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Zaunlatte → Einzelpreis</th><td>9,50</td></tr><tr><th>Leuchtmittel LED E27 → Einzelpreis</th><td>4,90</td></tr></table></div>
+      </div>
+      <figure><img src="bilder/u44-preis-fehlt.jpg" alt="Fehlende Preise eintragen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 45</div>
+        <h3>Vorschau</h3>
+        <div class="b info"><p>Jetzt steht unten der Gesamtbetrag.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Vorschau</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u45-preise-drin.jpg" alt="Vorschau" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 46</div>
+        <h3>In der Vorschau noch etwas ändern</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Ganz nach unten zu <b>Noch etwas ändern?</b> scrollen.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Noch etwas ändern?</th><td>Die Zaunlatten haben 12 Euro das Stück gekostet.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Senden</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u46-aendern.jpg" alt="In der Vorschau noch etwas ändern" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 47</div>
+        <h3>Übernehmen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u47-aendern-uebernehmen.jpg" alt="Übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 48</div>
+        <h3>Rechnung stellen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Versand simulieren</b> <span class="marke">1</span>.</p></div><div class="b info"><p>In der Probe geht nichts raus. Später legt <b>sevDesk</b> die Rechnung an und verschickt sie.</p></div>
+      </div>
+      <figure><img src="bilder/u48-versand.jpg" alt="Rechnung stellen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 49</div>
+        <h3>Bestätigen</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Demo-Versand bestätigen</b> <span class="marke">1</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u49-versand-bestaetigen.jpg" alt="Bestätigen" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 50</div>
+        <h3>Zahlung vermerken</h3>
+        <div class="b info"><p>Die Rechnung ist jetzt festgeschrieben und ändert sich nicht mehr.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Der Kunde hat bezahlt? Tippe auf <b>Zahlung vermerken</b> <span class="marke">1</span>. (Am PC siehst du das dann auf der Startseite im Geldverlauf.)</p></div>
+      </div>
+      <figure><img src="bilder/u50-zahlung.jpg" alt="Zahlung vermerken" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 51</div>
+        <h3>Geschafft</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Schließ die Rechnung und tippe unten auf <b>Rechnungen</b> <span class="marke">1</span>: Da steht deine Rechnung als versendet.</p></div><div class="b info"><p>Der Betrag kann bei dir etwas anders sein, wenn die KI etwas anders verstanden hat — das ist in Ordnung.</p></div>
+      </div>
+      <figure><img src="bilder/u51-rechnungen.jpg" alt="Geschafft" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="fertig">
+      <h3>Geschafft — du hast jede Funktion einmal benutzt.</h3>
+      <p>Zusatzaufgabe ohne Anleitung: Schließ den <b>Bürohaus-Auftrag</b> selbst ab — Zeit erfassen, abschließen, Rechnung. Wenn das klappt, sitzt es.</p>
+      <p>Und dann: Was war einfach, was umständlich, was fehlt dir? Schreib oder sprich es in den Fragebogen, häng Bilder an, sammel mit dem Assistenten Ideen.</p>
+      <a class="knopf" href="../">Zum Fragebogen</a>
+      <a class="knopf hell" href="../anleitung/">Zur Übersicht aller Funktionen</a>
+    </div>
+
+    <p class="fuss">Alle Namen, Adressen und Zahlen sind erfunden. Stand: 30.09.2026 · M&amp;H Assistenz</p>
+  </div>
+</div>
+</body>
+</html>

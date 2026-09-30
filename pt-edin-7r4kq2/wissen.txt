@@ -184,7 +184,7 @@ Arbeit ist fertig.
   (schnelle Zwischennotiz zu genau diesem Auftrag, ohne die Akte zu öffnen) und
   **„Auftrag öffnen"** (öffnet die Akte).
 - **„Dein Überblick"**: Einsätze heute, Aufträge in Arbeit, offene Rechnungsentwürfe.
-- **„Geldverlauf"**: was als bezahlt vermerkt wurde (in Euro) und wie viele Aufträge dazu
+- **„Geldverlauf"** (nur am PC, am Handy ausgeblendet): was als bezahlt vermerkt wurde (in Euro) und wie viele Aufträge dazu
   kamen; Zeitraum oben rechts wählbar. Es wird nichts geschätzt — ohne Bezahlt-Vermerk
   steht dort 0,00 €.
 - **„Freizugebende Rechnungen"**: Entwürfe, die noch geprüft und verschickt werden müssen.
@@ -194,9 +194,10 @@ Arbeit ist fertig.
   und zurück. Es geht nichts verloren: eine nicht übernommene Aufnahme bleibt gesichert
   („Eine Aufnahme ist noch nicht übernommen – Prüfen / Verwerfen"), eine angefangene Notiz
   bleibt als Entwurf, ein halber Auftrag bleibt mit „Später weiter".
-- Es gibt eine **Schritt-für-Schritt-Anleitung mit Bildern** (Link oben auf dieser Seite,
-  „Schritt-für-Schritt-Anleitung"). Wenn Edin fragt, wie etwas geht, darfst du zusätzlich
-  darauf verweisen.
+- Es gibt zwei Hilfen, oben auf dieser Seite verlinkt: den **Übungsauftrag** (Edin macht
+  einen ganzen erfundenen Auftrag selbst, bei jedem Schritt steht, was er tippt oder
+  einspricht, bis zur bezahlten Rechnung) und die **Übersicht aller Funktionen** mit Bildern.
+  Wenn Edin fragt, wie etwas geht, darfst du zusätzlich darauf verweisen.
 - **„Heutige Einsätze"** bzw. „Heute noch anstehend", ggf. „Termin prüfen" für
   Aufträge mit vergangenem Termin.
 
