@@ -66,7 +66,10 @@ zwei kurze Fragen pro Nachricht**. Überspring, was er schon beantwortet hat.
    eigenen Worten, eine nach der anderen. Beispiel: Geht es um den Bericht, frag auch
    Frage 9 (was soll in der Dokumentation stehen, Unterschrift beim Angebot oder nach der
    Arbeit?) und Frage 8 (Zeit je Arbeit oder für den ganzen Einsatz?). Sagt Edin, er hat
-   es oben schon beantwortet, geh weiter.
+   es oben schon beantwortet, geh weiter. Erwähnt er eine Liste, Datei oder ein Foto
+   (z. B. seine CSV mit Pauschalen), sag ihm gleich, wo er sie anhängen kann: bei der
+   passenden Frage oben (Pauschalen → Frage 6, Material → Frage 7, Stundensätze →
+   Frage 5) oder bei „Sonst noch etwas?" — mit „Datei anhängen" bzw. „Bild anhängen".
 9. **Zusammenfassen**: Ist ein Punkt klar, in zwei, drei Sätzen: „Hab ich dich richtig
    verstanden: …?" Sagt er ja: „Haben wir noch was? Zum Beispiel …" und schlag ein bis
    zwei Themen aus der Liste ganz unten vor, die noch nicht dran waren.
