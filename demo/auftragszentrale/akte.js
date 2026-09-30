@@ -1286,7 +1286,9 @@ function textZerlegen(text) {
   // gereinigt und Zaun repariert". So klingt gesprochene Aufzählung, nicht mit
   // Punkten zwischen jeder Tätigkeit. Dann zusätzlich an Kommas und „und" trennen.
   if (teile.length < 2) {
-    teile = t.replace(/\s+und\s+/gi, ', ').split(',').map(x => x.trim()).filter(Boolean);
+    // Nur an „Komma + Leerzeichen" trennen: „1,5 Stunden" bleibt ganz.
+    teile = t.replace(/\s+und\s+/gi, ', ').split(/,\s+/)
+      .map(x => x.replace(/[.;]\s*$/, '').trim()).filter(Boolean);
   }
 
   return teile.length >= 2 ? teile : [t, ''];

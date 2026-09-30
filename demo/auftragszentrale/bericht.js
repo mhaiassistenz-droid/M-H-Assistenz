@@ -213,8 +213,9 @@ export function dokument(b, { zusatz = '', markierung = 'haupt' } = {}) {
     <article class="bericht-dok" data-bericht-dok="${markierung}">
       <header class="bericht-kopf">
         <div class="beleg-abs"><strong>${esc(ABSENDER.firma)}</strong>${esc(ABSENDER.inhaber)}<br>${esc(ABSENDER.kontakt)}</div>
-        <div class="bericht-titel">Einsatzbericht</div>
+        <img class="bericht-logo" src="bilder/pt-logo.png" alt="${esc(ABSENDER.firma)}" width="154" height="130">
       </header>
+      <div class="bericht-titel">Einsatzbericht</div>
 
       <dl class="bericht-meta">
         <div><dt>Kunde</dt><dd>${esc(b.kunde) || '—'}</dd></div>

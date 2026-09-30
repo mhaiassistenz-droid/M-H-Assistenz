@@ -1617,10 +1617,14 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 /* Einsatzbericht (Schritt 4) — dieselbe ruhige Belegoptik wie die Rechnung */
 .doku-kopf-akt { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .bericht-dok { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-karte); padding: 24px; display: flex; flex-direction: column; gap: 18px; color: var(--text); }
-.bericht-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.bericht-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.bericht-kopf .beleg-abs { min-width: 0; overflow-wrap: anywhere; }
 .bericht-kopf .beleg-abs { font-size: 13px; color: var(--text-2); line-height: 1.5; }
 .bericht-kopf .beleg-abs strong { display: block; color: var(--text); font-size: 14px; }
 .bericht-titel { font-size: 22px; font-weight: 600; }
+/* Edins Logo oben rechts, wie auf seinen Rechnungen. Feste Maße gegen Layoutsprung beim Laden. */
+.bericht-logo { width: 72px; height: auto; flex-shrink: 0; display: block; }
+@media (max-width: 860px) { .bericht-logo { width: 56px; } }
 .bericht-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
 .bericht-meta dt { font-size: 12px; color: var(--text-3); }
 .bericht-meta dd { margin: 2px 0 0; font-size: 14.5px; overflow-wrap: anywhere; }
