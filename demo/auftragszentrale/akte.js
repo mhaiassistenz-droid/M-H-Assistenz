@@ -1275,8 +1275,21 @@ function taetigkeitenDialog(auftragId, neuZeichnen) {
 
 /** Vorschlag für die Zeilen: der eigene Text, an Satzenden getrennt. Edin prüft und ändert. */
 function textZerlegen(text) {
-  const teile = String(text || '').split(/(?<=[.;!?])\s+|\n+/).map(t => t.replace(/[.;]\s*$/, '').trim()).filter(Boolean);
-  return teile.length >= 2 ? teile : [String(text || '').trim(), ''];
+  const t = String(text || '').trim();
+  if (!t) return ['', ''];
+
+  // Erst an echten Satzgrenzen trennen.
+  let teile = t.split(/(?<=[.;!?])\s+|\n+/).map(x => x.replace(/[.;]\s*$/, '').trim()).filter(Boolean);
+
+  // Kommt dabei nur EIN Teil raus, war es vermutlich ein einziger, mit Kommas
+  // aneinandergereihter Satz — „Tür nachgestellt, Licht getauscht, Ablauf
+  // gereinigt und Zaun repariert". So klingt gesprochene Aufzählung, nicht mit
+  // Punkten zwischen jeder Tätigkeit. Dann zusätzlich an Kommas und „und" trennen.
+  if (teile.length < 2) {
+    teile = t.replace(/\s+und\s+/gi, ', ').split(',').map(x => x.trim()).filter(Boolean);
+  }
+
+  return teile.length >= 2 ? teile : [t, ''];
 }
 
 function teilenDialog(auftragId, v) {
