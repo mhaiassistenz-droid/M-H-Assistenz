@@ -761,7 +761,7 @@ function offeneAufnahmeLoeschen(auftragId) {
 
 /** Hat die Aufnahme etwas, das eindeutig in ein Dokumentationsfeld gehört? */
 const hatZuordnung = (st) => !!(st && (st.felder?.arbeit || (Number(st.felder?.stunden) > 0)
-  || st.material?.length || st.felder?.offen || st.felder?.wichtig));
+  || st.material?.length || st.felder?.offen || st.felder?.wichtig || st.aufgaben?.length));
 
 /**
  * Öffnet eine gesicherte Aufnahme wieder: mit eindeutiger Zuordnung in der
@@ -859,7 +859,7 @@ function diktatAufnehmen(auftragId, neuZeichnen, antwort, echt) {
 
 const leererSprachStand = () => ({
   transkript: '', felder: { arbeit: '', stunden: null, offen: '', wichtig: '' },
-  material: [], notizEntwurf: '', aufnahmen: 0, beispiel: false,
+  material: [], aufgaben: [], notizEntwurf: '', aufnahmen: 0, beispiel: false,
 });
 
 const verbinden = (alt, neu) => [alt, neu].filter(t => typeof t === 'string' && t.trim()).join('\n\n');
@@ -880,6 +880,9 @@ function sprachStandErgaenzen(st, antwort) {
     },
     material: [...st.material, ...(Array.isArray(v.material) ? v.material : [])
       .filter(m => m && typeof m.text === 'string').map(m => ({ ...m, an: true }))],
+    // Nur ausdrücklich „als Aufgabe" Gesagtes — ein Vorschlag, den Edin bestätigt.
+    aufgaben: [...(st.aufgaben || []), ...state.aufgabenAusTranskript(text)
+      .filter(t => !(st.aufgaben || []).some(x => x.text === t)).map(t => ({ text: t, an: true }))],
     // Die bestehende Auswertung kann einen Notiztext liefern; ansonsten bleibt
     // das vollständige Transkript erhalten, damit Zusatzinformationen nicht
     // durch die enger gefassten Arbeits-/Materialfelder verloren gehen.
@@ -905,25 +908,29 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
   let welle = [];           // Verlauf der Aufnahme, für das stehende Bild
   let transkript = '';      // echtes Transkript, wenn vorhanden
   let material = [];        // erkanntes Material, je Eintrag bestätigbar
+  let aufgaben = [];        // ausdrücklich „als Aufgabe" Gesagtes, je Eintrag bestätigbar
   let problem = null;
   let geschlossen = false;
   let startet = false;
   let notizEntwurf = '';
   let aufnahmen = 0;
-  if (gesichert) ({ transkript, felder, material, notizEntwurf, aufnahmen } = gesichert);
+  if (gesichert) {
+    ({ transkript, felder, material, notizEntwurf, aufnahmen } = gesichert);
+    aufgaben = gesichert.aufgaben || [];
+  }
   const dienstBereit = flows.verfuegbar();
 
   /** Den gesammelten Stand sofort sichern — vor jeder Bestätigung (1e). */
   const sichern = () => {
     if (onText || !aufnahmen) return;
-    offeneAufnahmeSichern(auftragId, { transkript, felder, material, notizEntwurf, aufnahmen, beispiel });
+    offeneAufnahmeSichern(auftragId, { transkript, felder, material, aufgaben, notizEntwurf, aufnahmen, beispiel });
   };
 
   // Jede Aufnahme ergänzt den lokalen Entwurf. Erst die Übernahme schreibt
   // neue Verlaufseinträge; bereits gespeicherte Einträge werden nie ersetzt.
   const antwortErgaenzen = (antwort, alsBeispiel = false) => {
-    ({ transkript, felder, material, notizEntwurf, aufnahmen } = sprachStandErgaenzen(
-      { transkript, felder, material, notizEntwurf, aufnahmen }, antwort));
+    ({ transkript, felder, material, aufgaben, notizEntwurf, aufnahmen } = sprachStandErgaenzen(
+      { transkript, felder, material, aufgaben, notizEntwurf, aufnahmen }, antwort));
     beispiel = beispiel || alsBeispiel;
     sichern();
   };
@@ -1005,6 +1012,19 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
               <div class="hint-note">Nur angehaktes Material wird übernommen. Preise bleiben offen.</div>
             </div>
           </div>` : ''}
+          ${aufgaben.length ? `
+          <div class="card" data-sprach-aufgaben>
+            <div class="card-head"><div class="card-title">Als Aufgabe gesagt</div></div>
+            <div class="card-body stapel">
+              ${aufgaben.map((x, i) => `
+                <div class="ag-zeile">
+                  <label class="aufgabe-haken"><input type="checkbox" data-ag="${i}" ${x.an ? 'checked' : ''}
+                    aria-label="Als Aufgabe übernehmen"></label>
+                  <input class="inp" data-ag-text="${i}" value="${esc(x.text)}" aria-label="Aufgabe ${i + 1}">
+                </div>`).join('')}
+              <div class="hint-note">Angehakte Punkte kommen unter „Aufgaben" zum Abhaken — keine Rechnungsposition.</div>
+            </div>
+          </div>` : ''}
           <div class="f">
             <label class="f-label" for="sa">Ausgeführte Arbeit</label>
             <textarea class="inp" id="sa" rows="3">${esc(felder.arbeit)}</textarea>
@@ -1049,7 +1069,7 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
       if (phase === 'bereit')  return `${aufnahmen ? '<button class="btn" data-zur-pruefung type="button">Bisherige Angaben prüfen</button>' : ''}<button class="btn btn-primaer btn-block" data-start type="button">${icon('mikro')} Aufnahme starten</button>`;
       if (phase === 'laeuft')  return `<button class="btn btn-primaer btn-block rec-stop" data-stop type="button"><span class="rec-stop-icon" aria-hidden="true"></span> Aufnahme stoppen</button>`;
       return `<button class="btn" data-nochmal type="button">Weiteres ergänzen</button>
-              <button class="btn btn-primaer" data-ok type="button">${onText ? 'An Notiz anhängen' : 'In Dokumentation übernehmen'}</button>`;
+              <button class="btn btn-primaer" data-ok type="button">${onText ? 'An Notiz anhängen' : 'Übernehmen'}</button>`;
     },
     bind: (el) => {
       el.querySelector('.sheet').classList.add('sheet-doku-aufnahme');
@@ -1058,6 +1078,14 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
         const feld = el.querySelector('#sw');
         feld.value = verbinden(feld.value, transkript);
       });
+      el.querySelectorAll('[data-ag]').forEach(box => box.addEventListener('change', () => {
+        const x = aufgaben[Number(box.dataset.ag)];
+        if (x) { x.an = box.checked; sichern(); }
+      }));
+      el.querySelectorAll('[data-ag-text]').forEach(f => f.addEventListener('input', () => {
+        const x = aufgaben[Number(f.dataset.agText)];
+        if (x) { x.text = f.value; sichern(); }
+      }));
       el.querySelectorAll('[data-mat]').forEach(box =>
         box.addEventListener('change', () => {
           const i = Number(box.dataset.mat);
@@ -1176,8 +1204,9 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
         // ohne Leistungsbeschreibung.
         const hatZeit = felder.stunden !== null && felder.stunden > 0;
         const hatMaterial = material.some(m => m.an && m.text);
+        const neueAufgaben = aufgaben.filter(x => x.an && x.text.trim());
         if (hatZeit && !felder.arbeit) return toast('Für die Arbeitszeit fehlt noch, welche Arbeit das war.');
-        if (!felder.arbeit && !hatZeit && !hatMaterial && !felder.offen && !felder.wichtig && !transkript.trim()) {
+        if (!felder.arbeit && !hatZeit && !hatMaterial && !felder.offen && !felder.wichtig && !neueAufgaben.length && !transkript.trim()) {
           return toast('Bitte etwas eintragen, das übernommen werden soll.');
         }
 
@@ -1214,8 +1243,12 @@ function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
         if (felder.wichtig) {
           state.verlaufHinzufuegen(auftragId, { typ: 'wichtig', text: felder.wichtig, simuliert: !echt });
         }
+        for (const x of neueAufgaben) state.aufgabeAnlegen({ text: x.text, auftragId });
         offeneAufnahmeLoeschen(auftragId);
-        sheetSchliessen(); neuZeichnen(); toast('In die Dokumentation übernommen.');
+        sheetSchliessen(); neuZeichnen();
+        toast(neueAufgaben.length
+          ? `In die Dokumentation übernommen — ${neueAufgaben.length === 1 ? 'eine Aufgabe' : neueAufgaben.length + ' Aufgaben'} angelegt.`
+          : 'In die Dokumentation übernommen.');
       });
     },
     vorSchliessen: () => { if (aufnahmen && !onText) { sichern(); toast('Aufnahme gesichert — sie wartet in der Akte auf Ihre Prüfung.'); } },

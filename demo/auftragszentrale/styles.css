@@ -1698,3 +1698,7 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 @media (max-width: 360px) {
   .tab { padding-inline: 1px; font-size: 10.5px; }
 }
+
+/* Beim Einsprechen „als Aufgabe" Gesagtes: Haken + korrigierbarer Text */
+.ag-zeile { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ag-zeile .inp { flex: 1 1 auto; min-width: 0; }

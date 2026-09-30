@@ -231,6 +231,32 @@ export const offeneAufgaben = () => store.aufgaben.filter(x => !x.erledigtAm);
 export const aufgabeZuEintrag = (eintragId) => store.aufgaben.find(x => x.quelleEintragId === eintragId) || null;
 export const aufgabenZuAuftrag = (auftragId) => store.aufgaben.filter(x => x.auftragId === auftragId && !x.erledigtAm);
 
+/*
+ * Beim Einsprechen ausdrücklich als Aufgabe Gesagtes herausfinden:
+ * „Als Aufgabe muss noch der Zaunpfosten bestellt werden", „Aufgabe: Silikon kaufen",
+ * „Neue Aufgabe Leiter zurückbringen", „… auf die Aufgabenliste".
+ * Nur mit diesem Stichwort — sonst würde geraten, was eine Aufgabe ist (Fachregel 5).
+ * Das Ergebnis ist ein Vorschlag; Edin bestätigt oder korrigiert ihn in der Prüfansicht.
+ */
+const AUFGABE_STICHWORT = /\b(?:als|neue)\s+aufgabe\b\s*[:,–-]?\s*|\baufgabe\s*[:–-]\s*|\b(?:auf\s+die\s+aufgabenliste|zu\s+den\s+aufgaben)\b\s*[:,–-]?\s*/i;
+
+export function aufgabenAusTranskript(text) {
+  const saetze = String(text || '').split(/(?<=[.!?])\s+|\n+/);
+  const gefunden = [];
+  for (const satz of saetze) {
+    const m = satz.match(AUFGABE_STICHWORT);
+    if (!m) continue;
+    const rest = `${satz.slice(0, m.index)} ${satz.slice(m.index + m[0].length)}`
+      .replace(/\s+/g, ' ').trim()
+      .replace(/^[,:;–-]\s*/, '').replace(/[.!?,;]+$/, '')
+      // „…, das kommt auf die Aufgabenliste" — Füllrest ohne Inhalt
+      .replace(/,?\s*(?:das|dies|es)\s+(?:kommt|geht|muss)\s*$/i, '').trim();
+    if (rest.length < 3) continue;
+    gefunden.push(rest.charAt(0).toUpperCase() + rest.slice(1));
+  }
+  return [...new Set(gefunden)];
+}
+
 export function aufgabeAnlegen({ text, auftragId = null, quelleEintragId = null }) {
   // Großzügige Grenze nur gegen Missbrauch — normale Notizen werden nie gekürzt.
   const t = String(text || '').trim().slice(0, 2000);
