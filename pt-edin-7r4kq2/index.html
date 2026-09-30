@@ -94,7 +94,7 @@
 
   <div class="body" id="viewForm">
     <h1>Hallo Edin, ein paar Fragen zur Auftragszentrale</h1>
-    <p class="intro">Damit die App genau so arbeitet wie du: Schreib oder sprich zu jeder Frage <b>so ausführlich, wie du magst</b> — lieber zu viel als zu wenig. Beispiele aus deinem Alltag helfen am meisten. Rechnungen, Preislisten oder Fotos kannst du direkt an die Frage hängen.</p>
+    <p class="intro">Damit die App genau so arbeitet wie du: Schreib oder sprich zu jeder Frage <b>so ausführlich, wie du magst</b> — lieber zu viel als zu wenig. Beispiele aus deinem Alltag helfen am meisten. <b>Fotos, Screenshots, Rechnungen und Preislisten</b> kannst du direkt an jede Frage hängen.</p>
     <p class="intro">Ganz unten kannst du mit einem <b>Assistenten</b> Fragen stellen und Ideen sammeln. Mit dem Knopf ganz unten geht <b>alles zusammen an Matthias</b>.</p>
     <div class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6" fill="#2F5CFF"/></svg>
       <span>Du musst nicht alles auf einmal machen: Alles wird <b>auf diesem Gerät</b> zwischengespeichert, auch die Anhänge. Einfach später wieder öffnen und weitermachen. Fragen, zu denen dir nichts einfällt, lässt du leer.</span></div>
@@ -115,14 +115,14 @@
     </div>
 
     <h2 class="block">Fragen stellen &amp; Ideen sammeln</h2>
-    <p class="q-text">Der Assistent kennt die Auftragszentrale und erklärt dir, wie etwas heute funktioniert. Du kannst mit ihm auch neue Ideen durchspielen. Deine Kunden kennt er nicht — nenn ihm bitte keine Namen, Adressen oder Kontodaten. Der Chat geht beim Abschicken mit an Matthias.</p>
+    <p class="q-text">Der Assistent kennt die Auftragszentrale bis ins Detail. Frag ihn, wie etwas geht — oder erzähl ihm, was du dir wünschst: Er fragt so lange nach, bis klar ist, was du genau willst und wo es in der App hin soll. Deine Kunden kennt er nicht — nenn ihm bitte keine Namen, Adressen oder Kontodaten. Der Chat geht beim Abschicken mit an Matthias.</p>
     <div class="chat">
       <div class="msgs" id="msgs" aria-live="polite"></div>
       <div class="vorschlaege" id="vorschlaege">
-        <button class="vorschlag" type="button">Wie erfasse ich einen Auftrag per Sprache?</button>
-        <button class="vorschlag" type="button">Wie funktionieren Kostenstellen?</button>
+        <button class="vorschlag" type="button">Wie lege ich einen Auftrag an?</button>
+        <button class="vorschlag" type="button" data-start="Mir fehlt noch: ">Mir fehlt noch etwas …</button>
+        <button class="vorschlag" type="button" data-start="Das möchte ich anders haben: ">Das möchte ich anders …</button>
         <button class="vorschlag" type="button">Was geht heute noch nicht?</button>
-        <button class="vorschlag" type="button">Ich hab eine Idee …</button>
       </div>
       <div class="chat-in" data-nr="chat">
         <textarea id="chatText" data-feld="chat" placeholder="Deine Frage oder Idee …"></textarea>
@@ -144,33 +144,28 @@
 (function () {
   'use strict';
   const N8N = 'https://n8n.mhassistenz.de/webhook';
-  const KEY = 'pt-edin-fragebogen-v1';
+  const KEY = 'pt-edin-fragebogen-v2';   // v2: 10 statt 14 Fragen
   const MAX_BYTES = 14 * 1024 * 1024;   // unter der Grenze von n8n und Gmail
   const $ = (s, r = document) => r.querySelector(s);
 
   /* ── Die Fragen ─────────────────────────── */
+  const BILD = 'Fotos, Screenshots oder Listen kannst du unten mit „Datei anhängen“ dazulegen.';
   const BLOECKE = [
     ['Rechnungen und Kostenstellen', [
-      ['Eine Rechnung oder mehrere?', 'Du hast geschrieben, dass aus einem Arbeitstag schon mal 5 Arbeiten entstehen — jede für eine andere Kostenstelle, aber an dieselbe Mailadresse. Soll daraus eine Rechnung mit getrennten Zeilen werden, oder je Kostenstelle eine eigene Rechnung?', 'Erzähl am besten an einem echten Beispiel, wie du es heute machst — und warum.'],
-      ['Deine Kostenstellen', 'Woher kommen die Kostenstellen — gibt der Kunde sie vor? Wie sehen sie aus (Nummer, Name, Haus)? Wo sollen sie auf der Rechnung stehen: an jeder Zeile oder oben?', 'Gern eine (geschwärzte) Rechnung anhängen, auf der man es sieht.'],
-      ['Material und Arbeit getrennt?', 'Auf einer deiner Rechnungen steht: „Arbeitsleistungen werden nach Abschluss separat abgerechnet“. Wann rechnest du Material und Arbeit getrennt ab, wann alles auf einer Rechnung? Wie ist das mit Vorkasse für Material?', ''],
-      ['Empfänger und Adressen', 'Ist der Rechnungsempfänger immer die Verwaltung/Hauptstelle? Soll die Einsatzadresse zusätzlich auf die Rechnung? Wer ist Ansprechpartner — und steht der auf der Rechnung?', ''],
+      ['Eine Rechnung oder mehrere?', 'Du hast geschrieben, dass bei einem Auftrag schon mal 5 Arbeiten entstehen — jede für eine andere Kostenstelle, aber an dieselbe Mailadresse. Soll daraus eine Rechnung mit getrennten Zeilen werden, oder je Kostenstelle eine eigene Rechnung?', 'Erzähl am besten an einem echten Beispiel, wie du es heute machst — und warum. ' + BILD],
+      ['Deine Kostenstellen', 'Woher kommen die Kostenstellen — gibt der Kunde sie vor? Wie sehen sie aus (Nummer, Name, Haus)? Wo sollen sie auf der Rechnung stehen: an jeder Zeile oder oben?', 'Gern ein Foto oder Screenshot einer (geschwärzten) Rechnung, auf der man es sieht.'],
+      ['Material und Arbeit getrennt?', 'Auf einer deiner Rechnungen steht: „Arbeitsleistungen werden nach Abschluss separat abgerechnet“. Wann rechnest du Material und Arbeit getrennt ab, wann alles auf einer Rechnung? Wie ist das mit Vorkasse für Material?', 'Zur Info: Wenn deine Materialien und Arbeitszeiten mit Preisen einmal hinterlegt sind, musst du sie nicht jedes Mal eintippen. Nur wenn etwas neu ist oder noch nicht hinterlegt, gibst du den Preis von Hand ein. ' + BILD],
+      ['Empfänger und Adressen', 'Empfänger der Rechnung ist immer die Verwaltung bzw. Hauptstelle — die Rechnung selbst erstellt sevDesk, die App gibt nur die Daten weiter. Soll zusätzlich die Einsatzadresse (wo gearbeitet wurde) mit auf die Rechnung? Und ein Ansprechpartner?', ''],
     ]],
     ['Preise', [
-      ['Stundensätze', 'Welche Stundensätze hast du — konkrete Zahlen? Unterscheiden sie sich je Arbeit oder je Kunde? Rechnest du Anfahrt extra?', ''],
-      ['Pauschalen', 'Welche Arbeiten rechnest du pauschal oder pro Stück ab, z. B. Siphon wechseln, Armatur wechseln? Mit welchem Preis?', 'Am besten deine CSV-Preisliste hier anhängen — auch wenn noch Preise fehlen.'],
-      ['Materialpreise', 'Wie kommst du auf den Materialpreis: Einkauf plus Aufschlag, fester Preis, Tagespreis? Wo kaufst du meistens ein?', ''],
-      ['Zahlungsziel, Rabatt, Mahnung', 'Wann heißt es „zahlbar sofort“, wann 14 Tage? Wer bekommt den Stammkunden-Rabatt (−10 %)? Schreibst du Mahnungen, und wenn ja, wann?', ''],
+      ['Stundensätze', 'Welche Stundensätze hast du — konkrete Zahlen? Unterscheiden sie sich je Arbeit oder je Kunde? Rechnest du Anfahrt extra?', BILD],
+      ['Pauschalen — gern als Liste', 'Welche Arbeiten rechnest du pauschal oder pro Stück ab, z. B. Siphon wechseln, Armatur wechseln? Mit welchem Preis?', 'Am besten deine Liste (CSV, Excel, Foto oder Screenshot) hier anhängen — auch wenn noch Preise fehlen.'],
+      ['Materialpreise — gern als Liste', 'Welches Material verbaust du am häufigsten, und zu welchem Preis? Wie kommst du auf den Preis: Einkauf plus Aufschlag, fester Preis, Tagespreis?', 'Eine Liste oder Screenshots reichen völlig. ' + BILD],
     ]],
     ['Vor Ort und Dokumentation', [
       ['Zeit erfassen', 'Schreibst du die Zeit je Arbeit auf oder nur für den ganzen Einsatz? Wenn du 4,5 Stunden für mehrere Arbeiten hattest: Wie verteilst du das heute?', ''],
-      ['Bericht und Unterschrift', 'Was soll in der fertigen Dokumentation stehen? Wer bekommt sie — der Kunde, die Verwaltung, nur du? Was soll der Kunde mit seiner Unterschrift bestätigen: nur die Arbeiten oder auch Stunden und Material? Du hast gesagt, du willst später auch sehen, wie lange welche Arbeit dauert — was genau möchtest du da auswerten?', ''],
+      ['Bericht und Unterschrift', 'Was soll in deiner fertigen Dokumentation stehen, damit du später nachvollziehen kannst, wann du was gemacht hast und wie lange es gedauert hat? Du hast auch von einer Unterschrift gesprochen — meinst du die Unterschrift beim Angebot (Kunde bestätigt das Angebot) oder nach der Arbeit?', BILD],
       ['Notizen und Aufgaben', 'Wie nutzt du Zwischennotizen im Alltag? Die App hat jetzt einen Bereich „Aufgaben“ zum Abhaken (z. B. „Zaunpfosten bestellen“). Passt das so, oder fehlt dir etwas?', ''],
-    ]],
-    ['Dein Alltag', [
-      ['Wie Aufträge reinkommen', 'Wie kommen neue Aufträge zu dir — Telefon, WhatsApp, Mail, Portal? Wann schreibst du vorher ein Angebot, wann legst du direkt los?', ''],
-      ['sevDesk', 'Was machst du heute in sevDesk (Angebote, Rechnungen, Zahlungseingang, Mahnungen)? Was soll weiter in sevDesk passieren, was soll die App übernehmen?', ''],
-      ['Das Wichtigste', 'Was nervt dich im Alltag am meisten? Was soll die App als Erstes perfekt können, damit sie dir wirklich Zeit spart?', ''],
     ]],
   ];
 
@@ -348,13 +343,15 @@
 
   /* ── Chat ────────────────────────────────── */
   const msgs = $('#msgs');
+  // Die erste Nachricht schreibt die Seite selbst — so beginnt jedes Gespräch gleich.
+  const GRUSS = 'Hallo Edin! Falls du wissen willst, wie etwas in der Auftragszentrale funktioniert, schreib mir einfach.\n\nUnd lass uns zusammen brainstormen: Was möchtest du noch dazu haben, und wie soll es laufen? Ich frage so lange nach, bis Matthias genau versteht, wie du es meinst.\n\nWomit fangen wir an?';
   function blase(rolle, text) {
     const m = document.createElement('div'); m.className = 'msg ' + rolle; m.textContent = text; msgs.appendChild(m);
     msgs.scrollTop = msgs.scrollHeight; return m;
   }
   function chatZeigen() {
     msgs.innerHTML = '';
-    if (!stand.chat.length) blase('info', 'Frag einfach los — zum Beispiel, wie etwas in der App funktioniert, oder erzähl eine Idee.');
+    blase('assistant', GRUSS);
     stand.chat.forEach(m => blase(m.role, m.content));
   }
   chatZeigen();
@@ -364,13 +361,12 @@
     if (!text || chatLaeuft) return;
     if (aktivesDiktat) aktivesDiktat.stopp();
     chatLaeuft = true; $('#chatSenden').disabled = true;
-    if (!stand.chat.length) msgs.innerHTML = '';
     stand.chat.push({ role: 'user', content: text }); sichern();
     blase('user', text); $('#chatText').value = '';
     const warte = blase('info', 'Assistent schreibt …');
     try {
       const r = await fetch(N8N + '/pt-edin-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: stand.chat, website: $('#website').value }) });
+        body: JSON.stringify({ messages: [{ role: 'assistant', content: GRUSS }, ...stand.chat], website: $('#website').value }) });
       const d = await r.json().catch(() => ({}));
       warte.remove();
       if (!r.ok || !d.ok || !d.antwort) {
@@ -388,7 +384,7 @@
   $('#chatSenden').addEventListener('click', () => chatSenden($('#chatText').value));
   $('#chatText').addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) chatSenden($('#chatText').value); });
   document.querySelectorAll('.vorschlag').forEach(b => b.addEventListener('click', () => {
-    if (b.textContent.endsWith('…')) { $('#chatText').value = 'Ich hab eine Idee: '; $('#chatText').focus(); return; }
+    if (b.dataset.start) { $('#chatText').value = b.dataset.start; $('#chatText').focus(); return; }
     chatSenden(b.textContent);
   }));
 
