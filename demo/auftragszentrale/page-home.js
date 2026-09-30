@@ -6,7 +6,7 @@ import * as flows from './flows.js';
 import { hinweisZeile, zugangKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { badge } from './ui.js';
-import { akteOeffnen } from './akte.js';
+import { akteOeffnen, notizOeffnen } from './akte.js';
 import { geldPanel, geldBinden } from './home-geld.js';
 import { rechnungsFilterSetzen } from './page-rechnungen.js';
 
@@ -203,7 +203,10 @@ function fokusAuftrag(a) {
     </div>
     <div class="home-focus-foot">
       <span class="home-progress">${icon('notiz')}${anzahl ? `${anzahl} ${anzahl === 1 ? 'Eintrag' : 'Einträge'} dokumentiert` : 'Noch keine Dokumentation'}</span>
-      <button class="btn btn-primaer" data-auftrag="${esc(a.id)}" type="button">Auftrag öffnen ${icon('vor')}</button>
+      <span class="home-focus-akt">
+        <button class="btn" data-schnellnotiz="${esc(a.id)}" type="button">${icon('notiz')} Notiz</button>
+        <button class="btn btn-primaer" data-auftrag="${esc(a.id)}" type="button">Auftrag öffnen ${icon('vor')}</button>
+      </span>
     </div>`;
 }
 
@@ -284,6 +287,8 @@ function binden(el) {
   }));
   el.querySelectorAll('[data-auftrag]').forEach(b =>
     b.addEventListener('click', () => akteOeffnen(b.dataset.auftrag)));
+  el.querySelectorAll('[data-schnellnotiz]').forEach(b =>
+    b.addEventListener('click', () => notizOeffnen(b.dataset.schnellnotiz)));
   el.querySelectorAll('[data-entwurf]').forEach(b => b.addEventListener('click', async () => {
     const { entwurfOeffnen } = await import('./rechnung.js');
     entwurfOeffnen(b.dataset.entwurf);

@@ -14,6 +14,7 @@ import { bilderNachladen } from './fotos.js';
 
 const stack = [];
 const host = () => document.getElementById('overlay');
+let zuletztGezeichnet = null;   // welche Ebene zuletzt oben gezeichnet wurde
 
 /* ── Overlay / Sheet ─────────────────────── */
 
@@ -25,6 +26,10 @@ const host = () => document.getElementById('overlay');
  * @param {(el: HTMLElement, api) => void} [o.bind]  Event-Handler nach jedem Rendern
  * @param {() => void} [o.vorRender] Aufräumen vor jedem Neuzeichnen (Zeitgeber, Animationen)
  * @param {() => void} [o.onClose]
+ * @param {(el: HTMLElement|null) => void} [o.vorSchliessen]
+ *        Nur wenn der Nutzer die Ebene wegklickt (X, Klick daneben, Esc): letzte
+ *        Gelegenheit, den Stand aus dem DOM zu sichern. Nicht beim programmatischen
+ *        Schließen nach dem Speichern — sonst entstünde ein gerade gelöschter Entwurf neu.
  */
 export function sheetOeffnen(o) {
   stack.push(o);
@@ -39,7 +44,16 @@ export function sheetSchliessen() {
   zeichnen();
 }
 
+/** Schließen durch den Nutzer: erst sichern lassen, dann schließen. */
+function nutzerSchliessen() {
+  const o = stack[stack.length - 1];
+  if (o?.vorSchliessen) o.vorSchliessen(host().firstElementChild);
+  sheetSchliessen();
+}
+
 export function alleSheetsSchliessen() {
+  // Nur die oberste Ebene hat ein DOM; die darunter bekommen null.
+  stack.forEach((o, i) => o.vorSchliessen?.(i === stack.length - 1 ? host().firstElementChild : null));
   while (stack.length) { const o = stack.pop(); if (o?.onClose) o.onClose(); }
   zeichnen();
 }
@@ -63,6 +77,7 @@ function api(index) {
 function zeichnen() {
   const h = host();
   if (!stack.length) {
+    zuletztGezeichnet = null;
     h.innerHTML = '';
     document.body.style.overflow = '';
     return;
@@ -76,6 +91,12 @@ function zeichnen() {
   // bekommt hier die Gelegenheit, sie zu lösen. Sonst laufen sie nach dem
   // Ersetzen des innerHTML ins Leere und stapeln sich bei jedem Rendern.
   if (o.vorRender) o.vorRender();
+
+  // Dieselbe Ebene zeichnet sich neu (z. B. nach einem Haken): Scrollstand halten und
+  // nicht erneut einblenden — sonst springt die Ansicht bei jeder Auswahl nach oben.
+  const dieselbe = zuletztGezeichnet === o;
+  const scrollVorher = dieselbe ? h.querySelector('.sheet-body')?.scrollTop || 0 : 0;
+  zuletztGezeichnet = o;
 
   h.innerHTML = `
     <div class="sheet-backdrop" data-backdrop>
@@ -94,10 +115,14 @@ function zeichnen() {
     </div>`;
 
   const wurzel = h.firstElementChild;
-  wurzel.querySelector('[data-close]').addEventListener('click', sheetSchliessen);
+  if (dieselbe) {
+    wurzel.querySelector('.sheet').classList.add('ohne-einblenden');
+    wurzel.querySelector('.sheet-body').scrollTop = scrollVorher;
+  }
+  wurzel.querySelector('[data-close]').addEventListener('click', nutzerSchliessen);
   wurzel.addEventListener('mousedown', (e) => {
     // Klick auf den abgedunkelten Rand schließt — Klick im Sheet nicht.
-    if (e.target.hasAttribute('data-backdrop')) sheetSchliessen();
+    if (e.target.hasAttribute('data-backdrop')) nutzerSchliessen();
   });
   if (o.bind) o.bind(wurzel, api(stack.length - 1));
   bilderNachladen(wurzel);
@@ -105,7 +130,7 @@ function zeichnen() {
 
 // Esc schließt immer die oberste Ebene.
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && stack.length) { e.preventDefault(); sheetSchliessen(); }
+  if (e.key === 'Escape' && stack.length) { e.preventDefault(); nutzerSchliessen(); }
 });
 
 /* ── Bestätigung ─────────────────────────── */

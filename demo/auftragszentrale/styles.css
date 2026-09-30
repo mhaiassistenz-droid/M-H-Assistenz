@@ -1542,3 +1542,130 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 /* Freischalt-Knopf im Simulations-Hinweis der Dialoge */
 .fz-zeile { display: block; margin-top: 8px; }
 .fz-zeile .btn { min-height: 36px; }
+
+/* Diktierknopf zum Einbetten (voicing.js). Ruhezustand wie „Per Sprache ergänzen",
+   während der Aufnahme rot wie der Stopp-Knopf im Einsprechen-Sheet. Die Balken
+   laufen länglich neben dem Knopf; bewegt wird nur transform (siehe .pegel). */
+.voicing { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.voicing-zeile { display: flex; align-items: center; gap: 8px 12px; min-width: 0; flex-wrap: wrap; }
+.voicing-knopf { color: #1D4ED8; background: #EFF6FF; border-color: #BFDBFE; flex-shrink: 0; }
+.voicing-knopf:hover { background: #DBEAFE; border-color: #93C5FD; }
+.voicing-knopf.laeuft { background: #B42318; border-color: #B42318; color: #FFF; }
+.voicing-knopf.laeuft:hover { background: #912018; border-color: #912018; }
+.voicing-pegel { flex: 1 1 130px; height: 34px; margin: 0; min-width: 0; gap: 2px; overflow: hidden; justify-content: flex-start; }
+.voicing-pegel span { min-width: 1px; }
+.voicing-pegel[hidden] { display: none; }
+.voicing.laeuft .voicing-pegel.aktiv span { background: #B42318; }
+.voicing-status { font-size: 13px; color: var(--text-2); line-height: 1.45; }
+.voicing-status:empty { display: none; }
+.voicing-status.fehler { color: var(--fehler); font-weight: 500; }
+
+/* Vorgeschlagene Ergänzung im Formular: sichtbar „bitte prüfen", keine Signalfarbe. */
+.inp.vorgeschlagen { border-color: #93C5FD; background: #F5F9FF; }
+.f-vorschlag { font-size: 12.5px; color: #1D4ED8; line-height: 1.45; }
+
+/* Prüfdialog für eine Spracheingabe: bisher / Vorschlag nebeneinander */
+.erg-zeile { border: 1px solid var(--line); border-radius: 10px; padding: 12px 13px; background: var(--card); display: flex; flex-direction: column; gap: 8px; }
+.erg-feld { font-size: 13px; font-weight: 600; color: var(--text); }
+.erg-vergleich { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.erg-vergleich > div { min-width: 0; }
+.erg-l { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 2px; }
+.erg-w { display: block; font-size: 14.5px; color: var(--text); overflow-wrap: anywhere; white-space: pre-line; }
+.erg-w.alt { color: var(--text-2); }
+.erg-wahl { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+@media (max-width: 420px) { .erg-vergleich { grid-template-columns: minmax(0, 1fr); } }
+.erg-l.erg-inline { display: inline; font-weight: 400; margin-left: 6px; }
+.notiz-wieder { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+/* Diktat in der Akte und Hinweis auf eine noch nicht übernommene Aufnahme */
+.doku-diktat { margin-top: 14px; }
+.offen-aufnahme { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.offen-aufnahme .btn-zeile { display: flex; gap: 8px; }
+.rf-wahl { display: flex; flex-direction: column; gap: 8px; }
+.rf-wahl .btn { justify-content: flex-start; }
+
+/* Zwischennotiz direkt von Home (1f): Notiz neben „Auftrag öffnen" */
+.home-focus-akt { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .home-focus-akt { width: 100%; }
+  .home-focus-foot .home-focus-akt .btn { width: auto; min-width: 0; }
+  .home-focus-akt [data-schnellnotiz] { flex: 1 0 auto; justify-content: center; }
+  .home-focus-akt [data-auftrag] { flex: 999 1 170px; }
+}
+/* Sehr schmal: der Hauptweg bleibt oben ohne Scrollen erreichbar (home.mjs), Notiz darunter. */
+@media (max-width: 360px) {
+  .home-focus-akt [data-auftrag] { order: -1; flex-basis: 100%; }
+}
+
+/* Tätigkeiten & Kostenstellen (Schritt 2) */
+.vl-offen-wert { color: #9A6508; font-weight: 500; }
+.doku-kst { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-top: 10px; }
+.doku-kst-offen { font-size: 13px; color: #9A6508; font-weight: 500; }
+.tk-summe { font-size: 14px; color: var(--text-2); }
+.tk-titel { font-size: 14px; font-weight: 600; margin: 6px 0 0; }
+.tk-zeile { display: flex; align-items: flex-start; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--card); }
+.tk-wahl { display: flex; align-items: center; min-height: 44px; }
+.tk-wahl input { width: 20px; height: 20px; accent-color: var(--aktion); }
+.tk-mitte { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.tk-text { font-size: 15px; color: var(--text); overflow-wrap: anywhere; }
+.tk-wert { font-size: 13.5px; color: var(--text-2); }
+.pos-kst { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; }
+.beleg-kst { font-size: 12px; color: var(--text-2); }
+/* Zahlenspalten im Beleg brauchen Luft zueinander — sonst las man am Handy „1 Std.58,00 €58,00 €". */
+.beleg-tab td.r + td.r, .beleg-tab th.r + th.r { padding-left: 12px; }
+
+/* Einsatzbericht (Schritt 4) — dieselbe ruhige Belegoptik wie die Rechnung */
+.doku-kopf-akt { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.bericht-dok { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-karte); padding: 24px; display: flex; flex-direction: column; gap: 18px; color: var(--text); }
+.bericht-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.bericht-kopf .beleg-abs { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.bericht-kopf .beleg-abs strong { display: block; color: var(--text); font-size: 14px; }
+.bericht-titel { font-size: 22px; font-weight: 600; }
+.bericht-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.bericht-meta dt { font-size: 12px; color: var(--text-3); }
+.bericht-meta dd { margin: 2px 0 0; font-size: 14.5px; overflow-wrap: anywhere; }
+.bericht-teil h3 { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
+.bericht-teil p { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.bericht-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.bericht-liste li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+.bericht-liste.einfach li { display: block; }
+.bericht-was { overflow-wrap: anywhere; }
+.bericht-wert { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
+.bericht-kst { grid-column: 1 / -1; font-size: 12.5px; color: var(--text-2); }
+.bericht-summe { margin-top: 8px !important; font-size: 14px !important; }
+.bericht-leer { color: var(--text-3); font-size: 14px; }
+.bericht-beispiel { font-size: 11.5px; font-weight: 500; color: var(--text-2); border: 1px solid var(--line-stark); border-radius: 5px; padding: 0 5px; margin-left: 4px; }
+.bericht-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.bericht-fotos figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.bericht-fotos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); display: block; }
+.bericht-fotos figcaption { font-size: 12.5px; color: var(--text-2); overflow-wrap: anywhere; }
+.bericht-referenz { border-top: 1px dashed var(--line-stark); padding-top: 12px; font-size: 13.5px; color: var(--text-2); }
+.bericht-auswahl { display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 860px) {
+  .bericht-dok { padding: 16px; }
+  .bericht-meta { grid-template-columns: minmax(0, 1fr); }
+}
+/* Neuzeichnen derselben Ebene (ui.js): kein erneutes Einblenden */
+.sheet.ohne-einblenden { animation: none; }
+
+/* Bestätigung (Schritt 5) */
+.bericht-status { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; font-size: 13.5px; color: var(--text-2); }
+.bericht-unterschrift { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.bericht-sig img { max-width: 260px; width: 100%; height: auto; display: block; border-bottom: 1px solid var(--line-stark); }
+.bericht-demo { font-size: 12.5px; color: var(--text-2); border: 1px solid var(--line-stark); border-radius: 6px; padding: 4px 8px; align-self: flex-start; }
+.bericht-aeltere, .bericht-aktuell { display: flex; flex-direction: column; gap: 12px; }
+.bericht-aeltere summary, .bericht-aktuell summary { cursor: pointer; padding-block: 12px; font-size: 14px; color: #1D4ED8; }
+.sig-feld { width: 100%; height: auto; aspect-ratio: 3 / 1; background: var(--card); border: 1px dashed var(--line-stark); border-radius: 10px; touch-action: none; display: block; }
+
+/* Drucken / „Als PDF sichern": nur das gewählte Berichtsdokument. Mit display statt
+   visibility — sonst nähme Verstecktes Platz ein, und das fixierte Overlay würde auf
+   jeder Druckseite wiederholt (ergab zwei identische PDF-Seiten). */
+@media print {
+  body.druckt-bericht > *:not(#overlay) { display: none !important; }
+  body.druckt-bericht .sheet-backdrop { position: static !important; background: none !important; display: block !important; }
+  body.druckt-bericht .sheet { width: 100% !important; max-height: none !important; box-shadow: none !important; animation: none !important; background: #fff !important; }
+  body.druckt-bericht .sheet-head, body.druckt-bericht .sheet-foot { display: none !important; }
+  body.druckt-bericht .sheet-body { overflow: visible !important; padding: 0 !important; background: #fff !important; }
+  body.druckt-bericht .sheet-body > :not(.druck-ziel) { display: none !important; }
+  body.druckt-bericht .druck-ziel { border: 0; box-shadow: none; padding: 0; }
+}

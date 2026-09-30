@@ -14,6 +14,7 @@ import { esc, icon, uid, toInputDatetime, fmtTermin } from './util.js';
 import * as fotos from './fotos.js';
 import * as flows from './flows.js';
 import * as pegel from './pegel.js';
+import { voicing } from './voicing.js';
 import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, hinweisBox } from './ui.js';
@@ -21,8 +22,13 @@ import { akteOeffnen } from './akte.js';
 
 const LEER = {
   kunde: '', ansprechpartner: '', email: '', telefon: '',
-  adresse: '', aufgabe: '', termin: '', erfasstUeber: 'manuell',
+  adresse: '', rechnungsadresse: '', aufgabe: '', termin: '', erfasstUeber: 'manuell',
+  kundeId: null,
 };
+
+/** Die Eingabefelder. Herkunftsangaben (erfasstUeber, herkunftEcht) sind kein Inhalt. */
+const FELDER = ['kunde', 'ansprechpartner', 'email', 'telefon', 'adresse', 'rechnungsadresse', 'aufgabe', 'termin'];
+const hatInhalt = (w) => !!w && FELDER.some(k => w[k]);
 
 /**
  * Angefangenes Formular für einen NEUEN Auftrag.
@@ -90,7 +96,7 @@ export function erfassungOeffnen(o = {}) {
 /* ── Einstieg: drei Wege ─────────────────── */
 
 function einstiegOeffnen(o) {
-  const angefangen = entwurf && Object.values(entwurf).some(v => v && v !== 'manuell');
+  const angefangen = hatInhalt(entwurf);
   let echt = false;
 
   const sheet = sheetOeffnen({
@@ -159,9 +165,20 @@ function einstiegOeffnen(o) {
         toast('Entwurf verworfen.');
       });
 
-      el.querySelectorAll('[data-weg]').forEach(b => b.addEventListener('click', () => {
+      el.querySelectorAll('[data-weg]').forEach(b => b.addEventListener('click', async () => {
         const weg = b.dataset.weg;
         if (weg === 'manuell') return sheetErsetzenMitFormular({ ...LEER, ...(entwurf || {}) }, o);
+        // Foto und Sprache füllen das Formular neu. Ein angefangener Auftrag wird
+        // dabei nicht still ersetzt — gleiche Rückfrage wie beim Verwerfen.
+        if (hatInhalt(entwurf)) {
+          const ja = await bestaetigen({
+            titel: 'Angefangenen Auftrag ersetzen?',
+            text: `Vorhandene Angaben („${(entwurf.kunde || entwurf.aufgabe || 'ohne Bezeichnung').slice(0, 60)}“) `
+              + `werden durch das Ergebnis ${weg === 'foto' ? 'des Fotos' : 'der Aufnahme'} ersetzt. Fortfahren?`,
+            jaText: 'Ersetzen', warnend: true,
+          });
+          if (!ja) return;
+        }
         if (weg === 'foto')    return fotoWeg(o);
         if (weg === 'sprache') return sprachWeg(o);
       }));
@@ -176,6 +193,10 @@ function einstiegOeffnen(o) {
 }
 
 function sheetErsetzenMitFormular(daten, o) {
+  // Sprach- oder Fototreffer sofort sichern: das Formular wird nur über `value`
+  // vorbefüllt, es feuert kein input-Event. Ohne diese Zeile ging ein frisch
+  // erkannter Auftrag verloren, sobald jemand das Sheet über das X schloss (1d).
+  if (!o?.bearbeiten) { entwurf = { ...LEER, ...daten }; entwurfSichern(); }
   sheetErsetzen(formularKonfig(daten, o));
 }
 
@@ -337,7 +358,9 @@ function fotoWeg(o) {
         const werte = (echt && ergebnis)
           ? flows.alsFormularwerte(ergebnis.vorschlag)
           : FOTO_BEISPIEL;
-        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'foto' }, o);
+        // herkunftEcht: Die Anzeige im Formular darf nicht aus dem Einstieg allein
+        // schließen, ob simuliert wurde — nur aus der tatsächlichen Auswertung.
+        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'foto', herkunftEcht: !!(echt && ergebnis) }, o);
       });
     },
   });
@@ -558,7 +581,7 @@ function sprachWeg(o) {
         const werte = (echt && ergebnis)
           ? flows.alsFormularwerte(ergebnis.vorschlag)
           : { ...FOTO_BEISPIEL, termin: '' };
-        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'sprache' }, o);
+        sheetErsetzenMitFormular({ ...LEER, ...werte, erfasstUeber: 'sprache', herkunftEcht: !!(echt && ergebnis) }, o);
       });
     },
     onClose: () => {
@@ -579,11 +602,52 @@ function sprachWeg(o) {
 
 /* ── Das gemeinsame Formular ─────────────── */
 
+/**
+ * Woher die vorausgefüllten Werte stammen. Entscheidend ist, ob die Auswertung
+ * echt lief (`herkunftEcht`) — nicht der gewählte Einstieg. Sonst stand nach
+ * einer echten Erkennung weiterhin „Beispielauswertung" da (Befund 29.09.2026).
+ */
+function herkunftHinweis(werte, bearbeiten) {
+  if (bearbeiten || werte.erfasstUeber === 'manuell') return '';
+  if (werte.herkunftEcht) {
+    const quelle = werte.erfasstUeber === 'foto' ? 'Ihrem Bild' : 'Ihrer Aufnahme';
+    return hinweisBox(`Aus ${quelle} erkannt — bitte prüfen.`, 'Vorschlag');
+  }
+  return hinweisBox('Die vorausgefüllten Angaben stammen aus einer <strong>Beispielauswertung</strong>, '
+    + 'nicht aus Ihrem Bild oder Ihrer Stimme. Bitte vor dem Speichern prüfen.');
+}
+
 function formularOeffnen(daten, o) { sheetOeffnen(formularKonfig(daten, o)); }
+
+/** Klartext-Namen der Formularfelder für den Prüfdialog. */
+const FELD_NAME = {
+  kunde: 'Kunde / Organisation', ansprechpartner: 'Ansprechpartner', email: 'E-Mail',
+  telefon: 'Telefon', adresse: 'Objektadresse', rechnungsadresse: 'Rechnungsadresse',
+  aufgabe: 'Vereinbarte Aufgabe', termin: 'Termin',
+};
+const FELD_ID = { kunde: 'k', ansprechpartner: 'ap', email: 'em', telefon: 'tel', adresse: 'ad', rechnungsadresse: 'ra', aufgabe: 'af', termin: 'tm' };
+
+/** Was ein Stammkunde ins Formular mitbringt. Objektadresse bewusst nicht — die gehört zum Auftrag. */
+const AUS_STAMM = { kunde: 'name', ansprechpartner: 'ansprechpartner', email: 'email', telefon: 'telefon', rechnungsadresse: 'rechnungsadresse' };
+
+/** Was „Per Sprache ergänzen" ohne Backend liefert. Fest hinterlegt, nicht erkannt. */
+const ERGAENZUNG_BEISPIEL = {
+  ok: true,
+  transkript: 'Ansprechpartnerin ist Frau Sommer, Telefon null zwei zwei acht fünf fünf fünf null vier sechs drei. '
+    + 'Und bitte zusätzlich den Handlauf im Keller prüfen.',
+  vorschlag: {
+    ansprechpartner: 'Frau Sommer', telefon: '0228 5550463',
+    aufgabe: 'Zusätzlich den Handlauf im Keller prüfen.',
+  },
+  fehlend: [],
+};
 
 function formularKonfig(daten, o = {}) {
   const bearbeiten = o.bearbeiten || null;
   let werte = { ...LEER, ...daten };
+  // Felder, die aus einer Spracheingabe stammen und noch nicht angefasst wurden.
+  const markiert = new Set();
+  let beispielErgaenzt = false;
 
   /** Aktuelle Feldwerte einsammeln — auch beim Zwischenspeichern des Entwurfs. */
   const lesen = (el) => ({
@@ -592,56 +656,125 @@ function formularKonfig(daten, o = {}) {
     email:           el.querySelector('#em').value.trim(),
     telefon:         el.querySelector('#tel').value.trim(),
     adresse:         el.querySelector('#ad').value.trim(),
+    rechnungsadresse: el.querySelector('#ra').value.trim(),
     aufgabe:         el.querySelector('#af').value.trim(),
     termin:          el.querySelector('#tm').value,
     erfasstUeber:    werte.erfasstUeber,
+    herkunftEcht:    !!werte.herkunftEcht,
+    kundeMerken: !!el.querySelector('[data-kunde-merken]')?.checked,
+    // Die Verbindung zum Stamm gilt nur, solange der Name noch derselbe ist.
+    kundeId: werte.kundeId && state.kunde(werte.kundeId)?.name === el.querySelector('#k').value.trim()
+      ? werte.kundeId : null,
   });
+
+  /**
+   * Stand aus dem DOM übernehmen. `werte` muss mitlaufen: schließt sich eine
+   * Ebene darüber (etwa der Prüfdialog), zeichnet sich das Formular aus `werte`
+   * neu — ohne das gingen getippte Angaben verloren.
+   */
+  const merken = (el) => {
+    werte = lesen(el);
+    if (!bearbeiten) { entwurf = { ...werte }; entwurfSichern(); }
+  };
+
+  const stimme = voicing({
+    kontext: 'erfassen',
+    beispiel: () => ERGAENZUNG_BEISPIEL,
+    onErgebnis: (antwort, echt) => ergaenzungPruefen({
+      antwort, echt, werte: () => werte,
+      uebernehmen: (neueWerte, felder) => {
+        werte = { ...werte, ...neueWerte };
+        felder.forEach(k => markiert.add(k));
+        if (!echt) beispielErgaenzt = true;
+        if (!bearbeiten) { entwurf = { ...werte }; entwurfSichern(); }
+      },
+    }),
+  });
+
+  const klasse = (k) => `inp${markiert.has(k) ? ' vorgeschlagen' : ''}`;
+  const zusatz = (k) => markiert.has(k)
+    ? `<div class="f-vorschlag" data-vorschlag-hinweis="${k}">${beispielErgaenzt
+        ? 'Hinterlegtes Beispiel, nicht aus Ihrer Stimme erkannt — bitte prüfen.'
+        : 'Aus Spracheingabe ergänzt — bitte prüfen.'}</div>` : '';
 
   return {
     titel: bearbeiten ? 'Auftragsdaten korrigieren' : 'Auftrag erfassen',
     body: () => `
-      ${werte.erfasstUeber !== 'manuell' && !bearbeiten
-        ? hinweisBox('Die vorausgefüllten Angaben stammen aus einer <strong>Beispielauswertung</strong>, '
-          + 'nicht aus Ihrem Bild oder Ihrer Stimme. Bitte vor dem Speichern prüfen.')
-        : ''}
+      ${herkunftHinweis(werte, bearbeiten)}
+
+      <div class="f formular-stimme">
+        <div class="f-hilfe">Vergessenes einfach einsprechen. Vorhandene Angaben werden nicht
+          überschrieben — Sie sehen jede Änderung, bevor sie ins Formular kommt.</div>
+        ${stimme.html()}
+      </div>
+
+      ${state.alleKunden().length ? `
+        <div class="f">
+          <label class="f-label" for="ks">Aus Kundenstamm</label>
+          <select class="inp" id="ks">
+            <option value="">Neuer oder anderer Kunde</option>
+            ${state.alleKunden().map(k => `<option value="${esc(k.id)}" ${k.id === werte.kundeId ? 'selected' : ''}>${esc(k.name)}</option>`).join('')}
+          </select>
+          <div class="f-hilfe">Füllt Kontakt und Rechnungsadresse vor. Objektadresse und Termin gehören zum Auftrag.</div>
+        </div>` : ''}
 
       <div class="f">
         <label class="f-label" for="k">Kunde / Organisation</label>
-        <input class="inp" id="k" value="${esc(werte.kunde)}" placeholder="z. B. Hausverwaltung Nordpark eG">
+        <input class="${klasse('kunde')}" id="k" value="${esc(werte.kunde)}" placeholder="z. B. Hausverwaltung Nordpark eG">
+        ${zusatz('kunde')}
       </div>
 
       <div class="fields">
         <div class="f">
           <label class="f-label" for="ap">Ansprechpartner <span class="opt">(optional)</span></label>
-          <input class="inp" id="ap" value="${esc(werte.ansprechpartner)}" placeholder="z. B. Frau Sommer">
+          <input class="${klasse('ansprechpartner')}" id="ap" value="${esc(werte.ansprechpartner)}" placeholder="z. B. Frau Sommer">
+          ${zusatz('ansprechpartner')}
         </div>
         <div class="f">
           <label class="f-label" for="tel">Telefon <span class="opt">(optional)</span></label>
-          <input class="inp" id="tel" type="tel" value="${esc(werte.telefon)}" placeholder="0228 …">
+          <input class="${klasse('telefon')}" id="tel" type="tel" value="${esc(werte.telefon)}" placeholder="0228 …">
+          ${zusatz('telefon')}
         </div>
       </div>
 
       <div class="f">
         <label class="f-label" for="em">E-Mail <span class="opt">(für die Rechnung)</span></label>
-        <input class="inp" id="em" type="email" value="${esc(werte.email)}" placeholder="rechnung@…">
+        <input class="${klasse('email')}" id="em" type="email" value="${esc(werte.email)}" placeholder="rechnung@…">
+        ${zusatz('email')}
       </div>
 
       <div class="f">
         <label class="f-label" for="ad">Objektadresse</label>
-        <input class="inp" id="ad" value="${esc(werte.adresse)}" placeholder="Straße, PLZ, Ort">
+        <input class="${klasse('adresse')}" id="ad" value="${esc(werte.adresse)}" placeholder="Straße, PLZ, Ort"
+          list="ad-liste" autocomplete="off">
+        <datalist id="ad-liste">${(state.kunde(werte.kundeId)?.objekte || []).map(o => `<option value="${esc(o)}">`).join('')}</datalist>
+        ${zusatz('adresse')}
+      </div>
+
+      <div class="f">
+        <label class="f-label" for="ra">Rechnungsadresse <span class="opt">(leer = Objektadresse)</span></label>
+        <input class="${klasse('rechnungsadresse')}" id="ra" value="${esc(werte.rechnungsadresse)}"
+          placeholder="z. B. Hauptverwaltung, falls abweichend">
+        ${zusatz('rechnungsadresse')}
       </div>
 
       <div class="f">
         <label class="f-label" for="af">Vereinbarte Aufgabe</label>
-        <textarea class="inp" id="af" rows="4"
+        <textarea class="${klasse('aufgabe')}" id="af" rows="4"
           placeholder="Was wurde mit dem Kunden besprochen?">${esc(werte.aufgabe)}</textarea>
+        ${zusatz('aufgabe')}
       </div>
 
       <div class="f">
         <label class="f-label" for="tm">Termin</label>
-        <input class="inp" id="tm" type="datetime-local" value="${esc(toInputDatetime(werte.termin))}">
+        <input class="${klasse('termin')}" id="tm" type="datetime-local" value="${esc(toInputDatetime(werte.termin))}">
+        ${zusatz('termin')}
         <div class="f-hilfe">Ein Termin je Auftrag. Er erscheint sofort im Kalender.</div>
       </div>
+
+      ${!bearbeiten && !werte.kundeId && state.alleKunden().every(k => k.name.toLowerCase() !== (werte.kunde || '').toLowerCase()) ? `
+        <label class="f-check"><input type="checkbox" data-kunde-merken ${werte.kundeMerken ? 'checked' : ''}>
+          <span>Kunde für weitere Aufträge merken</span></label>` : ''}
 
       ${bilder.length && !bearbeiten ? `
         <div class="f">
@@ -658,18 +791,54 @@ function formularKonfig(daten, o = {}) {
         ${bearbeiten ? 'Änderungen speichern' : 'Auftrag anlegen'}
       </button>`,
 
-    bind: (el) => {
+    bind: (el, api) => {
+      stimme.binden(el);
+
+      el.querySelector('[data-kunde-merken]')?.addEventListener('change', () => merken(el));
+
+      // Stammkunde gewählt: leere Felder füllen, belegte nur nach Rückfrage ersetzen.
+      el.querySelector('#ks')?.addEventListener('change', async (e) => {
+        merken(el);
+        const k = state.kunde(e.target.value);
+        if (!k) { werte = { ...werte, kundeId: null }; api.render(); return; }
+        const konflikte = Object.entries(AUS_STAMM)
+          .filter(([f, q]) => werte[f] && k[q] && werte[f] !== k[q]).map(([f]) => FELD_NAME[f]);
+        let ersetzen = false;
+        if (konflikte.length) {
+          ersetzen = await bestaetigen({
+            titel: 'Angaben aus dem Kundenstamm übernehmen?',
+            text: `Bereits eingetragen: ${konflikte.join(', ')}. Mit den gespeicherten Angaben von „${k.name}“ ersetzen?`,
+            jaText: 'Ersetzen',
+          });
+        }
+        const neu = { ...werte, kundeId: k.id };
+        for (const [f, q] of Object.entries(AUS_STAMM)) {
+          if (k[q] && (!neu[f] || ersetzen)) neu[f] = k[q];
+        }
+        // Hat der Kunde genau ein Objekt, liegt es nahe — aber nur in ein leeres Feld.
+        if (!neu.adresse && k.objekte?.length === 1) neu.adresse = k.objekte[0];
+        werte = neu;
+        if (!bearbeiten) { entwurf = { ...werte }; entwurfSichern(); }
+        api.render();
+      });
+
       // Live mitschreiben, damit "Später weiter" wirklich nichts verliert.
-      if (!bearbeiten) {
-        el.querySelectorAll('.inp').forEach(i =>
-          i.addEventListener('input', () => { entwurf = lesen(el); entwurfSichern(); }));
-      }
+      Object.entries(FELD_ID).forEach(([k, id]) => {
+        const i = el.querySelector('#' + id);
+        i.addEventListener('input', () => {
+          // Wer ein vorgeschlagenes Feld anfasst, hat es geprüft.
+          if (markiert.delete(k)) {
+            i.classList.remove('vorgeschlagen');
+            el.querySelector(`[data-vorschlag-hinweis="${k}"]`)?.remove();
+          }
+          merken(el);
+        });
+      });
 
       el.querySelector('[data-ab]').addEventListener('click', () => {
         if (!bearbeiten) {
-          entwurf = lesen(el);
-          entwurfSichern();
-          const etwasDrin = Object.entries(entwurf).some(([k, v]) => k !== 'erfasstUeber' && v);
+          merken(el);
+          const etwasDrin = hatInhalt(entwurf);
           sheetSchliessen();
           if (etwasDrin) toast('Entwurf gesichert — über „Auftrag erfassen" geht es weiter.');
           return;
@@ -678,7 +847,7 @@ function formularKonfig(daten, o = {}) {
       });
 
       el.querySelector('[data-ok]').addEventListener('click', () => {
-        const neu = lesen(el);
+        const { herkunftEcht, kundeMerken: kundeMerkenGewuenscht, ...neu } = lesen(el);
 
         // Ein Auftrag gilt als „Geplant", wenn Kunde, Aufgabe, Ort und Termin
         // feststehen — genau das wurde ja vorher mit dem Kunden vereinbart.
@@ -707,6 +876,11 @@ function formularKonfig(daten, o = {}) {
           return;
         }
 
+        if (kundeMerkenGewuenscht) {
+          const k = state.kundeMerken({ name: neu.kunde, ansprechpartner: neu.ansprechpartner, email: neu.email,
+            telefon: neu.telefon, rechnungsadresse: neu.rechnungsadresse, objekte: [neu.adresse] });
+          if (k) neu.kundeId = k.id;
+        }
         const anhaenge = bilder.map(b => ({ name: b.name, fotoId: b.fotoId }));
         const a = state.auftragAnlegen({ ...neu, status: 'geplant', anhaenge });
 
@@ -724,5 +898,98 @@ function formularKonfig(daten, o = {}) {
         o.danach?.();
       });
     },
+
+    // X-Knopf, Klick daneben, Esc: den aktuellen Stand noch sichern (1d).
+    vorSchliessen: (el) => { if (el && !bearbeiten && el.querySelector('#k')) merken(el); },
+    onClose: () => stimme.abbrechen(),
   };
+}
+
+/* ── Spracheingabe prüfen, bevor sie ins Formular kommt ── */
+
+/**
+ * Zeigt Bisheriges und Vorschlag nebeneinander. Nichts wird still überschrieben:
+ * leere Felder sind zum Eintragen vorgemerkt, belegte Felder bleiben, wie sie sind,
+ * bis Edin „Ersetzen" (bzw. bei der Aufgabe „Anhängen") wählt. Erst „Übernehmen"
+ * ändert das Formular — gespeichert wird danach wie immer über das Formular.
+ */
+function ergaenzungPruefen({ antwort, echt, werte, uebernehmen }) {
+  const vorschlag = flows.alsFormularwerte(antwort.vorschlag);
+  const bisher = werte();
+  const norm = (k, v) => (k === 'termin' ? toInputDatetime(v) : String(v ?? '').trim());
+  const zeigen = (k, v) => (k === 'termin' ? fmtTermin(v) : v);
+
+  const zeilen = FELDER
+    .filter(k => norm(k, vorschlag[k]))
+    .map(k => {
+      const alt = norm(k, bisher[k]), neu = norm(k, vorschlag[k]);
+      if (alt === neu) return null;
+      return { k, alt, neu, art: alt ? 'anders' : 'neu' };
+    })
+    .filter(Boolean);
+
+  const wahlKnopf = (k, wert, text, an) => `
+    <label class="f-check"><input type="radio" name="erg-${k}" value="${wert}" ${an ? 'checked' : ''}>
+      <span>${text}</span></label>`;
+
+  const zeile = (z) => z.art === 'neu' ? `
+    <div class="erg-zeile" data-erg="${z.k}">
+      <div class="erg-feld">${esc(FELD_NAME[z.k])} <span class="erg-l erg-inline">bisher leer</span></div>
+      <span class="erg-w">${esc(zeigen(z.k, z.neu))}</span>
+      <label class="f-check"><input type="checkbox" data-erg-an="${z.k}" checked><span>Eintragen</span></label>
+    </div>` : `
+    <div class="erg-zeile" data-erg="${z.k}">
+      <div class="erg-feld">${esc(FELD_NAME[z.k])}</div>
+      <div class="erg-vergleich">
+        <div><span class="erg-l">Bisher</span><span class="erg-w alt">${esc(zeigen(z.k, z.alt))}</span></div>
+        <div><span class="erg-l">Vorschlag</span><span class="erg-w">${esc(zeigen(z.k, z.neu))}</span></div>
+      </div>
+      <div class="erg-wahl">
+        ${wahlKnopf(z.k, 'behalten', 'Bisheriges behalten', z.k !== 'aufgabe')}
+        ${z.k === 'aufgabe' ? wahlKnopf(z.k, 'anhaengen', 'Anhängen', true) : ''}
+        ${wahlKnopf(z.k, 'ersetzen', 'Ersetzen', false)}
+      </div>
+    </div>`;
+
+  sheetOeffnen({
+    titel: 'Spracheingabe prüfen',
+    body: () => `
+      ${echt
+        ? hinweisBox('<strong>Aus Ihrer Aufnahme erkannt.</strong> Erst „Übernehmen" ändert das Formular; '
+          + 'gespeichert wird danach wie gewohnt.', 'Vorschlag')
+        : hinweisBox('<strong>Beispiel.</strong> Es wurde nichts aufgenommen und nichts erkannt — '
+          + 'die Angaben sind im Demo-Code hinterlegt.')}
+      ${zeilen.length ? zeilen.map(zeile).join('')
+        : `<div class="state-box">Nichts Neues erkannt.
+             <div class="state-hint">Das Formular bleibt unverändert.</div></div>`}
+      ${antwort.transkript ? `
+        <details class="sprach-original"><summary>Erkannte Worte ansehen</summary>
+          <div class="zitat">${esc(antwort.transkript)}</div></details>` : ''}`,
+    foot: () => `
+      <button class="btn" data-erg-nein type="button">Verwerfen</button>
+      ${zeilen.length ? '<button class="btn btn-primaer" data-erg-ja type="button">Übernehmen</button>' : ''}`,
+    bind: (el) => {
+      el.querySelector('[data-erg-nein]').addEventListener('click', sheetSchliessen);
+      el.querySelector('[data-erg-ja]')?.addEventListener('click', () => {
+        const neueWerte = {}, felder = [];
+        for (const z of zeilen) {
+          if (z.art === 'neu') {
+            if (!el.querySelector(`[data-erg-an="${z.k}"]`).checked) continue;
+            neueWerte[z.k] = z.neu;
+          } else {
+            const wahl = el.querySelector(`input[name="erg-${z.k}"]:checked`)?.value;
+            if (wahl === 'ersetzen') neueWerte[z.k] = z.neu;
+            else if (wahl === 'anhaengen') neueWerte[z.k] = `${z.alt}\n${z.neu}`;
+            else continue;
+          }
+          felder.push(z.k);
+        }
+        uebernehmen(neueWerte, felder);
+        sheetSchliessen();   // zeichnet das Formular mit den neuen Werten
+        toast(felder.length
+          ? `${felder.length} ${felder.length === 1 ? 'Angabe' : 'Angaben'} übernommen — bitte prüfen und speichern.`
+          : 'Nichts übernommen.');
+      });
+    },
+  });
 }

@@ -31,7 +31,7 @@ flows.versandEcht().then(ja => { versandEcht = ja; });
 const VERSAND_LABEL = () => versandEcht ? 'Rechnung stellen' : 'Versand simulieren';
 
 /* Fiktive Absenderdaten für die Belegvorschau. */
-const ABSENDER = {
+export const ABSENDER = {
   firma: 'PT Hausmeisterservice',
   inhaber: 'Edin Petrovac',
   adresse: 'Musterweg 5, 53111 Bonn',
@@ -192,8 +192,8 @@ function editorKoerper(r) {
  * gezeigt und das Nachtragen angeboten.
  */
 function abgleichHinweis(r) {
-  const { nachgetragen, entfernt } = state.entwurfAbgleich(r);
-  if (!nachgetragen.length && !entfernt.length) return '';
+  const { nachgetragen, entfernt, kostenstelle } = state.entwurfAbgleich(r);
+  if (!nachgetragen.length && !entfernt.length && !kostenstelle.length) return '';
 
   return `
     <div class="abgleich-box" data-abgleich>
@@ -213,6 +213,14 @@ function abgleichHinweis(r) {
           <div class="abgleich-l">Grundlage entfällt</div>
           <div class="abgleich-t">${entfernt.length === 1 ? 'Eine Position beruht' : `${entfernt.length} Positionen beruhen`}
             auf Dokumentation, die inzwischen gelöscht wurde. Bitte prüfen.</div>
+        </div>` : ''}
+      ${kostenstelle.length ? `
+        <div class="abgleich-teil">
+          <div class="abgleich-l">Kostenstelle in der Dokumentation geändert</div>
+          <ul class="liste-offen">
+            ${kostenstelle.map(k => `<li>${esc(k.text || 'Position')}: ${esc(k.alt || 'noch zuordnen')} → ${esc(k.neu || 'noch zuordnen')}</li>`).join('')}
+          </ul>
+          <button class="btn btn-sm" data-kst-abgleich type="button">Kostenstellen übernehmen</button>
         </div>` : ''}
     </div>`;
 }
@@ -268,6 +276,11 @@ function positionZeile(p, i) {
         </div>
       </div>
 
+      <div class="f pos-kst">
+        <label class="f-label" for="p-k-${p.id}">Kostenstelle <span class="opt">(leer = noch zuordnen)</span></label>
+        <input class="inp" id="p-k-${p.id}" data-feld="kostenstelle" placeholder="noch zuordnen" value="${esc(p.kostenstelle || '')}">
+      </div>
+
       <label class="pos-zusatz">
         <input type="checkbox" data-feld="zusatz" ${p.zusatz ? 'checked' : ''}>
         Ging über die ursprüngliche Anfrage hinaus
@@ -320,6 +333,8 @@ function editorBinden(el, api, rechnungId, danach) {
 
         if (feld === 'zusatz') {
           wert = i.checked;
+        } else if (feld === 'kostenstelle') {
+          wert = state.kostenstelleNormal(i.value);
         } else if (feld === 'menge' || feld === 'preis') {
           // Ungültiges kommt nicht in den State — sonst stünde es in der Summe.
           // Der Rohtext bleibt im Feld stehen, damit Edin seinen Tippfehler sieht.
@@ -363,6 +378,12 @@ function editorBinden(el, api, rechnungId, danach) {
     const n = state.positionenNachtragen(rechnungId, nachgetragen.map(v => v.id));
     api.render();
     toast(n === 1 ? 'Position nachgetragen.' : `${n} Positionen nachgetragen.`);
+  });
+
+  el.querySelector('[data-kst-abgleich]')?.addEventListener('click', () => {
+    const n = state.kostenstellenAbgleichen(rechnungId);
+    api.render();
+    toast(n === 1 ? 'Kostenstelle übernommen.' : `${n} Kostenstellen übernommen.`);
   });
 
   el.querySelector('[data-pos-neu]')?.addEventListener('click', () => {
@@ -778,6 +799,7 @@ function belegKoerper(r, korr) {
             const ok = m.status === 'ok' && pr.status === 'ok';
             return `<tr>
               <td>${esc(p.text) || '<span class="fehlt-hinweis">ohne Beschreibung</span>'}
+                ${p.kostenstelle ? `<br><span class="beleg-kst">Kostenstelle ${esc(p.kostenstelle)}</span>` : ''}
                 ${p.zusatz ? '<br><span class="beleg-zusatz">zusätzlich zur Anfrage</span>' : ''}</td>
               <td class="r">${m.status === 'ok' ? esc(zahlZuFeld(m.wert)) + ' ' + esc(p.einheit || '') : '—'}</td>
               <td class="r">${pr.status === 'ok' ? esc(fmtEuro(pr.wert)) : '<span class="fehlt-hinweis">offen</span>'}</td>

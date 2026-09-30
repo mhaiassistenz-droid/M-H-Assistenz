@@ -16,12 +16,19 @@ import { uid, parseZahl, istEmail, mengePruefen, preisPruefen, tagKey } from './
 const KEY = 'pt-auftragszentrale-v1';
 // Version 2 (28.09.2026): die App startet leer. Ein gespeicherter Stand mit
 // anderer Version wird verworfen, damit keine alten Beispielaufträge übrig bleiben.
-const VERSION = 2;
+// Version 3 (30.09.2026): Zeit- und Materialeinträge tragen eine `kostenstelle`
+// (String oder null = „noch zuordnen"); Positionen übernehmen sie. Fachregel 12:
+// bewusst erhöht — jeder Browser beginnt danach leer. Ebenfalls mit Version 3:
+// ein lokaler Kundenstamm (`kunden`), der wie alles andere leer beginnt.
+const VERSION = 3;
+
+/** Längste zulässige Kostenstellen-Bezeichnung. */
+const KOSTENSTELLE_MAX = 60;
 
 /** Fiktiver Beispiel-Stundensatz. Wird im Entwurf sichtbar als Beispiel markiert. */
 export const BEISPIEL_STUNDENSATZ = 58;
 
-const store = { auftraege: [], rechnungen: [] };
+const store = { auftraege: [], rechnungen: [], kunden: [] };
 const hoerer = new Set();
 
 /* ── Persistenz ──────────────────────────── */
@@ -59,6 +66,7 @@ export function save() {
       version: VERSION,
       auftraege: store.auftraege.map(fuerSpeicher),
       rechnungen: store.rechnungen,
+      kunden: store.kunden,
     }));
     const vorher = speicher.status;
     speicher.status = 'ok';
@@ -96,6 +104,7 @@ export function load() {
       if (daten && daten.version === VERSION && Array.isArray(daten.auftraege)) {
         store.auftraege  = daten.auftraege;
         store.rechnungen = Array.isArray(daten.rechnungen) ? daten.rechnungen : [];
+        store.kunden     = Array.isArray(daten.kunden) ? daten.kunden : [];
         return;
       }
     } catch (e) {
@@ -109,6 +118,7 @@ export function load() {
 export function zuruecksetzen(melden = true) {
   store.auftraege  = [];
   store.rechnungen = [];
+  store.kunden     = [];
   save();
   // Bilder liegen in IndexedDB und müssen eigens weg, sonst bleiben Waisen zurück.
   import('./fotos.js').then(f => f.alleLoeschen()).catch(() => {});
@@ -143,6 +153,51 @@ export function nachTermin(a, b) {
   if (!a.termin) return 1;
   if (!b.termin) return -1;
   return a.termin.localeCompare(b.termin);
+}
+
+/* ── Kundenstamm ─────────────────────────── */
+
+/*
+ * Wiederkehrende Auftraggeber wie die Diakonie: Name, Ansprechpartner, Kontakt und
+ * Rechnungsadresse stehen einmal hier und werden beim Erfassen vorgeschlagen. Die
+ * Objektadresse bleibt Sache des Auftrags — ein Kunde hat oft mehrere Objekte
+ * (`objekte` sind nur Vorschläge). `kostenstellen` sind die Vorschläge für die
+ * Zuordnung einzelner Tätigkeiten (Schritt 2).
+ *
+ * Fachregel 12: der Stamm beginnt leer. Beispielkunden gibt es nur in tests/seed.js.
+ */
+export const alleKunden = () => [...store.kunden].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+export const kunde = (id) => store.kunden.find(k => k.id === id) || null;
+
+const kundeSauber = (d) => ({
+  name: String(d.name || '').trim(),
+  ansprechpartner: String(d.ansprechpartner || '').trim(),
+  email: String(d.email || '').trim(),
+  telefon: String(d.telefon || '').trim(),
+  rechnungsadresse: String(d.rechnungsadresse || '').trim(),
+  objekte: [...new Set((d.objekte || []).map(o => String(o).trim()).filter(Boolean))],
+  kostenstellen: [...new Set((d.kostenstellen || []).map(kostenstelleNormal).filter(Boolean))],
+});
+
+/** Legt einen Kunden an — oder ergänzt den vorhandenen gleichen Namens, statt ihn zu doppeln. */
+export function kundeMerken(daten) {
+  const neu = kundeSauber(daten);
+  if (!neu.name) return null;
+  const vorhanden = store.kunden.find(k => k.name.toLowerCase() === neu.name.toLowerCase());
+  if (vorhanden) {
+    // Nur Lücken füllen und Listen ergänzen — gespeicherte Angaben nicht still ersetzen.
+    for (const f of ['ansprechpartner', 'email', 'telefon', 'rechnungsadresse']) {
+      if (!vorhanden[f] && neu[f]) vorhanden[f] = neu[f];
+    }
+    vorhanden.objekte = [...new Set([...(vorhanden.objekte || []), ...neu.objekte])];
+    vorhanden.kostenstellen = [...new Set([...(vorhanden.kostenstellen || []), ...neu.kostenstellen])];
+    commit();
+    return vorhanden;
+  }
+  const k = { id: uid('k'), ...neu };
+  store.kunden.push(k);
+  commit();
+  return k;
 }
 
 /* ── Aufträge schreiben ──────────────────── */
@@ -215,6 +270,217 @@ export function verlaufEntfernen(auftragId, eintragId) {
   a.verlauf.splice(i, 1);
   commit();
   return true;
+}
+
+/* ── Tätigkeiten und Kostenstellen ───────── */
+
+/** Leer heißt „noch zuordnen" (null) — nie ein geratener Wert. */
+export function kostenstelleNormal(v) {
+  const t = typeof v === 'string' ? v.trim().slice(0, KOSTENSTELLE_MAX) : '';
+  return t || null;
+}
+
+/** Alle in diesem Auftrag schon vergebenen Kostenstellen, zum Wiederverwenden. */
+export const kostenstellenImAuftrag = (a) =>
+  [...new Set([
+    ...(a?.kundeId ? kunde(a.kundeId)?.kostenstellen || [] : []),
+    ...(a?.verlauf || []).map(v => v.kostenstelle),
+  ].filter(Boolean))].sort((x, y) => x.localeCompare(y, 'de'));
+
+/** Zeit- und Materialeinträge, denen noch keine Kostenstelle zugeordnet ist. */
+export const ohneKostenstelle = (a) =>
+  (a?.verlauf || []).filter(v => (v.typ === 'zeit' || v.typ === 'material') && !v.kostenstelle);
+
+const RUNDUNG = 1e-9;
+
+/**
+ * Teilt einen Zeiteintrag in einzelne Tätigkeiten.
+ *
+ * Eine nur insgesamt genannte Zeit wird NICHT verteilt (Fachregel 5): Tätigkeiten
+ * ohne eigene Stunden bleiben „Zeit offen" (stunden: null), und was von der
+ * Gesamtzeit nicht ausdrücklich zugeordnet wurde, bleibt als eigener Eintrag
+ * „Nicht verteilte Einsatzzeit" sichtbar stehen. So geht keine Stunde verloren
+ * und keine wird erfunden.
+ *
+ * @param {Array<{text:string, stunden:number|null, kostenstelle:string|null}>} teile
+ * @returns {{ok:boolean, grund?:string, ids?:string[]}}
+ */
+export function taetigkeitTeilen(auftragId, eintragId, teile) {
+  const a = auftrag(auftragId);
+  const i = a ? a.verlauf.findIndex(v => v.id === eintragId) : -1;
+  if (i < 0) return { ok: false, grund: 'Eintrag nicht gefunden' };
+  const alt = a.verlauf[i];
+  if (alt.typ !== 'zeit') return { ok: false, grund: 'Nur Arbeitszeit lässt sich aufteilen' };
+  if (!Array.isArray(teile) || teile.length < 2) return { ok: false, grund: 'Bitte mindestens zwei Tätigkeiten angeben' };
+
+  const sauber = [];
+  for (const [n, t] of teile.entries()) {
+    const text = String(t.text || '').trim();
+    if (!text) return { ok: false, grund: `Tätigkeit ${n + 1}: Beschreibung fehlt` };
+    const std = t.stunden === null || t.stunden === undefined || t.stunden === '' ? null : Number(t.stunden);
+    if (std !== null && !(Number.isFinite(std) && std > 0)) {
+      return { ok: false, grund: `Tätigkeit ${n + 1}: Stunden müssen größer als 0 sein oder leer bleiben` };
+    }
+    sauber.push({ text, stunden: std, kostenstelle: kostenstelleNormal(t.kostenstelle) });
+  }
+
+  const gesamt = Number(alt.stunden) > 0 ? Number(alt.stunden) : null;
+  const verteilt = sauber.reduce((s, t) => s + (t.stunden || 0), 0);
+  if (gesamt !== null && verteilt > gesamt + RUNDUNG) {
+    return { ok: false, grund: 'Die Einzelzeiten ergeben mehr als die erfasste Gesamtzeit. '
+      + 'Bitte zuerst die Gesamtzeit korrigieren.' };
+  }
+
+  const basis = { typ: 'zeit', ts: alt.ts, simuliert: !!alt.simuliert, geteiltAus: alt.id };
+  const neu = sauber.map(t => ({ ...basis, id: uid('v'), ...t }));
+  const rest = gesamt !== null ? Math.round((gesamt - verteilt) * 100) / 100 : 0;
+  if (rest > 0) {
+    neu.push({ ...basis, id: uid('v'), text: `Nicht verteilte Einsatzzeit (${alt.text || 'Arbeitszeit'})`,
+      stunden: rest, kostenstelle: null, nichtVerteilt: true });
+  }
+  a.verlauf.splice(i, 1, ...neu);
+  commit();
+  return { ok: true, ids: neu.map(v => v.id) };
+}
+
+/**
+ * Führt Zeiteinträge wieder zusammen. Nur wenn alle Stunden bekannt sind — sonst
+ * entstünde eine Summe, die niemand so angegeben hat. Die Kostenstelle bleibt nur
+ * erhalten, wenn alle dieselbe haben; sonst ist sie wieder „noch zuordnen".
+ */
+export function taetigkeitenZusammenfuehren(auftragId, eintragIds) {
+  const a = auftrag(auftragId);
+  if (!a) return { ok: false, grund: 'Auftrag nicht gefunden' };
+  const teile = a.verlauf.filter(v => eintragIds.includes(v.id));
+  if (teile.length < 2) return { ok: false, grund: 'Bitte mindestens zwei Tätigkeiten auswählen' };
+  if (teile.some(v => v.typ !== 'zeit')) return { ok: false, grund: 'Nur Arbeitszeiten lassen sich zusammenführen' };
+  if (teile.some(v => !(Number(v.stunden) > 0))) {
+    return { ok: false, grund: 'Bei mindestens einer Tätigkeit ist die Zeit noch offen. '
+      + 'Bitte zuerst eintragen — sonst stimmt die Summe nicht.' };
+  }
+  const ks = new Set(teile.map(v => v.kostenstelle || null));
+  const zusammen = {
+    id: uid('v'), typ: 'zeit', ts: teile[0].ts, simuliert: teile.some(v => v.simuliert),
+    text: teile.map(v => v.text).filter(Boolean).join('; '),
+    stunden: Math.round(teile.reduce((s, v) => s + Number(v.stunden), 0) * 100) / 100,
+    kostenstelle: ks.size === 1 ? [...ks][0] : null,
+  };
+  a.verlauf = a.verlauf.filter(v => !eintragIds.includes(v.id) || v.id === teile[0].id);
+  a.verlauf.splice(a.verlauf.findIndex(v => v.id === teile[0].id), 1, zusammen);
+  commit();
+  return { ok: true, id: zusammen.id };
+}
+
+/* ── Einsatzbericht (Schritt 4) ─────────── */
+
+/*
+ * Der Bericht besteht ausschließlich aus dem, was dokumentiert und von Edin
+ * übernommen wurde — wie der Rechnungsentwurf (Fachregel 3). Die vereinbarte
+ * Aufgabe steht getrennt als Referenz daneben, nie als erledigte Arbeit.
+ *
+ * Auswahl je Eintrag über `imBericht`: Fotos sind standardmäßig drin, Notizen
+ * standardmäßig nicht (oft intern). „Wichtig"-Hinweise und Sprach-Transkripte sind
+ * interne Arbeitsnotizen und kommen nie in den Bericht.
+ */
+export const imBericht = (v) =>
+  v.typ === 'foto' ? v.imBericht !== false
+  : v.typ === 'notiz' ? v.imBericht === true
+  : v.typ === 'zeit' || v.typ === 'material' || v.typ === 'offen';
+
+/** Alles, was auf dem Bericht steht — als reine Daten, damit es sich einfrieren lässt. */
+export function berichtDaten(a) {
+  const drin = (a.verlauf || []).filter(imBericht);
+  const kopie = (v) => ({ id: v.id, text: v.text || '', beispiel: !!v.simuliert });
+  return {
+    kunde: a.kunde || '',
+    objekt: a.adresse || '',
+    termin: a.termin || null,
+    aufgabe: a.aufgabe || '',
+    arbeiten: drin.filter(v => v.typ === 'zeit').map(v => ({ ...kopie(v),
+      stunden: Number(v.stunden) > 0 ? Number(v.stunden) : null, kostenstelle: v.kostenstelle ?? null })),
+    material: drin.filter(v => v.typ === 'material').map(v => ({ ...kopie(v),
+      menge: Number(v.menge) > 0 ? Number(v.menge) : null, einheit: v.einheit || '', kostenstelle: v.kostenstelle ?? null })),
+    stundenGesamt: summeStunden(a),
+    ergebnis: a.abschluss?.ergebnis || '',
+    offen: drin.filter(v => v.typ === 'offen').map(kopie),
+    anmerkungen: drin.filter(v => v.typ === 'notiz').map(kopie),
+    fotos: drin.filter(v => v.typ === 'foto').map(v => ({ ...kopie(v), fotoId: v.fotoId || null, fotoUrl: v.fotoUrl || null })),
+  };
+}
+
+/* ── Bestätigte Berichtsfassungen (Schritt 5) ── */
+
+/*
+ * Ein bestätigter Bericht ändert sich nicht rückwirkend — dasselbe Prinzip wie der
+ * eingefrorene Beleg (Fachregel 4). `berichtBestaetigen` legt eine tiefe Kopie
+ * genau der Fassung ab, die der Kunde gesehen hat. Spätere Dokumentation erscheint
+ * nur als Nachtrag (`berichtNachtraege`); eine neue Bestätigung erzeugt eine weitere
+ * Fassung, die alte bleibt unverändert stehen.
+ *
+ * Die Unterschrift selbst ist ein Bild und liegt in IndexedDB (fotos.js); hier steht
+ * nur ihre ID. Alles liegt ausschließlich in diesem Browser — kein Archiv.
+ */
+const tiefeKopie = (x) => JSON.parse(JSON.stringify(x));
+
+export const berichtFassungen = (a) => a?.berichte || [];
+export const letzteFassung = (a) => berichtFassungen(a).at(-1) || null;
+
+/** Gleicht die gezeigte Fassung mit dem aktuellen Stand ab — gezeigt = bestätigt. */
+export const berichtUnveraendert = (a, gezeigt) =>
+  JSON.stringify(berichtDaten(a)) === JSON.stringify(gezeigt);
+
+/**
+ * @param {object} o
+ * @param {object} o.gezeigt       genau die Daten, die dem Kunden angezeigt wurden
+ * @param {string} o.name          wer bestätigt
+ * @param {string|null} o.unterschriftId  Bild in IndexedDB
+ * @param {boolean} [o.nurDieseSitzung]   Bild konnte nicht dauerhaft gespeichert werden
+ */
+export function berichtBestaetigen(auftragId, { gezeigt, name, unterschriftId, nurDieseSitzung = false }) {
+  const a = auftrag(auftragId);
+  if (!a) return { ok: false, grund: 'Auftrag nicht gefunden' };
+  const wer = String(name || '').trim();
+  if (!wer) return { ok: false, grund: 'Bitte den Namen der Person eintragen, die bestätigt.' };
+  if (!gezeigt || !berichtUnveraendert(a, gezeigt)) {
+    return { ok: false, grund: 'Der Bericht hat sich geändert, seit er angezeigt wurde. Bitte erneut öffnen und zeigen.' };
+  }
+  const fassung = {
+    id: uid('b'),
+    nummer: berichtFassungen(a).length + 1,
+    am: new Date().toISOString(),
+    name: wer,
+    unterschriftId: unterschriftId || null,
+    nurDieseSitzung: !!nurDieseSitzung,
+    stand: tiefeKopie(gezeigt),
+  };
+  a.berichte = [...berichtFassungen(a), fassung];
+  commit();
+  return { ok: true, fassung };
+}
+
+/**
+ * Was sich seit der letzten bestätigten Fassung geändert hat — nur zur Anzeige als
+ * Nachtrag. Die Fassung selbst wird nie angefasst.
+ */
+export function berichtNachtraege(a) {
+  const f = letzteFassung(a);
+  if (!f) return null;
+  const jetzt = berichtDaten(a);
+  const eintraege = (b) => ['arbeiten', 'material', 'offen', 'anmerkungen', 'fotos']
+    .flatMap(k => (b[k] || []).map(x => ({ ...x, bereich: k })));
+  const vorher = new Map(eintraege(f.stand).map(x => [x.id, x]));
+  const nachher = new Map(eintraege(jetzt).map(x => [x.id, x]));
+  const neu = [...nachher.values()].filter(x => !vorher.has(x.id));
+  const entfernt = [...vorher.values()].filter(x => !nachher.has(x.id));
+  const geaendert = [...nachher.values()].filter(x => vorher.has(x.id)
+    && JSON.stringify(vorher.get(x.id)) !== JSON.stringify(x));
+  const kopf = ['kunde', 'objekt', 'termin', 'ergebnis'].filter(k => (f.stand[k] ?? '') !== (jetzt[k] ?? ''));
+  return { neu, geaendert, entfernt, kopf, leer: !neu.length && !geaendert.length && !entfernt.length && !kopf.length };
+}
+
+/** Foto oder Notiz in den Bericht aufnehmen bzw. herausnehmen. */
+export function berichtAuswahl(auftragId, eintragId, an) {
+  return verlaufUpdate(auftragId, eintragId, { imBericht: !!an });
 }
 
 /** Summe aller dokumentierten Stunden — für Karten und Akte. */
@@ -296,7 +562,8 @@ export function rechnungOeffnenOderErstellen(auftragId) {
     status: 'entwurf',
     empfaenger: {
       name: a.kunde, ansprechpartner: a.ansprechpartner,
-      email: a.email, adresse: a.adresse,
+      // Abweichende Rechnungsadresse (z. B. Hauptverwaltung) vor der Objektadresse.
+      email: a.email, adresse: a.rechnungsadresse || a.adresse,
     },
     positionen: positionenAusVerlauf(a),
     ustSatz: 19,
@@ -342,6 +609,7 @@ function positionenAusVerlauf(a) {
         preisIstBeispiel: true,
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
+        kostenstelle: v.kostenstelle ?? null,
         zusatz: false,
       });
     } else if (v.typ === 'material') {
@@ -353,6 +621,7 @@ function positionenAusVerlauf(a) {
         preis: null, // Materialpreis kennt nur Edin — bleibt bewusst offen
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
+        kostenstelle: v.kostenstelle ?? null,
         zusatz: false,
       });
     }
@@ -369,7 +638,7 @@ function positionenAusVerlauf(a) {
  */
 export function entwurfAbgleich(r) {
   const a = auftrag(r.auftragId);
-  if (!a || istVersendet(r)) return { nachgetragen: [], entfernt: [] };
+  if (!a || istVersendet(r)) return { nachgetragen: [], entfernt: [], kostenstelle: [] };
 
   const imEntwurf = new Set(r.positionen.map(p => p.quelleEintragId).filter(Boolean));
 
@@ -380,7 +649,28 @@ export function entwurfAbgleich(r) {
   const imVerlauf = new Set(a.verlauf.map(v => v.id));
   const entfernt = r.positionen.filter(p => p.quelleEintragId && !imVerlauf.has(p.quelleEintragId));
 
-  return { nachgetragen, entfernt };
+  // Kostenstelle in der Dokumentation nachträglich zugeordnet oder geändert.
+  // Wird nicht still übernommen (Fachregel 9) — nur angezeigt und auf Knopfdruck gesetzt.
+  const quelle = new Map(a.verlauf.map(v => [v.id, v]));
+  const kostenstelle = r.positionen.filter(p => {
+    const v = p.quelleEintragId && quelle.get(p.quelleEintragId);
+    return v && (v.kostenstelle ?? null) !== (p.kostenstelle ?? null);
+  }).map(p => ({ positionId: p.id, alt: p.kostenstelle ?? null, neu: quelle.get(p.quelleEintragId).kostenstelle ?? null, text: p.text }));
+
+  return { nachgetragen, entfernt, kostenstelle };
+}
+
+/** Übernimmt die Kostenstellen aus der Dokumentation in die betroffenen Positionen. */
+export function kostenstellenAbgleichen(rechnungId) {
+  const r = rechnung(rechnungId);
+  if (!r || istVersendet(r)) return 0;
+  const { kostenstelle } = entwurfAbgleich(r);
+  for (const k of kostenstelle) {
+    const p = r.positionen.find(x => x.id === k.positionId);
+    if (p) p.kostenstelle = k.neu;
+  }
+  if (kostenstelle.length) commit();
+  return kostenstelle.length;
 }
 
 /** Übernimmt genau die angegebenen Verlaufseinträge als neue Positionen. */

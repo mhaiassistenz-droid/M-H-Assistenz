@@ -15,6 +15,7 @@ import * as pegel from './pegel.js';
 import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
 import { sheetOeffnen, sheetSchliessen, bestaetigen, toast, badge, hinweisBox, leerZustand } from './ui.js';
+import { voicing } from './voicing.js';
 
 /* Beispiel-Sprachnotiz. Fest hinterlegt — es wird nichts aufgenommen
    und nichts erkannt, und die UI sagt das an jeder Stelle. */
@@ -42,21 +43,35 @@ export function akteOeffnen(auftragId) {
   const holen = () => state.auftrag(auftragId);
   if (!holen()) return;
 
-  sheetOeffnen({
+  // Ein Diktierknopf je geöffneter Akte. Er überlebt das Neuzeichnen der Akte;
+  // eine laufende Aufnahme hängt sich beim nächsten bind() wieder an (voicing.js).
+  let api = null;
+  const stimme = voicing({
+    kontext: 'doku',
+    label: 'Schnell diktieren',
+    beispiel: DIKTAT_BEISPIEL,
+    freischalten: false,
+    demoText: '<strong>Diktat ist simuliert.</strong> Es wird nichts aufgenommen; der Knopf liefert ein hinterlegtes Beispiel.',
+    onErgebnis: (antwort, echt) => diktatAufnehmen(auftragId, () => api?.render(), antwort, echt),
+  });
+
+  api = sheetOeffnen({
     titel: 'Auftragsakte',
     kopfAktion: () => `
       <button class="btn btn-sm" data-bearbeiten type="button">
         ${icon('stift')} Korrigieren
       </button>`,
-    body: () => koerper(holen()),
+    body: () => koerper(holen(), stimme),
     foot: () => fussleiste(holen()),
-    bind: (el, api) => binden(el, api, auftragId),
+    bind: (el, a) => { stimme.binden(el); binden(el, a, auftragId); },
+    onClose: () => stimme.abbrechen(),
   });
 }
 
 /* ── Darstellung ─────────────────────────── */
 
-function koerper(a) {
+function koerper(a, stimme) {
+  const offen = offeneAufnahme(a.id);
   const st = state.STATUS[a.status];
   const rs = state.rechnungsStatus(a.id);
   const rsInfo = state.RECHNUNGSSTATUS[rs];
@@ -71,11 +86,12 @@ function koerper(a) {
       <div class="akte-kunde">${esc(a.kunde) || 'Ohne Kunde'}</div>
       ${a.adresse ? `<div class="akte-zeile">${icon('ort')}<span>${esc(a.adresse)}</span></div>` : ''}
       <div class="akte-zeile">${icon('kalender')}<span>${esc(fmtTermin(a.termin))}</span></div>
-      ${(a.ansprechpartner || a.telefon || a.email) ? `
+      ${(a.ansprechpartner || a.telefon || a.email || a.rechnungsadresse) ? `
         <details class="akte-kontakt">
           <summary>Kontakt anzeigen</summary>
           ${a.ansprechpartner ? `<div class="akte-zeile">${icon('person')}<span>${esc(a.ansprechpartner)}</span></div>` : ''}
           ${(a.telefon || a.email) ? `<div class="akte-zeile">${icon('telefon')}<span>${esc([a.telefon, a.email].filter(Boolean).join(' · '))}</span></div>` : ''}
+          ${a.rechnungsadresse ? `<div class="akte-zeile">${icon('rechnung')}<span>Rechnung an: ${esc(a.rechnungsadresse)}</span></div>` : ''}
         </details>` : ''}
 
       <div class="akte-aufgabe">
@@ -95,6 +111,14 @@ function koerper(a) {
           <div class="section-intro">Was haben Sie gemacht?</div>
         </div>
       </div>
+      ${offen ? `
+        <div class="hint-note offen-aufnahme" data-offen-aufnahme>
+          <span>${offen.aufnahmen === 1 ? 'Eine Aufnahme ist' : `${offen.aufnahmen} Aufnahmen sind`} noch nicht übernommen.</span>
+          <span class="btn-zeile">
+            <button class="btn btn-sm btn-primaer" data-offen-pruefen type="button">Prüfen</button>
+            <button class="btn btn-sm btn-warn" data-offen-verwerfen type="button">Verwerfen</button>
+          </span>
+        </div>` : ''}
       <div class="doc-actions">
         <div class="doc-group"><div class="doc-group-title">Fotos und Notizen</div>
         <button class="doc-btn doc-nachweis" data-akt="foto-kamera" type="button"><span class="doc-ico">${icon('kamera')}</span><span>Foto aufnehmen</span></button>
@@ -107,6 +131,7 @@ function koerper(a) {
         <button class="doc-btn doc-abrechnung" data-akt="material" type="button"><span class="doc-ico">${icon('material')}</span><span>Material erfassen</span></button>
         </div>
       </div>
+      <div class="doku-diktat">${stimme ? stimme.html() : ''}</div>
       <input type="file" accept="image/*" capture="environment" data-file-kamera hidden>
       <input type="file" accept="image/*" multiple data-file-galerie hidden>
     </section>
@@ -114,7 +139,10 @@ function koerper(a) {
     <section class="doku-history" aria-label="Dokumentationsverlauf">
       <div class="card-head">
         <div><h2 class="card-title">Dokumentation</h2><p class="doku-hint">Alles zum Einsatz auf einen Blick</p></div>
-        <span class="doku-count" aria-label="${a.verlauf.length} Einträge">${a.verlauf.length}</span>
+        <span class="doku-kopf-akt">
+          <button class="btn btn-sm" data-bericht type="button">${icon('rechnung')} Bericht</button>
+          <span class="doku-count" aria-label="${a.verlauf.length} Einträge">${a.verlauf.length}</span>
+        </span>
       </div>
       ${dokumentationsUeberblick(a)}
       <h3 class="doku-verlauf-title">Alle Einträge <span>Neueste zuerst</span></h3>
@@ -136,15 +164,21 @@ function dokumentationsUeberblick(a) {
   const offen = state.offenePunkte(a);
   const wichtig = a.verlauf.filter(v => v.typ === 'wichtig');
   const notizen = a.verlauf.filter(v => v.typ === 'notiz');
+  const ohneKst = state.ohneKostenstelle(a).length;
   const liste = (eintraege, text, leer) => eintraege.length
     ? `<ul>${eintraege.map(v => `<li>${esc(text(v))}</li>`).join('')}</ul>`
     : `<p class="doku-empty">${leer}</p>`;
   return `<div class="doku-ueberblick">
     ${wichtig.length ? `<section class="doku-fakten wichtig"><h3>${icon('offen')} Wichtig <span>${wichtig.length}</span></h3>${liste(wichtig, v => v.text, '')}</section>` : ''}
     <section class="doku-fakten arbeit"><h3>${icon('uhr')} Arbeitszeit <span>${esc(fmtStunden(state.summeStunden(a)))}</span></h3>
-      ${liste(zeiten, v => `${fmtStunden(v.stunden)} — ${v.text || 'Ohne Beschreibung'}`, 'Noch keine Arbeitszeit erfasst.')}</section>
+      ${liste(zeiten, v => `${v.stunden === null ? 'Zeit offen' : fmtStunden(v.stunden)} — ${v.text || 'Ohne Beschreibung'} · ${kstText(v)}`, 'Noch keine Arbeitszeit erfasst.')}
+      ${zeiten.length || material.length ? `
+        <div class="doku-kst">
+          ${ohneKst ? `<span class="doku-kst-offen">${ohneKst} ${ohneKst === 1 ? 'Eintrag' : 'Einträge'} ohne Kostenstelle</span>` : ''}
+          <button class="btn btn-sm" data-taetigkeiten type="button">Tätigkeiten &amp; Kostenstellen</button>
+        </div>` : ''}</section>
     <section class="doku-fakten material"><h3>${icon('material')} Material <span>${material.length} Posten</span></h3>
-      ${liste(material, v => `${zahlZuFeld(v.menge) || 'Menge offen'} ${v.einheit || ''} — ${v.text || 'Ohne Bezeichnung'}`, 'Noch kein Material erfasst.')}</section>
+      ${liste(material, v => `${zahlZuFeld(v.menge) || 'Menge offen'} ${v.einheit || ''} — ${v.text || 'Ohne Bezeichnung'} · ${kstText(v)}`, 'Noch kein Material erfasst.')}</section>
     <section class="doku-fakten offen"><h3>${icon('offen')} Offene Punkte <span>${offen.length}</span></h3>
       ${liste(offen, v => v.text, 'Keine offenen Punkte dokumentiert.')}</section>
     <section class="doku-fakten notizen"><h3>${icon('notiz')} Notizen <span>${notizen.length}</span></h3>
@@ -171,10 +205,12 @@ function verlaufZeile(v) {
   let detail = '';
 
   if (v.typ === 'zeit') {
-    detail = `<div class="vl-detail">${esc(fmtStunden(v.stunden))}</div>`;
+    detail = `<div class="vl-detail">${v.stunden === null ? '<span class="vl-offen-wert">Zeit offen</span>' : esc(fmtStunden(v.stunden))}
+      · <span class="${v.kostenstelle ? '' : 'vl-offen-wert'}">${esc(kstText(v))}</span></div>`;
   } else if (v.typ === 'material') {
     const teile = [`${zahlZuFeld(v.menge) || '—'} ${esc(v.einheit || '')}`.trim()];
     if (v.lieferant) teile.push(`Lieferant: ${esc(v.lieferant)}`);
+    teile.push(`<span class="${v.kostenstelle ? '' : 'vl-offen-wert'}">${esc(kstText(v))}</span>`);
     detail = `<div class="vl-detail">${teile.join(' · ')}</div>`;
   } else if (v.typ === 'foto') {
     if (v.fotoUrl) {
@@ -266,6 +302,21 @@ function binden(el, api, auftragId) {
     erfassungOeffnen({ bearbeiten: auftragId, danach: neuZeichnen });
   });
 
+  el.querySelector('[data-taetigkeiten]')?.addEventListener('click', () => taetigkeitenDialog(auftragId, neuZeichnen));
+
+  /* ── Noch nicht übernommene Aufnahme ── */
+  el.querySelector('[data-offen-pruefen]')?.addEventListener('click', () => offeneAufnahmeOeffnen(auftragId, neuZeichnen));
+  el.querySelector('[data-offen-verwerfen]')?.addEventListener('click', async () => {
+    const ja = await bestaetigen({
+      titel: 'Aufnahme verwerfen', text: 'Die noch nicht übernommene Aufnahme wird gelöscht und ist danach weg.',
+      jaText: 'Verwerfen', warnend: true,
+    });
+    if (!ja) return;
+    offeneAufnahmeLoeschen(auftragId);
+    neuZeichnen();
+    toast('Aufnahme verworfen.');
+  });
+
   /* ── Dokumentations-Aktionen ── */
   el.querySelectorAll('[data-akt]').forEach(b => b.addEventListener('click', () => {
     const akt = b.dataset.akt;
@@ -323,6 +374,11 @@ function binden(el, api, auftragId) {
     if (!ja) return;
     state.auftragUpdate(auftragId, { status: 'inarbeit' });
     neuZeichnen();
+  });
+
+  el.querySelector('[data-bericht]')?.addEventListener('click', async () => {
+    const { berichtOeffnen } = await import('./bericht.js');
+    berichtOeffnen(auftragId, neuZeichnen);
   });
 
   el.querySelector('[data-zur-rechnung]')?.addEventListener('click', async () => {
@@ -422,13 +478,67 @@ function hinweisDialog(titel, gruende) {
 
 /* ── Dialoge ─────────────────────────────── */
 
+/**
+ * Kostenstellen-Eingabe mit Vorschlägen aus diesem Auftrag. Freitext, weil Edins
+ * Nummernsystem noch nicht bekannt ist; leer bleibt „noch zuordnen" (Fachregel 5).
+ */
+function kostenstelleFeld(auftragId, id, wert, extraAttr = '') {
+  const liste = state.kostenstellenImAuftrag(state.auftrag(auftragId));
+  return `
+    <input class="inp" id="${id}" list="${id}-liste" value="${esc(wert || '')}"
+      placeholder="noch zuordnen" autocomplete="off" ${extraAttr}>
+    <datalist id="${id}-liste">${liste.map(k => `<option value="${esc(k)}">`).join('')}</datalist>`;
+}
+
+/** „KST 200" bzw. ausdrücklich „noch zuordnen" — nie leer, damit nichts übersehen wird. */
+const kstText = (v) => v.kostenstelle ? `Kostenstelle ${v.kostenstelle}` : 'Kostenstelle noch zuordnen';
+
+/**
+ * Notiz direkt, ohne die Akte zu öffnen — für die Zwischennotiz „von Auftrag zu
+ * Auftrag" (1f). Derselbe Dialog wie in der Akte, derselbe Entwurfsschutz.
+ */
+export function notizOeffnen(auftragId) {
+  if (!state.auftrag(auftragId)) return;
+  notizDialog(auftragId, () => {});
+}
+
+/* Ungespeicherte Notiz je Auftrag und Eintrag. Liegt in localStorage wie der
+   Auftragsentwurf in erfassen.js: X, Klick daneben, Esc, Ansichtswechsel oder ein
+   Reload dürfen frisch Getipptes oder Diktiertes nicht verwerfen (1d). */
+const notizKey = (auftragId, v) => `pt-notiz-entwurf-${auftragId}-${v?.id ?? 'neu'}`;
+
+function notizEntwurfLaden(key) {
+  try { const roh = localStorage.getItem(key); return roh ? JSON.parse(roh) : null; } catch { return null; }
+}
+function notizEntwurfSichern(key, daten) {
+  try { localStorage.setItem(key, JSON.stringify(daten)); } catch { /* nur diese Sitzung */ }
+}
+function notizEntwurfLoeschen(key) {
+  try { localStorage.removeItem(key); } catch { /* egal */ }
+}
+
 function notizDialog(auftragId, neuZeichnen, v = null) {
-  let entwurf = v?.text || '';
-  let wichtig = v?.typ === 'wichtig';
-  let beispiel = !!v?.simuliert;
+  const key = notizKey(auftragId, v);
+  const original = { text: v?.text || '', wichtig: v?.typ === 'wichtig', beispiel: !!v?.simuliert };
+  const gesichert = notizEntwurfLaden(key);
+  const wiederhergestellt = !!gesichert && (gesichert.text !== original.text || gesichert.wichtig !== original.wichtig);
+  let entwurf = wiederhergestellt ? gesichert.text : original.text;
+  let wichtig = wiederhergestellt ? !!gesichert.wichtig : original.wichtig;
+  let beispiel = wiederhergestellt ? !!gesichert.beispiel : original.beispiel;
+  let zeigeWiederhergestellt = wiederhergestellt;
+
+  /** Nur ein abweichender Stand ist ein Entwurf; sonst gibt es nichts zu sichern. */
+  const sichern = () => {
+    if (entwurf === original.text && wichtig === original.wichtig) notizEntwurfLoeschen(key);
+    else notizEntwurfSichern(key, { text: entwurf, wichtig, beispiel });
+  };
+
   sheetOeffnen({
     titel: v ? 'Notiz bearbeiten' : 'Notiz schreiben',
     body: () => `
+      ${zeigeWiederhergestellt ? `
+        <div class="hint-note notiz-wieder" data-notiz-wieder>Nicht gespeicherter Entwurf wiederhergestellt.
+          <button class="btn btn-sm" data-notiz-verwerfen type="button">Entwurf verwerfen</button></div>` : ''}
       <div class="f">
         <label class="f-label" for="nz">Was ist vor Ort passiert?</label>
         <textarea class="inp" id="nz" rows="5"
@@ -436,30 +546,52 @@ function notizDialog(auftragId, neuZeichnen, v = null) {
       </div>
       <button class="btn notiz-diktieren" data-notiz-sprache type="button">${icon('mikro')} Per Sprache ergänzen</button>
       <label class="f-check"><input type="checkbox" data-wichtig ${wichtig ? 'checked' : ''}> Als wichtigen Hinweis rot hervorheben</label>
-      <div class="hint-note">Gesprochene Ergänzungen werden an diesen Text angehängt. Erst „Notiz speichern“ übernimmt die Notiz.</div>`,
+      <div class="hint-note">Gesprochene Ergänzungen werden an diesen Text angehängt. Erst „Notiz speichern“ übernimmt die Notiz.
+        Bis dahin bleibt der Entwurf auf diesem Gerät erhalten.</div>`,
     foot: () => `
-      <button class="btn" data-ab type="button">Abbrechen</button>
+      <button class="btn" data-ab type="button">Später weiter</button>
       <button class="btn btn-primaer" data-ok type="button">Notiz speichern</button>`,
     bind: (el) => {
       const ta = el.querySelector('#nz');
-      ta.addEventListener('input', () => { entwurf = ta.value; });
-      el.querySelector('[data-wichtig]').addEventListener('change', e => { wichtig = e.target.checked; });
+      ta.addEventListener('input', () => { entwurf = ta.value; sichern(); });
+      el.querySelector('[data-wichtig]').addEventListener('change', e => { wichtig = e.target.checked; sichern(); });
+      el.querySelector('[data-notiz-verwerfen]')?.addEventListener('click', () => {
+        ({ text: entwurf, wichtig, beispiel } = original);
+        zeigeWiederhergestellt = false;
+        notizEntwurfLoeschen(key);
+        ta.value = entwurf;
+        el.querySelector('[data-wichtig]').checked = wichtig;
+        el.querySelector('[data-notiz-wieder]')?.remove();
+        toast('Entwurf verworfen.');
+      });
       el.querySelector('[data-notiz-sprache]').addEventListener('click', () => {
         entwurf = ta.value;
         spracheDialog(auftragId, neuZeichnen, { onText: (text, simuliert) => {
           entwurf = [entwurf.trim(), text.trim()].filter(Boolean).join('\n\n');
           beispiel ||= simuliert;
+          // Diktiertes sofort sichern, nicht erst beim nächsten Tastendruck.
+          sichern();
         } });
       });
-      el.querySelector('[data-ab]').addEventListener('click', sheetSchliessen);
+      el.querySelector('[data-ab]').addEventListener('click', () => {
+        entwurf = ta.value; sichern();
+        sheetSchliessen();
+        if (entwurf !== original.text) toast('Notiz-Entwurf gesichert — beim nächsten Öffnen ist er wieder da.');
+      });
       el.querySelector('[data-ok]').addEventListener('click', () => {
         const text = ta.value.trim();
         if (!text) return toast('Bitte zuerst etwas eintragen.');
         const daten = { typ: wichtig ? 'wichtig' : 'notiz', text, simuliert: beispiel };
         if (v) state.verlaufUpdate(auftragId, v.id, daten);
         else state.verlaufHinzufuegen(auftragId, daten);
+        notizEntwurfLoeschen(key);
         sheetSchliessen(); neuZeichnen(); toast('Notiz gespeichert.');
       });
+    },
+    // X, Klick daneben, Esc: den Stand aus dem Feld noch sichern.
+    vorSchliessen: (el) => {
+      const ta = el?.querySelector('#nz');
+      if (ta) { entwurf = ta.value; sichern(); }
     },
   });
 }
@@ -489,6 +621,9 @@ function textDialog(auftragId, v, neuZeichnen) {
 }
 
 function zeitDialog(auftragId, v, neuZeichnen) {
+  // Eine aufgeteilte Tätigkeit darf „Zeit offen" bleiben — die Stunden trägt Edin
+  // nach, statt dass eine Schätzung auf der Rechnung landet.
+  const zeitDarfOffen = !!v && v.stunden === null;
   sheetOeffnen({
     titel: v ? 'Arbeitszeit bearbeiten' : 'Arbeitszeit erfassen',
     body: () => `
@@ -503,19 +638,28 @@ function zeitDialog(auftragId, v, neuZeichnen) {
           <input class="inp" id="zt" placeholder="z. B. Dichtung tauschen" value="${esc(v?.text || '')}">
         </div>
       </div>
-      <div class="hint-note">Halbe Stunden als Komma schreiben: 1,5 statt 1.5.</div>`,
+      <div class="f">
+        <label class="f-label" for="zk">Kostenstelle <span class="opt">(leer = noch zuordnen)</span></label>
+        ${kostenstelleFeld(auftragId, 'zk', v?.kostenstelle)}
+      </div>
+      <div class="hint-note">Halbe Stunden als Komma schreiben: 1,5 statt 1.5.${zeitDarfOffen
+        ? ' Leer lassen, solange die Zeit für diese Tätigkeit noch nicht feststeht.' : ''}</div>`,
     foot: () => `
       <button class="btn" data-ab type="button">Abbrechen</button>
       <button class="btn btn-primaer" data-ok type="button">Speichern</button>`,
     bind: (el) => {
       el.querySelector('[data-ab]').addEventListener('click', sheetSchliessen);
       el.querySelector('[data-ok]').addEventListener('click', () => {
-        const stunden = parseZahl(el.querySelector('#zs').value);
+        const roh = el.querySelector('#zs').value;
+        const stunden = parseZahl(roh);
         const text = el.querySelector('#zt').value.trim();
-        if (stunden === null || stunden <= 0) return toast('Bitte eine Stundenzahl größer als 0 eintragen.');
+        const kostenstelle = state.kostenstelleNormal(el.querySelector('#zk').value);
+        const offenLassen = zeitDarfOffen && !roh.trim();
+        if (!offenLassen && (stunden === null || stunden <= 0)) return toast('Bitte eine Stundenzahl größer als 0 eintragen.');
         if (!text) return toast('Bitte eintragen, wofür die Zeit angefallen ist.');
-        if (v) state.verlaufUpdate(auftragId, v.id, { stunden, text, simuliert: false });
-        else   state.verlaufHinzufuegen(auftragId, { typ: 'zeit', stunden, text });
+        const daten = { stunden: offenLassen ? null : stunden, text, kostenstelle };
+        if (v) state.verlaufUpdate(auftragId, v.id, { ...daten, simuliert: false });
+        else   state.verlaufHinzufuegen(auftragId, { typ: 'zeit', ...daten });
         sheetSchliessen(); neuZeichnen(); toast('Arbeitszeit gespeichert.');
       });
     },
@@ -544,6 +688,10 @@ function materialDialog(auftragId, v, neuZeichnen) {
         <label class="f-label" for="ml">Lieferant <span class="opt">(optional)</span></label>
         <input class="inp" id="ml" placeholder="Woher das Material stammt" value="${esc(v?.lieferant || '')}">
       </div>
+      <div class="f">
+        <label class="f-label" for="mk">Kostenstelle <span class="opt">(leer = noch zuordnen)</span></label>
+        ${kostenstelleFeld(auftragId, 'mk', v?.kostenstelle)}
+      </div>
       <div class="hint-note">Der Preis wird erst im Rechnungsentwurf eingetragen —
         hier geht es nur darum, was verbaut wurde.</div>`,
     foot: () => `
@@ -559,6 +707,7 @@ function materialDialog(auftragId, v, neuZeichnen) {
           menge: parseZahl(el.querySelector('#mm').value),
           einheit: el.querySelector('#me').value.trim() || 'Stück',
           lieferant: el.querySelector('#ml').value.trim(),
+          kostenstelle: state.kostenstelleNormal(el.querySelector('#mk').value),
         };
         if (v) state.verlaufUpdate(auftragId, v.id, { ...daten, simuliert: false });
         else   state.verlaufHinzufuegen(auftragId, { typ: 'material', ...daten });
@@ -568,14 +717,159 @@ function materialDialog(auftragId, v, neuZeichnen) {
   });
 }
 
-/* ── Sprachnotiz (simuliert) ─────────────── */
+/* ── Noch nicht übernommene Aufnahmen ────── */
 
-function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
-  let phase = 'bereit';     // bereit → laeuft → wertetAus → pruefen
+/* Was eingesprochen, aber noch nicht in die Dokumentation übernommen wurde, liegt
+   bis zur Übernahme in localStorage — sofort nach jeder Auswertung, nicht erst beim
+   Bestätigen. Sonst ginge eine Aufnahme mit dem X, einem Ansichtswechsel oder einem
+   Reload verloren (1d/1e). Gelöscht wird erst nach Übernahme oder ausdrücklichem
+   Verwerfen. */
+const offenKey = (auftragId) => `pt-doku-offen-${auftragId}`;
+
+export function offeneAufnahme(auftragId) {
+  try { const roh = localStorage.getItem(offenKey(auftragId)); return roh ? JSON.parse(roh) : null; } catch { return null; }
+}
+function offeneAufnahmeSichern(auftragId, stand) {
+  try { localStorage.setItem(offenKey(auftragId), JSON.stringify(stand)); } catch { /* nur diese Sitzung */ }
+}
+function offeneAufnahmeLoeschen(auftragId) {
+  try { localStorage.removeItem(offenKey(auftragId)); } catch { /* egal */ }
+}
+
+/** Hat die Aufnahme etwas, das eindeutig in ein Dokumentationsfeld gehört? */
+const hatZuordnung = (st) => !!(st && (st.felder?.arbeit || (Number(st.felder?.stunden) > 0)
+  || st.material?.length || st.felder?.offen || st.felder?.wichtig));
+
+/**
+ * Öffnet eine gesicherte Aufnahme wieder: mit eindeutiger Zuordnung in der
+ * Prüfansicht, sonst mit der Rückfrage, wohin sie gehört.
+ */
+function offeneAufnahmeOeffnen(auftragId, neuZeichnen) {
+  const st = offeneAufnahme(auftragId);
+  if (!st) return;
+  if (hatZuordnung(st)) spracheDialog(auftragId, neuZeichnen, { start: 'pruefen' });
+  else zuordnungRueckfrage(auftragId, neuZeichnen);
+}
+
+/**
+ * Freier Text ohne klares Ziel: nicht raten (Fachregel 5), sondern fragen.
+ * Keine der Antworten wird zur Rechnungsposition — Notiz, offener Punkt und
+ * wichtiger Hinweis stehen nur in der Dokumentation (Fachregel 3).
+ */
+function zuordnungRueckfrage(auftragId, neuZeichnen) {
+  const st = offeneAufnahme(auftragId);
+  if (!st) return;
+  let text = st.notizEntwurf || st.transkript || '';
+  sheetOeffnen({
+    titel: 'Wohin gehört das?',
+    body: () => `
+      ${st.beispiel
+        ? hinweisBox('<strong>Beispieltext.</strong> Es wurde nichts aufgenommen — der Text ist im Demo-Code hinterlegt.')
+        : hinweisBox('Aus Ihrer Aufnahme. Arbeit, Zeit oder Material waren nicht eindeutig zu erkennen — '
+          + 'bitte sagen Sie, wohin der Text gehört.', 'Rückfrage')}
+      <div class="f">
+        <label class="f-label" for="rf-text">Erkannter Text</label>
+        <textarea class="inp" id="rf-text" rows="4">${esc(text)}</textarea>
+      </div>
+      <div class="rf-wahl">
+        <button class="btn" data-rf="notiz" type="button">${icon('notiz')} Als Notiz</button>
+        <button class="btn" data-rf="offen" type="button">${icon('offen')} Als offenen Punkt</button>
+        <button class="btn" data-rf="wichtig" type="button">${icon('offen')} Als wichtigen Hinweis</button>
+      </div>
+      <div class="hint-note">Nichts davon wird eine Rechnungsposition. Arbeitszeit und Material
+        bitte über „Zeit erfassen“ bzw. „Material erfassen“ eintragen.</div>`,
+    foot: () => `
+      <button class="btn btn-warn" data-rf-weg type="button">Aufnahme verwerfen</button>
+      <button class="btn" data-rf-spaeter type="button">Später</button>`,
+    bind: (el) => {
+      const ta = el.querySelector('#rf-text');
+      ta.addEventListener('input', () => {
+        text = ta.value;
+        offeneAufnahmeSichern(auftragId, { ...st, notizEntwurf: text });
+      });
+      el.querySelectorAll('[data-rf]').forEach(b => b.addEventListener('click', () => {
+        const inhalt = ta.value.trim();
+        if (!inhalt) return toast('Der Text ist leer — bitte etwas eintragen oder verwerfen.');
+        state.verlaufHinzufuegen(auftragId, {
+          typ: 'sprache', text: st.beispiel ? 'Sprachnotiz aufgenommen (Beispiel)' : 'Sprachnotiz aufgenommen',
+          transkript: st.transkript || inhalt, simuliert: !!st.beispiel,
+        });
+        state.verlaufHinzufuegen(auftragId, { typ: b.dataset.rf, text: inhalt, simuliert: !!st.beispiel });
+        offeneAufnahmeLoeschen(auftragId);
+        sheetSchliessen(); neuZeichnen();
+        toast(`Als ${ART[b.dataset.rf].label} übernommen.`);
+      }));
+      el.querySelector('[data-rf-weg]').addEventListener('click', async () => {
+        const ja = await bestaetigen({
+          titel: 'Aufnahme verwerfen', text: 'Der erkannte Text wird nicht übernommen und ist danach weg.',
+          jaText: 'Verwerfen', warnend: true,
+        });
+        if (!ja) return;
+        offeneAufnahmeLoeschen(auftragId);
+        sheetSchliessen(); neuZeichnen(); toast('Aufnahme verworfen.');
+      });
+      el.querySelector('[data-rf-spaeter]').addEventListener('click', () => { sheetSchliessen(); neuZeichnen(); });
+    },
+    onClose: () => neuZeichnen(),
+  });
+}
+
+/** Beispielantwort für den Diktierknopf ohne Backend — dieselbe wie im Einsprechen-Sheet. */
+const DIKTAT_BEISPIEL = () => ({ ok: true, transkript: SPRACH_BEISPIEL, vorschlag: SPRACH_AUFBEREITUNG });
+
+/**
+ * Ergebnis des Diktierknopfs in der Akte: sofort sichern, dann prüfen lassen.
+ * Eindeutig zuordenbar → Prüfansicht mit den erkannten Feldern; sonst Rückfrage.
+ */
+function diktatAufnehmen(auftragId, neuZeichnen, antwort, echt) {
+  const stand = sprachStandErgaenzen(offeneAufnahme(auftragId) || leererSprachStand(), antwort);
+  stand.beispiel = stand.beispiel || !echt;
+  offeneAufnahmeSichern(auftragId, stand);
+  offeneAufnahmeOeffnen(auftragId, neuZeichnen);
+}
+
+const leererSprachStand = () => ({
+  transkript: '', felder: { arbeit: '', stunden: null, offen: '', wichtig: '' },
+  material: [], notizEntwurf: '', aufnahmen: 0, beispiel: false,
+});
+
+const verbinden = (alt, neu) => [alt, neu].filter(t => typeof t === 'string' && t.trim()).join('\n\n');
+
+/** Eine weitere Auswertung an den gesammelten Stand anhängen — nie ersetzen. */
+function sprachStandErgaenzen(st, antwort) {
+  const v = antwort.vorschlag || {};
+  const text = typeof antwort.transkript === 'string' ? antwort.transkript : '';
+  const zeit = parseZahl(v.stunden);
+  return {
+    ...st,
+    transkript: verbinden(st.transkript, text),
+    felder: {
+      arbeit: verbinden(st.felder.arbeit, v.arbeit),
+      stunden: zeit !== null && zeit > 0 ? (parseZahl(st.felder.stunden) || 0) + zeit : st.felder.stunden,
+      offen: verbinden(st.felder.offen, v.offen),
+      wichtig: verbinden(st.felder.wichtig, v.wichtig),
+    },
+    material: [...st.material, ...(Array.isArray(v.material) ? v.material : [])
+      .filter(m => m && typeof m.text === 'string').map(m => ({ ...m, an: true }))],
+    // Die bestehende Auswertung kann einen Notiztext liefern; ansonsten bleibt
+    // das vollständige Transkript erhalten, damit Zusatzinformationen nicht
+    // durch die enger gefassten Arbeits-/Materialfelder verloren gehen.
+    notizEntwurf: verbinden(st.notizEntwurf, v.notiz || text || v.arbeit),
+    aufnahmen: st.aufnahmen + 1,
+  };
+}
+
+/* ── Sprachnotiz ─────────────────────────── */
+
+function spracheDialog(auftragId, neuZeichnen, { onText, start } = {}) {
+  let phase = start === 'pruefen' ? 'pruefen' : 'bereit';   // bereit → laeuft → wertetAus → pruefen
   let sekunden = 0;
   let ticker = null;
   let felder = { arbeit: '', stunden: null, offen: '', wichtig: '' };
-  let echt = false;
+  // Beim Notizdiktat (onText) sammelt die Notiz selbst; sonst gilt der gesicherte Stand.
+  const gesichert = onText ? null : offeneAufnahme(auftragId);
+  let beispiel = !!gesichert?.beispiel;
+  let echt = gesichert ? !gesichert.beispiel : false;
   let aufnahme = null;
   let messer = null;        // Lautstärkemessung am Mikrofonstrom
   let anzeige = null;       // laufende Balkenanzeige
@@ -587,28 +881,22 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
   let startet = false;
   let notizEntwurf = '';
   let aufnahmen = 0;
+  if (gesichert) ({ transkript, felder, material, notizEntwurf, aufnahmen } = gesichert);
   const dienstBereit = flows.verfuegbar();
-  const verbinden = (alt, neu) => [alt, neu].filter(t => typeof t === 'string' && t.trim()).join('\n\n');
+
+  /** Den gesammelten Stand sofort sichern — vor jeder Bestätigung (1e). */
+  const sichern = () => {
+    if (onText || !aufnahmen) return;
+    offeneAufnahmeSichern(auftragId, { transkript, felder, material, notizEntwurf, aufnahmen, beispiel });
+  };
 
   // Jede Aufnahme ergänzt den lokalen Entwurf. Erst die Übernahme schreibt
   // neue Verlaufseinträge; bereits gespeicherte Einträge werden nie ersetzt.
-  const antwortErgaenzen = (antwort) => {
-    const v = antwort.vorschlag || {};
-    const text = typeof antwort.transkript === 'string' ? antwort.transkript : '';
-    const zeit = parseZahl(v.stunden);
-    transkript = verbinden(transkript, text);
-    felder = {
-      arbeit: verbinden(felder.arbeit, v.arbeit),
-      stunden: zeit !== null && zeit > 0 ? (parseZahl(felder.stunden) || 0) + zeit : felder.stunden,
-      offen: verbinden(felder.offen, v.offen),
-      wichtig: verbinden(felder.wichtig, v.wichtig),
-    };
-    material.push(...(Array.isArray(v.material) ? v.material : []).filter(m => m && typeof m.text === 'string').map(m => ({ ...m, an: true })));
-    // Die bestehende Auswertung kann einen Notiztext liefern; ansonsten bleibt
-    // das vollständige Transkript erhalten, damit Zusatzinformationen nicht
-    // durch die enger gefassten Arbeits-/Materialfelder verloren gehen.
-    notizEntwurf = verbinden(notizEntwurf, v.notiz || text || v.arbeit);
-    aufnahmen++;
+  const antwortErgaenzen = (antwort, alsBeispiel = false) => {
+    ({ transkript, felder, material, notizEntwurf, aufnahmen } = sprachStandErgaenzen(
+      { transkript, felder, material, notizEntwurf, aufnahmen }, antwort));
+    beispiel = beispiel || alsBeispiel;
+    sichern();
   };
 
   const pruefwerteMerken = (el) => {
@@ -745,7 +1033,17 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
         box.addEventListener('change', () => {
           const i = Number(box.dataset.mat);
           if (material[i]) material[i].an = box.checked;
+          sichern();
         }));
+      // Korrekturen in der Prüfansicht laufen mit in die Sicherung.
+      el.querySelectorAll('#sa, #ss, #so, #sw').forEach(f => f.addEventListener('input', () => {
+        const zeit = parseZahl(el.querySelector('#ss').value);
+        felder = {
+          arbeit: el.querySelector('#sa').value.trim(), stunden: zeit,
+          offen: el.querySelector('#so').value.trim(), wichtig: el.querySelector('#sw').value.trim(),
+        };
+        sichern();
+      }));
 
       // Laufende Aufnahme zeichnet das Sheet NICHT neu — sonst flackert es
       // im Sekundentakt. Uhr und Balken werden direkt am Element nachgezogen.
@@ -799,7 +1097,7 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
         pegelBeenden();
 
         if (!echt) {
-          antwortErgaenzen({ transkript: SPRACH_BEISPIEL, vorschlag: SPRACH_AUFBEREITUNG });
+          antwortErgaenzen({ transkript: SPRACH_BEISPIEL, vorschlag: SPRACH_AUFBEREITUNG }, true);
           phase = 'pruefen'; sheet.render(); return;
         }
 
@@ -857,6 +1155,8 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
         // Ein Sprach-Eintrag plus die daraus abgeleiteten, prüfbaren Einzelteile.
         // `simuliert` sagt die Wahrheit über die Herkunft: bei echter Aufnahme
         // ist der Eintrag nicht simuliert, sondern von Edin bestätigt.
+        // Ein gesicherter Beispielstand bleibt Beispiel, auch wenn inzwischen freigeschaltet ist.
+        if (beispiel) echt = false;
         state.verlaufHinzufuegen(auftragId, {
           typ: 'sprache',
           text: echt ? 'Sprachnotiz aufgenommen' : 'Sprachnotiz aufgenommen (Beispiel)',
@@ -885,10 +1185,13 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
         if (felder.wichtig) {
           state.verlaufHinzufuegen(auftragId, { typ: 'wichtig', text: felder.wichtig, simuliert: !echt });
         }
+        offeneAufnahmeLoeschen(auftragId);
         sheetSchliessen(); neuZeichnen(); toast('In die Dokumentation übernommen.');
       });
     },
+    vorSchliessen: () => { if (aufnahmen && !onText) { sichern(); toast('Aufnahme gesichert — sie wartet in der Akte auf Ihre Prüfung.'); } },
     onClose: () => {
+      if (!onText) queueMicrotask(neuZeichnen);
       geschlossen = true;
       if (ticker) clearInterval(ticker);
       pegelBeenden();
@@ -901,6 +1204,145 @@ function spracheDialog(auftragId, neuZeichnen, { onText } = {}) {
     if (geschlossen || startet || phase !== 'bereit') return;
     echt = ja;
     sheet.render();
+  });
+}
+
+/* ── Tätigkeiten und Kostenstellen (Schritt 2) ── */
+
+/**
+ * Überblick über alle abrechenbaren Einträge: je Zeile Kostenstelle zuordnen,
+ * Zeiten teilen oder zusammenführen. Jede Zeile wird später genau eine
+ * Rechnungsposition (Fachregel 3) — deshalb nichts automatisch verteilen.
+ */
+function taetigkeitenDialog(auftragId, neuZeichnen) {
+  const sheet = sheetOeffnen({
+    titel: 'Tätigkeiten & Kostenstellen',
+    body: () => {
+      const a = state.auftrag(auftragId);
+      const zeiten = a.verlauf.filter(v => v.typ === 'zeit');
+      const material = a.verlauf.filter(v => v.typ === 'material');
+      const ohne = state.ohneKostenstelle(a).length;
+      const zeile = (v, zeit) => `
+        <div class="tk-zeile" data-tk="${v.id}">
+          ${zeit ? `<label class="tk-wahl" aria-label="Zum Zusammenführen auswählen"><input type="checkbox" data-tk-wahl="${v.id}"></label>` : ''}
+          <div class="tk-mitte">
+            <div class="tk-text">${esc(v.text) || 'Ohne Beschreibung'}</div>
+            <div class="tk-wert">${zeit
+              ? (v.stunden === null ? '<span class="vl-offen-wert">Zeit offen</span>' : esc(fmtStunden(v.stunden)))
+                + (v.nichtVerteilt ? ' · <span class="vl-offen-wert">nicht auf Tätigkeiten verteilt</span>' : '')
+              : esc(`${zahlZuFeld(v.menge) || 'Menge offen'} ${v.einheit || ''}`.trim())}</div>
+            <label class="f-label" for="tk-k-${v.id}">Kostenstelle</label>
+            ${kostenstelleFeld(auftragId, `tk-k-${v.id}`, v.kostenstelle, `data-tk-kst="${v.id}"`)}
+          </div>
+          ${zeit ? `<button class="btn btn-sm" data-tk-teilen="${v.id}" type="button">Teilen</button>` : ''}
+        </div>`;
+      return `
+        <div class="hint-note">Jede Zeile wird eine eigene Rechnungsposition. Eine nur insgesamt
+          genannte Zeit wird nicht automatisch verteilt — beim Teilen tragen Sie Einzelzeiten
+          selbst ein oder lassen sie offen.</div>
+        <div class="tk-summe">Arbeitszeit gesamt <strong>${esc(fmtStunden(state.summeStunden(a)))}</strong>
+          · ${ohne ? `<span class="vl-offen-wert">${ohne} ohne Kostenstelle</span>` : 'alle zugeordnet'}</div>
+        ${zeiten.length ? `<h3 class="tk-titel">Arbeitszeit</h3>${zeiten.map(v => zeile(v, true)).join('')}` : ''}
+        ${material.length ? `<h3 class="tk-titel">Material</h3>${material.map(v => zeile(v, false)).join('')}` : ''}
+        ${!zeiten.length && !material.length ? leerZustand('Noch keine Zeit und kein Material erfasst.') : ''}`;
+    },
+    foot: () => `
+      <button class="btn" data-tk-zusammen type="button" disabled>Zusammenführen</button>
+      <button class="btn btn-primaer" data-tk-fertig type="button">Fertig</button>`,
+    bind: (el) => {
+      el.querySelectorAll('[data-tk-kst]').forEach(i => i.addEventListener('change', () => {
+        state.verlaufUpdate(auftragId, i.dataset.tkKst, { kostenstelle: state.kostenstelleNormal(i.value) });
+        sheet.render();
+      }));
+      const wahl = () => [...el.querySelectorAll('[data-tk-wahl]:checked')].map(b => b.dataset.tkWahl);
+      el.querySelectorAll('[data-tk-wahl]').forEach(b => b.addEventListener('change', () => {
+        el.querySelector('[data-tk-zusammen]').disabled = wahl().length < 2;
+      }));
+      el.querySelector('[data-tk-zusammen]').addEventListener('click', () => {
+        const erg = state.taetigkeitenZusammenfuehren(auftragId, wahl());
+        if (!erg.ok) return toast(erg.grund);
+        sheet.render(); toast('Tätigkeiten zusammengeführt.');
+      });
+      el.querySelectorAll('[data-tk-teilen]').forEach(b => b.addEventListener('click', () => {
+        const v = state.auftrag(auftragId).verlauf.find(x => x.id === b.dataset.tkTeilen);
+        if (v) teilenDialog(auftragId, v);
+      }));
+      el.querySelector('[data-tk-fertig]').addEventListener('click', sheetSchliessen);
+    },
+    onClose: () => queueMicrotask(neuZeichnen),
+  });
+}
+
+/** Vorschlag für die Zeilen: der eigene Text, an Satzenden getrennt. Edin prüft und ändert. */
+function textZerlegen(text) {
+  const teile = String(text || '').split(/(?<=[.;!?])\s+|\n+/).map(t => t.replace(/[.;]\s*$/, '').trim()).filter(Boolean);
+  return teile.length >= 2 ? teile : [String(text || '').trim(), ''];
+}
+
+function teilenDialog(auftragId, v) {
+  let zeilen = textZerlegen(v.text).map(text => ({ text, stunden: '', kostenstelle: v.kostenstelle || '' }));
+  const gesamt = Number(v.stunden) > 0 ? Number(v.stunden) : null;
+
+  const summeText = () => {
+    const verteilt = zeilen.reduce((s, z) => s + (parseZahl(z.stunden) || 0), 0);
+    if (gesamt === null) return `Zugeordnet ${fmtStunden(verteilt)} — der Eintrag hatte keine Gesamtzeit.`;
+    const rest = Math.round((gesamt - verteilt) * 100) / 100;
+    if (rest < 0) return `Zugeordnet ${fmtStunden(verteilt)} — das ist mehr als die erfassten ${fmtStunden(gesamt)}.`;
+    return `Zugeordnet ${fmtStunden(verteilt)} von ${fmtStunden(gesamt)}`
+      + (rest > 0 ? ` · ${fmtStunden(rest)} bleiben als „Nicht verteilte Einsatzzeit“ stehen` : '');
+  };
+
+  const sheet = sheetOeffnen({
+    titel: 'Tätigkeit aufteilen',
+    body: () => `
+      <div class="hint-note">Die Zeilen sind aus Ihrem Text vorgeschlagen — bitte prüfen. Stunden nur
+        eintragen, wenn Sie sie wissen. Was nicht zugeordnet ist, wird nicht geschätzt, sondern bleibt
+        als eigene Einsatzzeit sichtbar.</div>
+      <div class="tk-summe" data-teilen-summe>${esc(summeText())}</div>
+      ${zeilen.map((z, i) => `
+        <div class="tk-zeile teilen-zeile">
+          <div class="tk-mitte">
+            <label class="f-label" for="tl-t-${i}">Tätigkeit ${i + 1}</label>
+            <input class="inp" id="tl-t-${i}" data-tl="${i}" data-tl-feld="text" value="${esc(z.text)}">
+            <div class="fields">
+              <div class="f"><label class="f-label" for="tl-s-${i}">Stunden <span class="opt">(leer = offen)</span></label>
+                <input class="inp" id="tl-s-${i}" data-tl="${i}" data-tl-feld="stunden" inputmode="decimal" value="${esc(z.stunden)}"></div>
+              <div class="f"><label class="f-label" for="tl-k-${i}">Kostenstelle</label>
+                ${kostenstelleFeld(auftragId, `tl-k-${i}`, z.kostenstelle, `data-tl="${i}" data-tl-feld="kostenstelle"`)}</div>
+            </div>
+          </div>
+          ${zeilen.length > 2 ? `<button class="icon-btn" data-tl-weg="${i}" type="button" aria-label="Tätigkeit ${i + 1} entfernen">${icon('papierkorb')}</button>` : ''}
+        </div>`).join('')}
+      <button class="btn btn-block" data-tl-neu type="button">${icon('plus')} Tätigkeit hinzufügen</button>`,
+    foot: () => `
+      <button class="btn" data-tl-ab type="button">Abbrechen</button>
+      <button class="btn btn-primaer" data-tl-ok type="button">Aufteilen</button>`,
+    bind: (el) => {
+      el.querySelectorAll('[data-tl]').forEach(i => i.addEventListener('input', () => {
+        zeilen[Number(i.dataset.tl)][i.dataset.tlFeld] = i.value;
+        el.querySelector('[data-teilen-summe]').textContent = summeText();
+      }));
+      el.querySelectorAll('[data-tl-weg]').forEach(b => b.addEventListener('click', () => {
+        zeilen.splice(Number(b.dataset.tlWeg), 1); sheet.render();
+      }));
+      el.querySelector('[data-tl-neu]').addEventListener('click', () => {
+        zeilen.push({ text: '', stunden: '', kostenstelle: v.kostenstelle || '' }); sheet.render();
+      });
+      el.querySelector('[data-tl-ab]').addEventListener('click', sheetSchliessen);
+      el.querySelector('[data-tl-ok]').addEventListener('click', () => {
+        const teile = [];
+        for (const [n, z] of zeilen.entries()) {
+          const roh = String(z.stunden).trim();
+          const std = roh ? parseZahl(roh) : null;
+          if (roh && (std === null || std <= 0)) return toast(`Tätigkeit ${n + 1}: Stunden als Zahl größer 0 oder leer lassen.`);
+          teile.push({ text: z.text, stunden: std, kostenstelle: z.kostenstelle });
+        }
+        const erg = state.taetigkeitTeilen(auftragId, v.id, teile);
+        if (!erg.ok) return toast(erg.grund);
+        sheetSchliessen();
+        toast(`In ${teile.length} Tätigkeiten aufgeteilt.`);
+      });
+    },
   });
 }
 
