@@ -892,7 +892,8 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
   .sheet { width: 100vw; max-width: 100vw; }
   .sheet-body { padding: 16px; }
   .sheet-foot { padding-left: 16px; padding-right: 16px; }
-  .sheet-foot .btn { min-width: 0; }
+  /* Lange Beschriftungen („Demo-Versand bestätigen") brechen um statt abgeschnitten zu werden */
+  .sheet-foot .btn { min-width: 0; white-space: normal; text-align: center; line-height: 1.25; }
 
   .beleg { padding: 20px 16px; }
   .beleg-meta { text-align: left; }

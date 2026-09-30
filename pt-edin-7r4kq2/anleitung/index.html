@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self'; script-src 'none'; frame-ancestors 'self'; form-action 'none';">
+<meta name="robots" content="noindex,nofollow">
+<title>Anleitung Auftragszentrale · PT Hausmeisterservice</title>
+<link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,500,600,700&display=swap">
+<style>
+  :root{
+    --blue:#2F5CFF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
+    --ink:#0F0F0F; --gray:#3F3F46; --muted:#6B6B73; --line:#E4E4E7; --bg:#F5F5F5;
+    --rot:#E5292F; --gelb-soft:#FFF8E6; --gelb-border:#F2D48A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:28px 12px 60px;-webkit-text-size-adjust:100%;line-height:1.55;}
+  .card{max-width:860px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .head{padding:28px 30px 0;}
+  .head img{display:block;height:46px;}
+  .body{padding:20px 30px 34px;}
+  h1{font-size:26px;line-height:1.2;margin-bottom:10px;letter-spacing:-.01em;}
+  h2{font-size:21px;line-height:1.25;margin:44px 0 6px;padding-top:26px;border-top:1px solid var(--line);letter-spacing:-.01em;scroll-margin-top:12px;}
+  h2 .nr{color:var(--blue);margin-right:8px;}
+  h3{font-size:17px;line-height:1.35;margin-bottom:6px;}
+  p{font-size:15.5px;color:var(--gray);margin-bottom:10px;}
+  p b, li b{color:var(--ink);}
+  .intro{font-size:16px;}
+  .kasten{display:flex;gap:12px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:12px;padding:14px 16px;margin:16px 0;}
+  .kasten.gelb{background:var(--gelb-soft);border-color:var(--gelb-border);}
+  .kasten .ico{flex:none;font-size:18px;line-height:1.4;}
+  .kasten p{margin:0;font-size:15px;}
+  .kasten p + p{margin-top:8px;}
+  .kasten ul{margin:6px 0 0 18px;font-size:15px;color:var(--gray);}
+  .marke{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--rot);color:#fff;font-size:12.5px;font-weight:700;vertical-align:1px;margin-right:4px;}
+  .rahmen{display:inline-block;border:2.5px solid var(--rot);border-radius:6px;padding:0 6px;font-weight:600;color:var(--ink);}
+  nav.inhalt{margin:18px 0 6px;border:1px solid var(--line);border-radius:12px;padding:14px 18px;}
+  nav.inhalt b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  nav.inhalt ol{margin-left:20px;columns:2;column-gap:28px;font-size:15px;}
+  nav.inhalt li{margin:3px 0;break-inside:avoid;}
+  nav.inhalt a{color:var(--blue);text-decoration:none;}
+  .schritt{display:grid;grid-template-columns:1fr 290px;gap:26px;align-items:start;margin-top:26px;}
+  .schritt:has(figure.zwei){grid-template-columns:1fr 470px;}
+  .schritt.ohne-bild{grid-template-columns:1fr;}
+  .schritt .txt ol, .schritt .txt ul{margin:4px 0 10px 20px;font-size:15.5px;color:var(--gray);}
+  .schritt .txt li{margin:4px 0;}
+  figure{margin:0;}
+  figure img{display:block;width:100%;height:auto;border-radius:22px;border:1px solid #D4D4D8;box-shadow:0 8px 24px rgba(15,15,15,.08);background:#fff;}
+  figure.zwei{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  figcaption{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45;}
+  .fertig{background:#E8F5EE;border:1px solid #B5DEC6;border-radius:12px;padding:18px 20px;margin-top:30px;}
+  .fertig h3{margin-bottom:6px;}
+  .knopf{display:inline-block;margin-top:10px;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;padding:13px 20px;border-radius:12px;font-size:16px;}
+  .fuss{font-size:13px;color:var(--muted);margin-top:26px;}
+  @media (max-width:720px){
+    body{padding:14px 8px 40px;}
+    .head{padding:20px 18px 0;}
+    .body{padding:16px 18px 26px;}
+    h1{font-size:23px;}
+    .schritt{grid-template-columns:1fr;gap:12px;}
+    .schritt:has(figure.zwei){grid-template-columns:1fr;}
+    .schritt figure:not(.zwei){max-width:300px;}
+    figure.zwei{grid-template-columns:1fr;max-width:300px;gap:16px;}
+    nav.inhalt ol{columns:1;}
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><img src="../../logo-wide.png" alt="M&amp;H Assistenz"></div>
+  <div class="body">
+
+    <h1>Auftragszentrale: einmal alles durchspielen</h1>
+    <p class="intro">Hallo Edin, hier gehst du einmal Schritt für Schritt alles durch — vom Auftrag bis zur Rechnung, am Handy. Nimm dir etwa <b>20 Minuten</b> und spiel einen <b>erfundenen Auftrag</b> durch, genau wie auf den Bildern. So lernst du jede Funktion einmal kennen.</p>
+
+    <div class="kasten">
+      <span class="ico">👆</span>
+      <div>
+        <p><b>So liest du die Bilder:</b> Wo ein <span class="rahmen">roter Rahmen</span> mit Nummer <span class="marke">1</span> ist, tippst du. Mehrere Nummern heißt: nacheinander, oder du hast die Wahl.</p>
+      </div>
+    </div>
+
+    <div class="kasten gelb">
+      <span class="ico">⚠️</span>
+      <div>
+        <p><b>Vorher kurz wichtig:</b></p>
+        <ul>
+          <li>Öffne die App über den <b>Link, den Matthias dir geschickt hat</b>. Nur damit laufen Sprache, Foto-Auswertung und KI wirklich. Du erkennst es daran, dass ganz unten auf der Startseite „Zugangscode entfernen“ steht.</li>
+          <li><b>Keine echten Kundendaten</b> eingeben — erfinde Namen und Adressen, so wie im Beispiel.</li>
+          <li>Alles, was du eingibst, liegt <b>nur auf diesem Gerät</b>. Was du am Handy machst, siehst du am PC nicht (und umgekehrt).</li>
+          <li>Die Rechnung wird in der Probe <b>nicht wirklich verschickt</b>. Später macht das sevDesk.</li>
+        </ul>
+      </div>
+    </div>
+
+    <nav class="inhalt" aria-label="Inhalt">
+      <b>Inhalt</b>
+      <ol>
+        <li><a href="#erfassen">Auftrag erfassen</a></li>
+        <li><a href="#vorort">Vor Ort dokumentieren</a></li>
+        <li><a href="#zwischendurch">Zwischendurch: anderer Auftrag</a></li>
+        <li><a href="#aufgaben">Aufgaben zum Abhaken</a></li>
+        <li><a href="#kostenstellen">Mehrere Arbeiten &amp; Kostenstellen</a></li>
+        <li><a href="#bericht">Einsatzbericht &amp; Unterschrift</a></li>
+        <li><a href="#abschliessen">Arbeit abschließen</a></li>
+        <li><a href="#rechnung">Rechnung</a></li>
+        <li><a href="#ueberblick">Überblick behalten</a></li>
+        <li><a href="#jetzt-du">Und jetzt du</a></li>
+      </ol>
+    </nav>
+
+    <!-- 1 -->
+    <h2 id="erfassen"><span class="nr">1</span>Auftrag erfassen</h2>
+    <p>Ein Kunde hat angerufen oder dir einen Zettel gegeben, und ihr habt den Auftrag vereinbart. Den hältst du jetzt fest.</p>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Startseite: „Auftrag erfassen“</h3>
+        <p>Auf der Startseite (unten links „Home“) tippst du oben auf <b>Auftrag erfassen</b> <span class="marke">1</span>.</p>
+      </div>
+      <figure><img src="bilder/01-home.jpg" alt="Startseite mit dem Knopf Auftrag erfassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Drei Wege — du suchst dir einen aus</h3>
+        <ol>
+          <li><span class="marke">1</span><b>Foto / Screenshot:</b> Zettel abfotografieren oder einen WhatsApp-Screenshot nehmen. Die App liest die Angaben heraus.</li>
+          <li><span class="marke">2</span><b>Manuell eingeben:</b> selbst eintippen.</li>
+          <li><span class="marke">3</span><b>Einsprechen:</b> einfach sagen, z. B. „Diakonie, Musterweg 12, Tür nachstellen, morgen acht Uhr“.</li>
+        </ol>
+        <p>Alle drei landen im selben Formular. Im Beispiel nehmen wir das Foto.</p>
+      </div>
+      <figure><img src="bilder/02-wege.jpg" alt="Drei Wege: Foto, Manuell, Einsprechen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Foto machen oder aus der Galerie</h3>
+        <p><span class="marke">1</span> <b>Foto aufnehmen</b> öffnet die Kamera, <span class="marke">2</span> <b>Aus Galerie wählen</b> nimmt ein Bild, das du schon hast (z. B. Screenshot).</p>
+        <p>Danach auf <b>Bild auswerten</b> tippen.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/03-foto-waehlen.jpg" alt="Foto aufnehmen oder aus Galerie wählen" loading="lazy" width="390" height="844">
+        <img src="bilder/04-foto-auswerten.jpg" alt="Knopf Bild auswerten" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Prüfen, was erkannt wurde</h3>
+        <p>Die App zeigt dir, was sie gelesen hat — und was sie <b>nicht</b> erkannt hat („Nicht erkannt — bitte eintragen“). Sie rät nie. Passt es, tippst du <b>Angaben übernehmen</b> <span class="marke">1</span>.</p>
+      </div>
+      <figure><img src="bilder/05-foto-ergebnis.jpg" alt="Erkannte Angaben mit Knopf Angaben übernehmen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Fehlendes nachsprechen</h3>
+        <p>Im Formular fehlt hier noch der Termin <span class="marke">1</span>. Du kannst ihn eintippen — oder oben auf <b>Per Sprache ergänzen</b> tippen und einfach sagen, was fehlt: „Termin morgen um acht, Ansprechpartner Herr Neumann, Telefon …“.</p>
+        <p>Der Knopf wird rot, solange du sprichst. Nochmal tippen = fertig.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/06-formular.jpg" alt="Formular, Termin fehlt noch" loading="lazy" width="390" height="844">
+        <img src="bilder/07-formular-sprache.jpg" alt="Knopf Per Sprache ergänzen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Nichts wird heimlich überschrieben</h3>
+        <p>Die App zeigt dir, was sie aus deiner Sprache ergänzen will. Mit den Häkchen wählst du aus, dann <b>Übernehmen</b> <span class="marke">1</span>. Was schon im Formular stand, bleibt, außer du willst es ersetzen.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/08-formular-sprache-laeuft.jpg" alt="Aufnahme läuft" loading="lazy" width="390" height="844">
+        <img src="bilder/09-ergaenzung-pruefen.jpg" alt="Spracheingabe prüfen mit Übernehmen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Rechnungsadresse und anlegen</h3>
+        <ul>
+          <li><b>Objektadresse</b> = wo du arbeitest.</li>
+          <li><b>Rechnungsadresse</b> <span class="marke">1</span> = wohin die Rechnung geht, z. B. die Verwaltung oder Hauptstelle. Leer lassen, wenn es dieselbe ist.</li>
+          <li>Bei einem <b>neuen Kunden</b> steht unten noch „Kunde für weitere Aufträge merken“. Häkchen setzen, dann kannst du ihn beim nächsten Mal oben unter „Aus Kundenstamm“ auswählen.</li>
+        </ul>
+        <p>Zum Schluss <b>Auftrag anlegen</b> <span class="marke">1</span>. Keine Zeit? <b>Später weiter</b> hebt den halben Auftrag auf — auch wenn du die App zumachst.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/10-rechnungsadresse.jpg" alt="Feld Rechnungsadresse" loading="lazy" width="390" height="844">
+        <img src="bilder/11-anlegen.jpg" alt="Knopf Auftrag anlegen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <!-- 2 -->
+    <h2 id="vorort"><span class="nr">2</span>Vor Ort dokumentieren</h2>
+    <p>Nach dem Anlegen öffnet sich die <b>Auftragsakte</b>. Das ist immer dieselbe Akte, egal ob du von der Startseite, aus „Aufträge“ oder aus dem Kalender kommst.</p>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Arbeit starten</h3>
+        <p>Wenn du beim Kunden bist: unten auf <b>Arbeit starten</b> <span class="marke">1</span>. Der Auftrag steht dann auf „In Arbeit“.</p>
+      </div>
+      <figure><img src="bilder/12-akte.jpg" alt="Auftragsakte mit Knopf Arbeit starten" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Die Knöpfe zum Dokumentieren</h3>
+        <ol>
+          <li><span class="marke">1</span><b>Foto aufnehmen</b> — Kamera geht auf. Die App gibt dem Foto einen Namen, z. B. „Zaun hinten, Pfosten schief“.</li>
+          <li><span class="marke">2</span><b>Bilder hinzufügen</b> — Fotos, die du schon gemacht hast.</li>
+          <li><span class="marke">3</span><b>Einsprechen</b> — großes Aufnahmefenster, für längere Berichte.</li>
+          <li><span class="marke">4</span><b>Notiz schreiben</b> — kurz etwas festhalten.</li>
+          <li><span class="marke">5</span><b>Zeit erfassen</b> — Stunden und wofür.</li>
+          <li><span class="marke">6</span><b>Material erfassen</b> — was du verbaut hast. Den Preis gibst du erst bei der Rechnung ein.</li>
+          <li><span class="marke">7</span><b>Schnell diktieren</b> — der schnellste Weg: einmal tippen, alles sagen, nochmal tippen.</li>
+        </ol>
+      </div>
+      <figure><img src="bilder/13-doku-kacheln.jpg" alt="Sieben Knöpfe zum Dokumentieren" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Schnell diktieren: alles in einem Satz</h3>
+        <p>Tipp auf <b>Schnell diktieren</b> und erzähl einfach, was du gemacht hast. Zum Beispiel:</p>
+        <p><i>„Tür nachgestellt, Licht getauscht, Ablauf gereinigt und den Zaun repariert. Insgesamt viereinhalb Stunden, zwei Zaunlatten verbaut. Der zweite Zaunpfosten wackelt noch. <b>Als Aufgabe:</b> Zaunpfosten nachbestellen.“</i></p>
+        <p>Fertig? Nochmal auf den roten Knopf <b>Aufnahme stoppen</b> <span class="marke">1</span>.</p>
+      </div>
+      <figure><img src="bilder/14-diktat-laeuft.jpg" alt="Aufnahme läuft, Knopf Aufnahme stoppen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Prüfen und übernehmen</h3>
+        <p>Die App sortiert, was du gesagt hast: ausgeführte Arbeit, Stunden, Material, offener Punkt. Du kannst alles noch ändern.</p>
+        <p>Hast du <b>„als Aufgabe …“</b> gesagt, steht das unter „Als Aufgabe gesagt“ mit Häkchen <span class="marke">1</span>. Das landet dann bei den Aufgaben zum Abhaken, nicht auf der Rechnung.</p>
+        <p>Alles gut? <b>Übernehmen</b> <span class="marke">2</span>. Noch etwas vergessen? <b>Weiteres ergänzen</b> und weitersprechen.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/15-diktat-pruefen.jpg" alt="Transkript der Aufnahme" loading="lazy" width="390" height="844">
+        <img src="bilder/16-diktat-aufgabe.jpg" alt="Als Aufgabe gesagt und Übernehmen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>„Wohin gehört das?“</h3>
+        <p>Sagst du etwas, das keine Arbeit, Zeit oder Material ist — z. B. „Der Hausmeister hat den Keller aufgeschlossen“ —, fragt die App nach. Du tippst einfach, wohin es soll: <b>Als Notiz</b> <span class="marke">1</span>, als offenen Punkt, als wichtigen Hinweis (rot, nie auf der Rechnung) oder als Aufgabe.</p>
+      </div>
+      <figure><img src="bilder/17-wohin.jpg" alt="Rückfrage Wohin gehört das" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Material von Hand</h3>
+        <p>Über <b>Material erfassen</b>: Bezeichnung <span class="marke">1</span>, Menge, Einheit, optional Lieferant und Kostenstelle. Dann <b>Speichern</b> <span class="marke">2</span>. <b>Zeit erfassen</b> funktioniert genauso.</p>
+      </div>
+      <figure><img src="bilder/18-material.jpg" alt="Material erfassen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <!-- 3 -->
+    <h2 id="zwischendurch"><span class="nr">3</span>Zwischendurch: anderer Auftrag, raus und wieder rein</h2>
+    <p>Du hast gefragt, ob das geht, wenn du zwischendurch was anderes machst. <b>Ja.</b> Mehrere Aufträge können gleichzeitig „In Arbeit“ sein. Du kannst jederzeit rausgehen, bei einem anderen Auftrag etwas dokumentieren und wieder zurück.</p>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Schnell eine Notiz, ohne die Akte zu öffnen</h3>
+        <p>Auf der Startseite steht der Auftrag, an dem du gerade bist, unter <b>„Aktuell in Arbeit“</b>. Mit <b>Notiz</b> <span class="marke">1</span> schreibst oder sprichst du kurz etwas dazu — z. B. „Mieter Haus A fragt nach neuem Briefkastenschild“.</p>
+        <p>Weiter unten, unter <b>„Weitere laufende Arbeiten“</b> <span class="marke">1</span>, stehen deine anderen Aufträge, die auch in Arbeit sind. Antippen öffnet die Akte.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/19-home-notiz.jpg" alt="Startseite, Knopf Notiz beim aktuellen Auftrag" loading="lazy" width="390" height="844">
+        <img src="bilder/19b-home-weitere.jpg" alt="Weitere laufende Arbeiten auf der Startseite" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Notiz — und gleich als Aufgabe merken</h3>
+        <p>Soll daraus etwas zum Erledigen werden, setz das Häkchen <b>Auch als Aufgabe zum Abhaken merken</b> <span class="marke">1</span>. Dann <b>Notiz speichern</b> <span class="marke">2</span>.</p>
+      </div>
+      <figure><img src="bilder/20-schnellnotiz.jpg" alt="Notiz schreiben mit Häkchen Aufgabe" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="kasten">
+      <span class="ico">✅</span>
+      <div>
+        <p><b>Es geht nichts verloren, wenn du rausgehst:</b></p>
+        <ul>
+          <li>Eine <b>Aufnahme</b>, die du noch nicht übernommen hast, bleibt gespeichert. Wenn du die Akte wieder öffnest, steht oben: „Eine Aufnahme ist noch nicht übernommen — Prüfen / Verwerfen“.</li>
+          <li>Eine angefangene <b>Notiz</b> bleibt als Entwurf, bis du sie speicherst oder verwirfst.</li>
+          <li>Ein halb ausgefüllter <b>Auftrag</b> bleibt mit „Später weiter“ liegen.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <h2 id="aufgaben"><span class="nr">4</span>Aufgaben zum Abhaken</h2>
+    <div class="schritt">
+      <div class="txt">
+        <p>Unten in der Leiste: <b>Aufgaben</b>. Hier landet alles, was du noch erledigen musst, das aber keine Arbeit beim Kunden ist — „Zaunpfosten nachbestellen“, „Silikon kaufen“.</p>
+        <ul>
+          <li><span class="marke">1</span> <b>Abhaken</b>, wenn erledigt. Abgehaktes bleibt einen Tag sichtbar (falls du dich vertippt hast) und verschwindet dann.</li>
+          <li><span class="marke">2</span> <b>Neue Aufgabe</b> direkt hier eintippen oder mit „Per Sprache“ sagen, optional einem Auftrag zuordnen, dann „Hinzufügen“.</li>
+          <li>Tippst du auf den blauen Kundennamen, öffnet sich die Akte.</li>
+        </ul>
+        <p>Aufgaben entstehen auch, wenn du beim Diktieren „als Aufgabe …“ sagst, oder mit dem Häkchen bei einer Notiz.</p>
+      </div>
+      <figure><img src="bilder/21-aufgaben.jpg" alt="Aufgaben-Seite zum Abhaken" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Zurück zum Auftrag</h3>
+        <p>Unten auf <b>Aufträge</b>, oben <b>In Arbeit</b> <span class="marke">1</span>, dann den Auftrag antippen <span class="marke">2</span>. Du bist wieder in der Akte, alles ist noch da.</p>
+      </div>
+      <figure><img src="bilder/22-auftraege.jpg" alt="Aufträge, Reiter In Arbeit" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <!-- 5 -->
+    <h2 id="kostenstellen"><span class="nr">5</span>Mehrere Arbeiten &amp; Kostenstellen</h2>
+    <p>Dein Fall: An einem Tag fünf Arbeiten, jede für eine andere Kostenstelle. So teilst du das auf.</p>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>„Tätigkeiten &amp; Kostenstellen“</h3>
+        <p>In der Akte, weiter unten unter „Dokumentation“, siehst du alles auf einen Blick. Bei „Arbeitszeit“ tippst du auf <b>Tätigkeiten &amp; Kostenstellen</b> <span class="marke">1</span>.</p>
+        <p>(<span class="marke">2</span> <b>Bericht</b> kommt gleich in Schritt 6.)</p>
+      </div>
+      <figure><img src="bilder/23-uebersicht.jpg" alt="Übersicht Dokumentation mit Knopf Tätigkeiten und Kostenstellen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Teilen</h3>
+        <p>Deine 4,5 Stunden stehen noch in einer Zeile. Tipp auf <b>Teilen</b> <span class="marke">1</span>. Die App macht aus deinem Satz vier Zeilen: Tür, Licht, Ablauf, Zaun.</p>
+        <p>Zu jeder Zeile trägst du die <b>Stunden</b> <span class="marke">1</span> ein (nur wenn du sie weißt — sonst leer lassen, die App schätzt nie) und die <b>Kostenstelle</b> <span class="marke">2</span>. Dann <b>Aufteilen</b>.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/24-taetigkeiten.jpg" alt="Tätigkeiten mit Knopf Teilen" loading="lazy" width="390" height="844">
+        <img src="bilder/25-teilen.jpg" alt="Stunden und Kostenstelle je Zeile" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Material auch zuordnen, dann fertig</h3>
+        <p>Auch jedes Material bekommt eine Kostenstelle. Wenn alles passt: <b>Fertig</b> <span class="marke">1</span>. Die Kostenstellen stehen später an jeder Zeile im Bericht und auf der Rechnung.</p>
+      </div>
+      <figure><img src="bilder/27-taetigkeiten-fertig.jpg" alt="Tätigkeiten aufgeteilt, Knopf Fertig" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <!-- 6 -->
+    <h2 id="bericht"><span class="nr">6</span>Einsatzbericht &amp; Unterschrift</h2>
+    <div class="schritt">
+      <div class="txt">
+        <h3>Der Bericht macht sich selbst</h3>
+        <p>In der Akte auf <b>Bericht</b>. Die App baut aus deiner Dokumentation einen Einsatzbericht mit deinem Logo: Kunde, Objekt, Datum, jede Arbeit mit Stunden und Kostenstelle, Material, offene Punkte, Fotos und Notizen. Welche Fotos und Notizen rein sollen, wählst du unter „Was steht im Bericht?“.</p>
+        <ul>
+          <li><span class="marke">1</span> <b>Bestätigen lassen</b> — der Kunde unterschreibt.</li>
+          <li><span class="marke">2</span> <b>Drucken / PDF</b> — dann „Als PDF sichern“ bzw. „Teilen“. So hast du den Bericht als PDF, um später nachzusehen, wann du was gemacht hast und wie lange es gedauert hat.</li>
+        </ul>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/28-bericht.jpg" alt="Einsatzbericht mit Logo" loading="lazy" width="390" height="844">
+        <img src="bilder/29-bericht-knoepfe.jpg" alt="Knöpfe Drucken PDF und Bestätigen lassen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Unterschrift mit dem Finger</h3>
+        <p>Gib dem Kunden das Handy: Name <span class="marke">1</span>, mit dem Finger unterschreiben <span class="marke">2</span>, <b>Speichern</b> <span class="marke">3</span>.</p>
+        <p>Die unterschriebene Fassung bleibt danach genau so. Dokumentierst du später noch etwas, steht es als „Nachtrag“ darunter und kann nochmal unterschrieben werden.</p>
+        <p><i>Die Unterschrift ist im Moment nur zum Ausprobieren, nicht rechtsverbindlich.</i></p>
+      </div>
+      <figure><img src="bilder/30-unterschrift.jpg" alt="Unterschrift des Kunden" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <!-- 7 -->
+    <h2 id="abschliessen"><span class="nr">7</span>Arbeit abschließen</h2>
+    <div class="schritt">
+      <div class="txt">
+        <p>Unten in der Akte auf <b>Arbeit abschließen</b>. Du siehst noch einmal, was dokumentiert ist. Ins Feld <b>Ergebnis für den Kunden</b> <span class="marke">1</span> schreibst du in einem Satz, was erledigt ist (die App schlägt schon etwas vor). Offene Punkte werden nicht berechnet.</p>
+        <p>Dann <b>Als erledigt markieren</b> <span class="marke">2</span>.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/31-abschliessen-knopf.jpg" alt="Knopf Arbeit abschließen" loading="lazy" width="390" height="844">
+        <img src="bilder/32-abschluss.jpg" alt="Ergebnis für den Kunden und Als erledigt markieren" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <!-- 8 -->
+    <h2 id="rechnung"><span class="nr">8</span>Rechnung</h2>
+    <div class="schritt">
+      <div class="txt">
+        <h3>Rechnung erstellen</h3>
+        <p>Nach dem Abschließen: <b>Rechnung erstellen</b> <span class="marke">1</span>. Die Rechnung entsteht aus dem, was du <b>gemacht und dokumentiert</b> hast — nicht aus dem, was ursprünglich vereinbart war.</p>
+      </div>
+      <figure><img src="bilder/33-rechnung-knopf.jpg" alt="Knopf Rechnung erstellen" loading="lazy" width="390" height="844"></figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Preise eintragen oder ändern lassen</h3>
+        <p>Jede Zeit und jedes Material ist eine Zeile. Fehlt ein Preis, ist er markiert, und es gibt <b>keinen Gesamtbetrag</b>, bis alles da ist. Preise trägst du ins Feld <b>Einzelpreis</b> <span class="marke">1</span> ein.</p>
+        <p>Oder du tippst auf das <b>Funken-Symbol</b> <span class="marke">2</span> und schreibst einfach, was anders sein soll: „Setz den Stundensatz auf 62 Euro“. Du siehst vorher/nachher und tippst <b>Übernehmen</b>.</p>
+        <p><i>Die 58 € sind nur ein Beispiel-Stundensatz. Später kommen deine Preise aus deiner Liste.</i></p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/34-entwurf.jpg" alt="Rechnungsentwurf mit Einzelpreis und Funken-Symbol" loading="lazy" width="390" height="844">
+        <img src="bilder/35-ki-preis.jpg" alt="Vorschlag der KI mit Übernehmen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Vorschau — und noch etwas ändern</h3>
+        <p><b>Vorschau</b> zeigt die fertige Rechnung. Unter „Noch etwas ändern?“ <span class="marke">1</span> schreibst du frei, was nicht passt — „Die Zaunlatten haben 12 Euro gekostet“ — und tippst auf <b>Senden</b> <span class="marke">2</span>. Wieder: erst Vorschlag, dann du entscheidest.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/37-beleg.jpg" alt="Vorschau der Rechnung" loading="lazy" width="390" height="844">
+        <img src="bilder/38a-beleg-aendern.jpg" alt="Noch etwas ändern" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="schritt">
+      <div class="txt">
+        <h3>Rechnung stellen</h3>
+        <p><b>Versand simulieren</b> <span class="marke">1</span>, dann <b>Demo-Versand bestätigen</b>. In der Probe geht nichts raus. Später legt <b>sevDesk</b> die Rechnung an und verschickt sie.</p>
+        <p>Danach ist die Rechnung festgeschrieben und ändert sich nicht mehr. Wenn der Kunde bezahlt hat: <b>Zahlung vermerken</b> — dann siehst du das Geld auf der Startseite unter „Geldverlauf“.</p>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/39-versand-knopf.jpg" alt="Knopf Versand simulieren" loading="lazy" width="390" height="844">
+        <img src="bilder/41-versendet.jpg" alt="Versendete Rechnung mit Zahlung vermerken" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <!-- 9 -->
+    <h2 id="ueberblick"><span class="nr">9</span>Überblick behalten</h2>
+    <div class="schritt">
+      <div class="txt">
+        <p>Unten in der Leiste:</p>
+        <ul>
+          <li><b>Home</b> — was heute ansteht, was gerade in Arbeit ist, welche Rechnungen noch raus müssen, Geldverlauf.</li>
+          <li><b>Aufträge</b> — Geplant, In Arbeit, Erledigt.</li>
+          <li><b>Kalender</b> — alle Termine. Antippen öffnet die Akte.</li>
+          <li><b>Aufgaben</b> — zum Abhaken.</li>
+          <li><b>Rechnungen</b> — alle Rechnungen, und darunter Aufträge, die erledigt sind, aber noch keine Rechnung haben.</li>
+        </ul>
+      </div>
+      <figure class="zwei">
+        <img src="bilder/42-kalender.jpg" alt="Kalender" loading="lazy" width="390" height="844">
+        <img src="bilder/43-rechnungen.jpg" alt="Rechnungen" loading="lazy" width="390" height="844">
+      </figure>
+    </div>
+
+    <div class="kasten gelb">
+      <span class="ico">🛠️</span>
+      <div>
+        <p><b>Was heute noch nicht geht</b> — damit du dich nicht wunderst:</p>
+        <ul>
+          <li>Deine Preisliste ist noch nicht hinterlegt. Preise tippst du im Moment selbst ein.</li>
+          <li>Die App teilt ein Diktat mit mehreren Arbeiten noch nicht von selbst auf. Das machst du mit „Teilen“.</li>
+          <li>Ein Auftrag hat im Moment genau eine Rechnung.</li>
+          <li>Handy und PC haben noch nicht dieselben Daten.</li>
+          <li>Rechnungsversand und Unterschrift sind zum Ausprobieren.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <h2 id="jetzt-du"><span class="nr">10</span>Und jetzt du</h2>
+    <p>Spiel einmal selbst einen erfundenen Auftrag durch und probier dabei jede Funktion einmal aus:</p>
+    <ol style="margin:4px 0 10px 20px;font-size:15.5px;color:var(--gray);">
+      <li>Auftrag per <b>Foto</b> oder <b>Einsprechen</b> anlegen, Fehlendes mit <b>Per Sprache ergänzen</b> nachtragen.</li>
+      <li><b>Arbeit starten</b>, ein Foto machen, mit <b>Schnell diktieren</b> erzählen, was du gemacht hast — mit „als Aufgabe …“ am Ende.</li>
+      <li>Einen <b>zweiten Auftrag</b> anlegen und starten. Zwischendurch rausgehen, beim anderen eine <b>Notiz</b> machen, zurückgehen.</li>
+      <li>Unter <b>Aufgaben</b> etwas abhaken.</li>
+      <li>Arbeiten mit <b>Teilen</b> auf Kostenstellen verteilen.</li>
+      <li><b>Bericht</b> ansehen, unterschreiben lassen, als <b>PDF</b> sichern.</li>
+      <li><b>Abschließen</b>, <b>Rechnung erstellen</b>, einen Preis per Funken-Symbol ändern, Versand simulieren.</li>
+    </ol>
+
+    <div class="fertig">
+      <h3>Danach: sag Matthias, was du denkst</h3>
+      <p>Was war einfach, was umständlich, was fehlt dir? Im Fragebogen kannst du alles aufschreiben oder einsprechen, Bilder und Dateien anhängen und mit dem Assistenten Ideen sammeln. Ein Knopf schickt alles an Matthias.</p>
+      <a class="knopf" href="../">Zum Fragebogen</a>
+    </div>
+
+    <p class="fuss">Alle Namen, Adressen und Zahlen auf den Bildern sind erfunden. Stand: 30.09.2026 · M&amp;H Assistenz</p>
+  </div>
+</div>
+</body>
+</html>

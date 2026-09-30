@@ -188,6 +188,15 @@ Arbeit ist fertig.
   kamen; Zeitraum oben rechts wählbar. Es wird nichts geschätzt — ohne Bezahlt-Vermerk
   steht dort 0,00 €.
 - **„Freizugebende Rechnungen"**: Entwürfe, die noch geprüft und verschickt werden müssen.
+- **Mehrere Aufträge gleichzeitig** geht: Mehrere können zugleich „In Arbeit" sein. Einer
+  steht oben als „Aktuell in Arbeit", die anderen weiter unten unter „Weitere laufende
+  Arbeiten". Edin kann jederzeit rausgehen, bei einem anderen Auftrag etwas dokumentieren
+  und zurück. Es geht nichts verloren: eine nicht übernommene Aufnahme bleibt gesichert
+  („Eine Aufnahme ist noch nicht übernommen – Prüfen / Verwerfen"), eine angefangene Notiz
+  bleibt als Entwurf, ein halber Auftrag bleibt mit „Später weiter".
+- Es gibt eine **Schritt-für-Schritt-Anleitung mit Bildern** (Link oben auf dieser Seite,
+  „Schritt-für-Schritt-Anleitung"). Wenn Edin fragt, wie etwas geht, darfst du zusätzlich
+  darauf verweisen.
 - **„Heutige Einsätze"** bzw. „Heute noch anstehend", ggf. „Termin prüfen" für
   Aufträge mit vergangenem Termin.
 
