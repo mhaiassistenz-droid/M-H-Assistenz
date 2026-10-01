@@ -12,6 +12,7 @@
    ============================================ */
 
 import { uid, parseZahl, istEmail, mengePruefen, preisPruefen, tagKey } from './util.js';
+import { artikelSchluessel, artikelAktualisiert, istZuschlag, istStundenArtikel } from './preisliste.js';
 
 const KEY = 'pt-auftragszentrale-v1';
 // Version 2 (28.09.2026): die App startet leer. Ein gespeicherter Stand mit
@@ -29,6 +30,13 @@ const KOSTENSTELLE_MAX = 60;
 export const BEISPIEL_STUNDENSATZ = 58;
 
 const store = { auftraege: [], rechnungen: [], kunden: [], aufgaben: [] };
+
+/* Edins Preisliste (Artikel aus sevDesk). Stammdaten, getrennt von den Aufträgen
+   gespeichert: Ein Versionssprung (VERSION) verwirft Aufträge, soll aber nicht die
+   Liste löschen, die Edin selbst importiert hat. „Demo zurücksetzen" leert sie wie
+   alles andere (Fachregel 12). Im ausgelieferten Code steht keine Liste. */
+const PREIS_KEY = 'pt-preisliste-v1';
+const preisliste = { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' };
 const hoerer = new Set();
 
 /* ── Persistenz ──────────────────────────── */
@@ -69,6 +77,7 @@ export function save() {
       kunden: store.kunden,
       aufgaben: store.aufgaben,
     }));
+    localStorage.setItem(PREIS_KEY, JSON.stringify(preisliste));
     const vorher = speicher.status;
     speicher.status = 'ok';
     speicher.fehler = null;
@@ -95,7 +104,20 @@ export function erneutSpeichern() {
   return ok;
 }
 
+function preislisteLaden() {
+  try {
+    const d = JSON.parse(localStorage.getItem(PREIS_KEY) || 'null');
+    preisliste.artikel = Array.isArray(d?.artikel) ? d.artikel.filter(a => a && a.name) : [];
+    preisliste.stundensatzNr = d?.stundensatzNr ?? null;
+    preisliste.importiertAm = d?.importiertAm ?? null;
+    preisliste.quelle = d?.quelle ?? '';
+  } catch {
+    Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
+  }
+}
+
 export function load() {
+  preislisteLaden();
   let roh = null;
   try { roh = localStorage.getItem(KEY); } catch { roh = null; }
 
@@ -116,15 +138,22 @@ export function load() {
       console.warn('Gespeicherter Stand unlesbar — starte leer.', e);
     }
   }
-  zuruecksetzen(false);
+  // Anderer Stand oder unlesbar: Aufträge & Co. verwerfen — die importierte
+  // Preisliste liegt unter eigenem Schlüssel und bleibt.
+  zuruecksetzen(false, { mitPreisliste: false });
 }
 
-/** Alles löschen: keine Aufträge, keine Rechnungen. Es gibt keine Beispieldaten mehr. */
-export function zuruecksetzen(melden = true) {
+/**
+ * Alles löschen: keine Aufträge, keine Rechnungen. Es gibt keine Beispieldaten mehr.
+ * „Demo zurücksetzen" leert auch die Preisliste; beim Laden eines veralteten Stands
+ * (`mitPreisliste: false`) bleibt sie stehen.
+ */
+export function zuruecksetzen(melden = true, { mitPreisliste = true } = {}) {
   store.auftraege  = [];
   store.rechnungen = [];
   store.kunden     = [];
   store.aufgaben   = [];
+  if (mitPreisliste) Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
   save();
   // Bilder liegen in IndexedDB und müssen eigens weg, sonst bleiben Waisen zurück.
   import('./fotos.js').then(f => f.alleLoeschen()).catch(() => {});
@@ -428,7 +457,8 @@ export function taetigkeitTeilen(auftragId, eintragId, teile) {
       + 'Bitte zuerst die Gesamtzeit korrigieren.' };
   }
 
-  const basis = { typ: 'zeit', ts: alt.ts, simuliert: !!alt.simuliert, geteiltAus: alt.id };
+  // Ein gewählter Artikel (Stundensatz) gilt für alle Teile — es war ja eine Tätigkeit.
+  const basis = { typ: 'zeit', ts: alt.ts, simuliert: !!alt.simuliert, geteiltAus: alt.id, artikelNr: alt.artikelNr ?? null };
   const neu = sauber.map(t => ({ ...basis, id: uid('v'), ...t }));
   const rest = gesamt !== null ? Math.round((gesamt - verteilt) * 100) / 100 : 0;
   if (rest > 0) {
@@ -461,6 +491,8 @@ export function taetigkeitenZusammenfuehren(auftragId, eintragIds) {
     text: teile.map(v => v.text).filter(Boolean).join('; '),
     stunden: Math.round(teile.reduce((s, v) => s + Number(v.stunden), 0) * 100) / 100,
     kostenstelle: ks.size === 1 ? [...ks][0] : null,
+    // Wie die Kostenstelle: nur ein gemeinsamer Artikel bleibt, sonst entscheidet Edin neu.
+    artikelNr: new Set(teile.map(v => v.artikelNr || null)).size === 1 ? (teile[0].artikelNr || null) : null,
   };
   a.verlauf = a.verlauf.filter(v => !eintragIds.includes(v.id) || v.id === teile[0].id);
   a.verlauf.splice(a.verlauf.findIndex(v => v.id === teile[0].id), 1, zusammen);
@@ -697,25 +729,35 @@ function positionenAusVerlauf(a) {
     gesehen.add(v.id);
 
     if (v.typ === 'zeit') {
+      // Preis: der beim Erfassen gewählte Artikel, sonst Edins Standard-Stundensatz,
+      // sonst der sichtbar markierte Beispielpreis. Geraten wird nichts — hat der
+      // gewählte Artikel keinen Preis, bleibt der Preis offen.
+      const gewaehlt = v.artikelNr ? artikel(v.artikelNr) : null;
+      const quelle = gewaehlt || (v.artikelNr ? null : standardStundensatz());
       pos.push({
         id: uid('p'),
         text: (v.text || 'Arbeitszeit') + ' (Arbeitszeit)',
         menge: Number(v.stunden) || null,
         einheit: 'Std.',
-        preis: BEISPIEL_STUNDENSATZ,
-        preisIstBeispiel: true,
+        preis: quelle ? quelle.preis : (v.artikelNr ? null : BEISPIEL_STUNDENSATZ),
+        preisIstBeispiel: !quelle && !v.artikelNr,
+        artikelNr: quelle?.nr ?? null,
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
         kostenstelle: v.kostenstelle ?? null,
         zusatz: false,
       });
     } else if (v.typ === 'material') {
+      // Nur wenn beim Erfassen ausdrücklich ein Artikel gewählt wurde, kommt der Preis
+      // aus der Preisliste. Freitext wird nicht mit Artikeln „abgeglichen".
+      const gewaehlt = v.artikelNr ? artikel(v.artikelNr) : null;
       pos.push({
         id: uid('p'),
         text: v.text || 'Material',
         menge: Number(v.menge) || null,
-        einheit: v.einheit || 'Stück',
-        preis: null, // Materialpreis kennt nur Edin — bleibt bewusst offen
+        einheit: v.einheit || gewaehlt?.einheit || 'Stück',
+        preis: gewaehlt ? gewaehlt.preis : null, // sonst kennt den Preis nur Edin — bleibt offen
+        artikelNr: gewaehlt?.nr ?? null,
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
         kostenstelle: v.kostenstelle ?? null,
@@ -828,6 +870,103 @@ export function positionEntfernen(rechnungId, posId) {
   r.positionen.splice(i, 1);
   commit();
   return true;
+}
+
+/* ── Preisliste ──────────────────────────── */
+
+export const alleArtikel = () => preisliste.artikel;
+export const preislisteInfo = () => ({
+  anzahl: preisliste.artikel.length, importiertAm: preisliste.importiertAm,
+  quelle: preisliste.quelle, stundensatzNr: preisliste.stundensatzNr,
+});
+export const artikel = (nr) => nr ? preisliste.artikel.find(a => artikelSchluessel(a) === nr || a.nr === nr) || null : null;
+
+/** Edins Standard-Stundensatz für dokumentierte Arbeitszeit — nur mit gültigem Preis. */
+export function standardStundensatz() {
+  const a = artikel(preisliste.stundensatzNr);
+  return a && preisPruefen(a.preis).status === 'ok' && istStundenArtikel(a) ? a : null;
+}
+
+export function stundensatzSetzen(nr) {
+  const a = nr ? artikel(nr) : null;
+  preisliste.stundensatzNr = a && istStundenArtikel(a) ? artikelSchluessel(a) : null;
+  commit();
+  return standardStundensatz();
+}
+
+/**
+ * Importierte Artikel übernehmen. `zusammen` aktualisiert vorhandene Artikel mit
+ * gleicher Nummer und lässt alle anderen stehen; `ersetzen` tauscht die Liste aus.
+ * Was sich ändert, hat Edin vorher in der Vorschau gesehen (preislisteVergleich).
+ */
+export function preislisteUebernehmen(neu, { modus = 'zusammen', felder, quelle = '' } = {}) {
+  if (!Array.isArray(neu) || !neu.length) return null;
+  if (modus === 'ersetzen') {
+    preisliste.artikel = neu.map(a => ({ ...a }));
+  } else {
+    const liste = preisliste.artikel.map(a => ({ ...a }));
+    const index = new Map(liste.map((a, i) => [artikelSchluessel(a), i]));
+    for (const a of neu) {
+      const k = artikelSchluessel(a);
+      if (index.has(k)) liste[index.get(k)] = artikelAktualisiert(liste[index.get(k)], a, felder);
+      else { index.set(k, liste.length); liste.push({ ...a }); }
+    }
+    preisliste.artikel = liste;
+  }
+  preisliste.importiertAm = new Date().toISOString();
+  preisliste.quelle = String(quelle).slice(0, 120);
+  if (preisliste.stundensatzNr && !standardStundensatz()) preisliste.stundensatzNr = null;
+  commit();
+  return preislisteInfo();
+}
+
+export function preislisteLeeren() {
+  Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
+  commit();
+}
+
+/** Neue Position direkt aus einem Artikel. Bei einer Pauschale ist die Menge 1. */
+export function positionAusArtikel(rechnungId, nr) {
+  const r = rechnung(rechnungId);
+  const a = artikel(nr);
+  if (!r || istVersendet(r) || !a || istZuschlag(a)) return null;
+  const p = {
+    id: uid('p'), text: a.name,
+    menge: /^pauschale$/i.test(a.einheit) ? 1 : null,
+    einheit: a.einheit, preis: a.preis, artikelNr: artikelSchluessel(a),
+    herkunft: 'preisliste', quelleEintragId: null, kostenstelle: null, zusatz: false,
+  };
+  r.positionen.push(p);
+  commit();
+  return p;
+}
+
+/** Einer vorhandenen Position den Preis (und die Einheit) eines Artikels geben. Text und Menge bleiben. */
+export function positionArtikelSetzen(rechnungId, posId, nr) {
+  const r = rechnung(rechnungId);
+  const a = artikel(nr);
+  if (!r || istVersendet(r) || !a || istZuschlag(a)) return null;
+  const p = r.positionen.find(x => x.id === posId);
+  if (!p) return null;
+  Object.assign(p, { preis: a.preis, einheit: a.einheit, artikelNr: artikelSchluessel(a), preisIstBeispiel: false });
+  if (!p.text?.trim()) p.text = a.name;
+  commit();
+  return p;
+}
+
+/** Arbeitszeit-Positionen, die noch den Beispielpreis tragen. */
+export const beispielpreisPositionen = (r) =>
+  (r?.positionen || []).filter(p => p.preisIstBeispiel);
+
+/** Den Standard-Stundensatz in alle Positionen mit Beispielpreis übernehmen (auf Knopfdruck). */
+export function stundensatzUebernehmen(rechnungId) {
+  const r = rechnung(rechnungId);
+  const s = standardStundensatz();
+  if (!r || istVersendet(r) || !s) return 0;
+  const ziel = beispielpreisPositionen(r);
+  for (const p of ziel) Object.assign(p, { preis: s.preis, artikelNr: artikelSchluessel(s), preisIstBeispiel: false });
+  if (ziel.length) commit();
+  return ziel.length;
 }
 
 /**

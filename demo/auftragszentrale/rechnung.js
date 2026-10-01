@@ -14,6 +14,8 @@ import { esc, icon, fmtEuro, fmtDatum, parseZahl, zahlZuFeld, parseTermin,
 import * as flows from './flows.js';
 import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
+import { artikelWaehlen, preislisteOeffnen } from './preisliste-ui.js';
+import { artikelSchluessel } from './preisliste.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, badge, hinweisBox } from './ui.js';
 
 /* Zwei getrennte Fragen. `echterDienst`: laeuft die Auswertung echt (Sprache, Foto,
@@ -138,6 +140,7 @@ function editorKoerper(r) {
       </div>` : ''}
 
     ${abgleichHinweis(r)}
+    ${stundensatzHinweis(r)}
 
     <!-- Empfänger -->
     <div class="card">
@@ -176,9 +179,11 @@ function editorKoerper(r) {
       </div>
       <div class="pos-list">${r.positionen.map((p, i) => positionZeile(p, i)).join('')
         || '<div class="state-box">Keine Positionen. Die Dokumentation enthielt weder Zeit noch Material.</div>'}</div>
-      <button class="btn btn-block pos-neu" data-pos-neu type="button">
-        ${icon('plus')} Position hinzufügen
-      </button>
+      <div class="pos-neu-zeile">
+        <button class="btn pos-neu" data-pos-neu type="button">${icon('plus')} Position hinzufügen</button>
+        ${state.alleArtikel().length
+          ? `<button class="btn pos-neu" data-pos-aus-liste type="button">${icon('liste')} Aus Preisliste</button>` : ''}
+      </div>
     </div>
 
     <div class="summen" data-summen>${summenKoerper(r)}</div>`;
@@ -225,6 +230,28 @@ function abgleichHinweis(r) {
     </div>`;
 }
 
+/**
+ * Arbeitszeiten mit Beispielpreis, obwohl Edin einen Standard-Stundensatz hat —
+ * etwa weil der Entwurf vor dem Import der Preisliste entstand. Nichts wird still
+ * umgestellt: Der Hinweis zeigt es, ein Knopf übernimmt.
+ */
+function stundensatzHinweis(r) {
+  const beispiel = state.beispielpreisPositionen(r);
+  if (!beispiel.length || !state.alleArtikel().length) return '';
+  const s = state.standardStundensatz();
+  const n = beispiel.length;
+  return `
+    <div class="abgleich-box" data-stundensatz-box>
+      <div class="abgleich-kopf">${n === 1 ? 'Eine Arbeitszeit hat' : `${n} Arbeitszeiten haben`} noch den Beispielpreis ${fmtEuro(state.BEISPIEL_STUNDENSATZ)}</div>
+      ${s ? `
+        <div class="abgleich-t">Dein Standard-Stundensatz laut Preisliste: <strong>${esc(s.name)}</strong> · ${fmtEuro(s.preis)}</div>
+        <button class="btn btn-sm" data-stundensatz type="button">Stundensatz übernehmen</button>`
+      : `
+        <div class="abgleich-t">In der Preisliste ist noch kein Standard-Stundensatz festgelegt. Du kannst ihn dort wählen — oder bei jeder Position über ${icon('liste')} einen Artikel.</div>
+        <button class="btn btn-sm" data-preisliste-oeffnen type="button">Preisliste öffnen</button>`}
+    </div>`;
+}
+
 const beschreibeEintrag = (v) =>
   v.typ === 'zeit'
     ? `${zahlZuFeld(v.stunden)} Std. — ${v.text || 'Arbeitszeit'}`
@@ -242,12 +269,18 @@ function positionZeile(p, i) {
         <span class="pos-nr">${i + 1}</span>
         ${p.herkunft === 'dokumentiert' ? '<span class="pos-marke">Aus Dokumentation</span>' : ''}
         ${p.herkunft === 'manuell'      ? '<span class="pos-marke">Manuell ergänzt</span>' : ''}
+        ${p.herkunft === 'preisliste'   ? '<span class="pos-marke">Aus Preisliste</span>' : ''}
+        ${artikelMarke(p)}
         ${p.zusatz                       ? '<span class="pos-marke">Zusätzlich zur Anfrage</span>' : ''}
         ${p.preisIstBeispiel             ? '<span class="pos-marke">Beispielpreis</span>' : ''}
-        <button class="icon-btn pos-anweisung" data-pos-anweisung="${p.id}" type="button"
-                aria-label="Preis per Anweisung ändern">${icon('funke')}</button>
-        <button class="icon-btn pos-del" data-pos-del="${p.id}" type="button"
-                aria-label="Position entfernen">${icon('papierkorb')}</button>
+        <span class="pos-akt">
+          ${state.alleArtikel().length ? `<button class="icon-btn pos-artikel" data-pos-artikel="${p.id}" type="button"
+                  aria-label="Preis aus der Preisliste wählen">${icon('liste')}</button>` : ''}
+          <button class="icon-btn pos-anweisung" data-pos-anweisung="${p.id}" type="button"
+                  aria-label="Preis per Anweisung ändern">${icon('funke')}</button>
+          <button class="icon-btn pos-del" data-pos-del="${p.id}" type="button"
+                  aria-label="Position entfernen">${icon('papierkorb')}</button>
+        </span>
       </div>
 
       <div class="f f-leistung">
@@ -286,6 +319,14 @@ function positionZeile(p, i) {
         Ging über die ursprüngliche Anfrage hinaus
       </label>
     </div>`;
+}
+
+/** Artikelnummer an der Position — und ob Edin den Preis seither von Hand geändert hat. */
+function artikelMarke(p) {
+  if (!p.artikelNr) return '';
+  const a = state.artikel(p.artikelNr);
+  const angepasst = a && a.preis !== null && parseZahl(p.preis) !== null && Math.abs(parseZahl(p.preis) - a.preis) > 0.0001;
+  return `<span class="pos-marke" title="${esc(a?.name || '')}">${esc(a?.nr || p.artikelNr)}${angepasst ? ' · Preis angepasst' : ''}</span>`;
 }
 
 function summenKoerper(r) {
@@ -361,6 +402,19 @@ function editorBinden(el, api, rechnungId, danach) {
       });
     });
 
+    box.querySelector('[data-pos-artikel]')?.addEventListener('click', () => {
+      const p = r().positionen.find(x => x.id === posId);
+      artikelWaehlen({
+        titel: 'Preis aus Preisliste',
+        nurStunden: p?.einheit === 'Std.' && p?.herkunft === 'dokumentiert',
+        hinweis: p?.text ? `Für: <strong>${esc(p.text)}</strong>. Preis und Einheit kommen aus dem Artikel, Text und Menge bleiben.` : '',
+        onWahl: (a) => {
+          state.positionArtikelSetzen(rechnungId, posId, artikelSchluessel(a));
+          toast(a.preis === null ? 'Artikel verknüpft — in der Preisliste fehlt sein Preis.' : `Preis aus der Preisliste: ${fmtEuro(a.preis)}.`);
+        },
+      });
+    });
+
     box.querySelector('[data-pos-del]').addEventListener('click', async () => {
       const ja = await bestaetigen({
         titel: 'Position entfernen',
@@ -385,6 +439,22 @@ function editorBinden(el, api, rechnungId, danach) {
     api.render();
     toast(n === 1 ? 'Kostenstelle übernommen.' : `${n} Kostenstellen übernommen.`);
   });
+
+  el.querySelector('[data-pos-aus-liste]')?.addEventListener('click', () => {
+    artikelWaehlen({
+      titel: 'Position aus Preisliste',
+      hinweis: 'Die Position bekommt Name, Einheit und Preis des Artikels. Die Menge trägst du danach ein (bei einer Pauschale steht 1).',
+      onWahl: (a) => { state.positionAusArtikel(rechnungId, artikelSchluessel(a)); toast('Position aus der Preisliste ergänzt.'); },
+    });
+  });
+
+  el.querySelector('[data-stundensatz]')?.addEventListener('click', () => {
+    const n = state.stundensatzUebernehmen(rechnungId);
+    api.render();
+    toast(n === 1 ? 'Stundensatz übernommen.' : `Stundensatz in ${n} Positionen übernommen.`);
+  });
+
+  el.querySelector('[data-preisliste-oeffnen]')?.addEventListener('click', preislisteOeffnen);
 
   el.querySelector('[data-pos-neu]')?.addEventListener('click', () => {
     state.positionHinzufuegen(rechnungId);

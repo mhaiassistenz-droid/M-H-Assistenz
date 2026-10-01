@@ -14,6 +14,8 @@ import * as flows from './flows.js';
 import * as pegel from './pegel.js';
 import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
+import { artikelWaehlen, verknuepfungHtml, preisText } from './preisliste-ui.js';
+import { artikelSchluessel, istStundenArtikel } from './preisliste.js';
 import { sheetOeffnen, sheetSchliessen, bestaetigen, toast, badge, hinweisBox, leerZustand } from './ui.js';
 import { voicing } from './voicing.js';
 
@@ -647,30 +649,48 @@ function zeitDialog(auftragId, v, neuZeichnen) {
   // Eine aufgeteilte Tätigkeit darf „Zeit offen" bleiben — die Stunden trägt Edin
   // nach, statt dass eine Schätzung auf der Rechnung landet.
   const zeitDarfOffen = !!v && v.stunden === null;
+  // Eingaben leben hier, nicht nur im DOM: Öffnet Edin die Artikel-Auswahl, wird
+  // dieser Dialog danach neu gezeichnet — Getipptes darf dabei nicht verloren gehen.
+  const w = { stunden: zahlZuFeld(v?.stunden), text: v?.text || '', kostenstelle: v?.kostenstelle || '', artikelNr: v?.artikelNr || null };
+  const mitListe = () => state.alleArtikel().some(istStundenArtikel);
   sheetOeffnen({
     titel: v ? 'Arbeitszeit bearbeiten' : 'Arbeitszeit erfassen',
     body: () => `
       <div class="fields">
         <div class="f">
           <label class="f-label" for="zs">Stunden</label>
-          <input class="inp" id="zs" inputmode="decimal" placeholder="z. B. 1,5"
-                 value="${esc(zahlZuFeld(v?.stunden))}">
+          <input class="inp" id="zs" inputmode="decimal" placeholder="z. B. 1,5" value="${esc(w.stunden)}">
         </div>
         <div class="f">
           <label class="f-label" for="zt">Wofür</label>
-          <input class="inp" id="zt" placeholder="z. B. Dichtung tauschen" value="${esc(v?.text || '')}">
+          <input class="inp" id="zt" placeholder="z. B. Dichtung tauschen" value="${esc(w.text)}">
         </div>
       </div>
       <div class="f">
         <label class="f-label" for="zk">Kostenstelle <span class="opt">(leer = noch zuordnen)</span></label>
-        ${kostenstelleFeld(auftragId, 'zk', v?.kostenstelle)}
+        ${kostenstelleFeld(auftragId, 'zk', w.kostenstelle)}
       </div>
+      ${mitListe() || w.artikelNr ? `
+        <div class="f">
+          <span class="f-label">Stundensatz <span class="opt">(optional)</span></span>
+          ${w.artikelNr ? verknuepfungHtml(w.artikelNr, 'data-art-loesen')
+            : `<button class="btn" data-art-waehlen type="button">${icon('liste')} Aus Preisliste wählen</button>
+               <div class="f-hilfe">Ohne Auswahl gilt dein Standard-Stundensatz aus der Preisliste.</div>`}
+        </div>` : ''}
       <div class="hint-note">Halbe Stunden als Komma schreiben: 1,5 statt 1.5.${zeitDarfOffen
         ? ' Leer lassen, solange die Zeit für diese Tätigkeit noch nicht feststeht.' : ''}</div>`,
     foot: () => `
       <button class="btn" data-ab type="button">Abbrechen</button>
       <button class="btn btn-primaer" data-ok type="button">Speichern</button>`,
-    bind: (el) => {
+    bind: (el, api) => {
+      el.querySelector('#zs').addEventListener('input', (e) => { w.stunden = e.target.value; });
+      el.querySelector('#zt').addEventListener('input', (e) => { w.text = e.target.value; });
+      el.querySelector('#zk').addEventListener('input', (e) => { w.kostenstelle = e.target.value; });
+      el.querySelector('[data-art-waehlen]')?.addEventListener('click', () => artikelWaehlen({
+        titel: 'Stundensatz wählen', nurStunden: true,
+        onWahl: (a) => { w.artikelNr = artikelSchluessel(a); if (!w.text.trim()) w.text = a.name.replace(/\s*\((std\.?|stunden?)\)\s*$/i, ''); },
+      }));
+      el.querySelector('[data-art-loesen]')?.addEventListener('click', () => { w.artikelNr = null; api.render(); });
       el.querySelector('[data-ab]').addEventListener('click', sheetSchliessen);
       el.querySelector('[data-ok]').addEventListener('click', () => {
         const roh = el.querySelector('#zs').value;
@@ -680,7 +700,7 @@ function zeitDialog(auftragId, v, neuZeichnen) {
         const offenLassen = zeitDarfOffen && !roh.trim();
         if (!offenLassen && (stunden === null || stunden <= 0)) return toast('Bitte eine Stundenzahl größer als 0 eintragen.');
         if (!text) return toast('Bitte eintragen, wofür die Zeit angefallen ist.');
-        const daten = { stunden: offenLassen ? null : stunden, text, kostenstelle };
+        const daten = { stunden: offenLassen ? null : stunden, text, kostenstelle, artikelNr: w.artikelNr };
         if (v) state.verlaufUpdate(auftragId, v.id, { ...daten, simuliert: false });
         else   state.verlaufHinzufuegen(auftragId, { typ: 'zeit', ...daten });
         sheetSchliessen(); neuZeichnen(); toast('Arbeitszeit gespeichert.');
@@ -690,37 +710,53 @@ function zeitDialog(auftragId, v, neuZeichnen) {
 }
 
 function materialDialog(auftragId, v, neuZeichnen) {
+  const w = {
+    text: v?.text || '', menge: zahlZuFeld(v?.menge), einheit: v?.einheit || 'Stück',
+    lieferant: v?.lieferant || '', kostenstelle: v?.kostenstelle || '', artikelNr: v?.artikelNr || null,
+  };
   sheetOeffnen({
     titel: v ? 'Material bearbeiten' : 'Material erfassen',
     body: () => `
+      ${state.alleArtikel().length && !w.artikelNr ? `
+        <button class="btn btn-block" data-art-waehlen type="button">${icon('liste')} Aus Preisliste wählen</button>
+        <div class="f-hilfe">Auch Leistungen nach Fläche oder als Pauschale, z. B. Fensterreinigung pro m² oder die Anfahrtspauschale.</div>` : ''}
+      ${w.artikelNr ? verknuepfungHtml(w.artikelNr, 'data-art-loesen') : ''}
       <div class="f">
         <label class="f-label" for="mb">Bezeichnung</label>
-        <input class="inp" id="mb" placeholder="z. B. Dichtungssatz Standard" value="${esc(v?.text || '')}">
+        <input class="inp" id="mb" placeholder="z. B. Dichtungssatz Standard" value="${esc(w.text)}">
       </div>
       <div class="fields">
         <div class="f">
           <label class="f-label" for="mm">Menge</label>
-          <input class="inp" id="mm" inputmode="decimal" placeholder="z. B. 2" value="${esc(zahlZuFeld(v?.menge))}">
+          <input class="inp" id="mm" inputmode="decimal" placeholder="z. B. 2" value="${esc(w.menge)}">
         </div>
         <div class="f">
           <label class="f-label" for="me">Einheit</label>
-          <input class="inp" id="me" placeholder="Stück" value="${esc(v?.einheit || 'Stück')}">
+          <input class="inp" id="me" placeholder="Stück" value="${esc(w.einheit)}">
         </div>
       </div>
       <div class="f">
         <label class="f-label" for="ml">Lieferant <span class="opt">(optional)</span></label>
-        <input class="inp" id="ml" placeholder="Woher das Material stammt" value="${esc(v?.lieferant || '')}">
+        <input class="inp" id="ml" placeholder="Woher das Material stammt" value="${esc(w.lieferant)}">
       </div>
       <div class="f">
         <label class="f-label" for="mk">Kostenstelle <span class="opt">(leer = noch zuordnen)</span></label>
-        ${kostenstelleFeld(auftragId, 'mk', v?.kostenstelle)}
+        ${kostenstelleFeld(auftragId, 'mk', w.kostenstelle)}
       </div>
-      <div class="hint-note">Der Preis wird erst im Rechnungsentwurf eingetragen —
-        hier geht es nur darum, was verbaut wurde.</div>`,
+      <div class="hint-note">${w.artikelNr && state.artikel(w.artikelNr)?.preis !== null && state.artikel(w.artikelNr)
+        ? `Der Preis (${esc(preisText(state.artikel(w.artikelNr)))}) kommt aus der Preisliste in den Rechnungsentwurf.`
+        : 'Der Preis wird erst im Rechnungsentwurf eingetragen — hier geht es nur darum, was verbaut wurde.'}</div>`,
     foot: () => `
       <button class="btn" data-ab type="button">Abbrechen</button>
       <button class="btn btn-primaer" data-ok type="button">Speichern</button>`,
-    bind: (el) => {
+    bind: (el, api) => {
+      [['#mb', 'text'], ['#mm', 'menge'], ['#me', 'einheit'], ['#ml', 'lieferant'], ['#mk', 'kostenstelle']]
+        .forEach(([sel, feld]) => el.querySelector(sel).addEventListener('input', (e) => { w[feld] = e.target.value; }));
+      el.querySelector('[data-art-waehlen]')?.addEventListener('click', () => artikelWaehlen({
+        titel: 'Material oder Leistung wählen',
+        onWahl: (a) => { Object.assign(w, { text: a.name, einheit: a.einheit, artikelNr: artikelSchluessel(a) }); },
+      }));
+      el.querySelector('[data-art-loesen]')?.addEventListener('click', () => { w.artikelNr = null; api.render(); });
       el.querySelector('[data-ab]').addEventListener('click', sheetSchliessen);
       el.querySelector('[data-ok]').addEventListener('click', () => {
         const text = el.querySelector('#mb').value.trim();
@@ -731,6 +767,7 @@ function materialDialog(auftragId, v, neuZeichnen) {
           einheit: el.querySelector('#me').value.trim() || 'Stück',
           lieferant: el.querySelector('#ml').value.trim(),
           kostenstelle: state.kostenstelleNormal(el.querySelector('#mk').value),
+          artikelNr: w.artikelNr,
         };
         if (v) state.verlaufUpdate(auftragId, v.id, { ...daten, simuliert: false });
         else   state.verlaufHinzufuegen(auftragId, { typ: 'material', ...daten });

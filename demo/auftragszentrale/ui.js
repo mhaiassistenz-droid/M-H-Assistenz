@@ -95,7 +95,12 @@ function zeichnen() {
   // Dieselbe Ebene zeichnet sich neu (z. B. nach einem Haken): Scrollstand halten und
   // nicht erneut einblenden — sonst springt die Ansicht bei jeder Auswahl nach oben.
   const dieselbe = zuletztGezeichnet === o;
-  const scrollVorher = dieselbe ? h.querySelector('.sheet-body')?.scrollTop || 0 : 0;
+  const scrollJetzt = h.querySelector('.sheet-body')?.scrollTop || 0;
+  // Öffnet sich eine Ebene darüber (z. B. die Artikel-Auswahl), merkt sich die alte
+  // ihren Scrollstand — beim Zurückkehren steht Edin wieder an derselben Stelle,
+  // statt im langen Rechnungsentwurf oben neu anzufangen.
+  if (zuletztGezeichnet && !dieselbe && stack.includes(zuletztGezeichnet)) zuletztGezeichnet._scroll = scrollJetzt;
+  const scrollVorher = dieselbe ? scrollJetzt : (o._scroll || 0);
   zuletztGezeichnet = o;
 
   h.innerHTML = `
@@ -115,10 +120,10 @@ function zeichnen() {
     </div>`;
 
   const wurzel = h.firstElementChild;
-  if (dieselbe) {
-    wurzel.querySelector('.sheet').classList.add('ohne-einblenden');
-    wurzel.querySelector('.sheet-body').scrollTop = scrollVorher;
-  }
+  // Zurück auf eine Ebene, die schon zu sehen war: nicht erneut hereinfahren lassen.
+  if (dieselbe || o._gezeigt) wurzel.querySelector('.sheet').classList.add('ohne-einblenden');
+  o._gezeigt = true;
+  if (scrollVorher) wurzel.querySelector('.sheet-body').scrollTop = scrollVorher;
   wurzel.querySelector('[data-close]').addEventListener('click', nutzerSchliessen);
   wurzel.addEventListener('mousedown', (e) => {
     // Klick auf den abgedunkelten Rand schließt — Klick im Sheet nicht.

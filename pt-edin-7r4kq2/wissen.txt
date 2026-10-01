@@ -232,6 +232,32 @@ Arbeit ist fertig.
 
 - Liste aller Rechnungen mit Umschalter **Alle / Offen / Versendet**. Darunter
   „Erledigt, noch ohne Rechnung" — Aufträge, für die noch keine Rechnung erstellt wurde.
+- Oben rechts der Knopf **„Preisliste"** (siehe nächster Abschnitt).
+
+## Preisliste (neu)
+
+- Rechnungen → **„Preisliste"**. Dort liest Edin seine Artikel aus sevDesk ein:
+  **„CSV-Datei wählen"** (die Datei, die er aus sevDesk exportiert bzw. Matthias geschickt
+  hat; am Handy vorher aus WhatsApp über Teilen → „In Dateien sichern") oder
+  **„Aus Tabelle einfügen"** (Zellen aus Excel/Numbers samt Überschrift kopieren).
+  Excel- und Numbers-Dateien direkt gehen nicht — dann als CSV exportieren.
+- Vor dem Übernehmen zeigt die App eine **Vorschau**: wie viele Artikel, Hinweise (z. B.
+  Preis fehlt), und bei einer zweiten Datei: was neu ist und **welche Preise sich ändern**.
+  Wahl: „Zusammenführen" (neue dazu, gleiche Artikelnummer wird aktualisiert) oder
+  „Liste ersetzen". Bestehende Rechnungen ändern sich dadurch nicht, sevDesk auch nicht.
+- In der Preisliste: Suche, Artikel nach Kategorien, und **„Stundensatz für Arbeitszeit"**:
+  Edin wählt seinen normalen Stundensatz. Dann steht in neuen Rechnungen bei jeder
+  Arbeitszeit dieser Preis statt des Beispielpreises 58 €.
+- Benutzen: Bei **„Zeit erfassen"** und **„Material erfassen"** gibt es
+  „Aus Preisliste wählen" (auch für Leistungen nach m² oder Pauschalen, z. B. Anfahrt).
+  Im **Rechnungsentwurf** fügt „Aus Preisliste" eine Position hinzu; das Listen-Symbol an
+  einer Position holt deren Preis aus der Liste. Hat ein alter Entwurf noch den
+  Beispielpreis, bietet die App „Stundensatz übernehmen" an.
+- Die App ordnet **nie selbst** zu: Freier Text (z. B. „Siphon wechseln" getippt) bekommt
+  keinen Preis aus der Liste — nur was Edin aus der Liste wählt.
+- Zuschläge in Prozent (z. B. Wochenende +25 %) stehen in der Liste, werden aber noch
+  nicht berechnet. Der Mindestauftragswert wird auch noch nicht automatisch geprüft.
+- Die Preisliste liegt wie alles andere nur auf dem Gerät, auf dem sie eingelesen wurde.
 
 ## Schritt 1: Auftrag erfassen
 
@@ -336,7 +362,8 @@ mit Rückfrage) und bei Notizen/offenen Punkten „Als Aufgabe".
 - **Positionen**: jede Zeit- und Materialzeile ist eine Position mit Leistung, Menge,
   Einheit, Einzelpreis, Kostenstelle und Häkchen „Ging über die ursprüngliche Anfrage
   hinaus". Fehlt etwas (meist ein Preis), ist es markiert, und es gibt **keinen
-  Gesamtbetrag**, bis alles da ist. Der Stundensatz 58 € ist im Moment nur ein Beispiel.
+  Gesamtbetrag**, bis alles da ist. Ohne Preisliste ist der Stundensatz 58 € nur ein
+  Beispiel; mit Preisliste kommt Edins eigener Stundensatz.
 - An jeder Position das **Funken-Symbol**: kurz schreiben, was anders sein soll
   („die Dichtung hat 4 Euro gekostet") → Vorschlag mit Vorher/Nachher → „Übernehmen".
   Ohne Zahl fragt die KI nach, statt zu raten.
@@ -358,8 +385,10 @@ mit Rückfrage) und bei Notizen/offenen Punkten „Als Aufgabe".
 
 ## Was heute noch nicht geht (ehrlich sagen, ohne Technik)
 
-- Keine hinterlegte **Preisliste**: Stundensätze, Materialpreise und Pauschalen muss man
-  noch selbst eintragen.
+- **Zuschläge in Prozent** (Wochenende, Nacht, starke Verschmutzung) und der
+  **Mindestauftragswert** werden noch nicht automatisch berechnet.
+- Die KI erkennt beim Einsprechen noch **keine Artikel aus der Preisliste** — Artikel wählt
+  Edin von Hand.
 - Die KI teilt ein Diktat mit mehreren Arbeiten **noch nicht selbst** auf.
 - **Eine Rechnung pro Auftrag** — Material und Arbeit getrennt oder je Kostenstelle eine
   eigene Rechnung geht noch nicht.
@@ -368,8 +397,9 @@ mit Rückfrage) und bei Notizen/offenen Punkten „Als Aufgabe".
 
 ## Was im Gespräch ist (nichts davon zugesagt — nie als „kommt" darstellen)
 
-- Preisliste aus Edins Liste übernehmen, sodass Pauschalen (z. B. Siphon wechseln,
-  Armatur wechseln) und Material nicht jedes Mal getippt werden müssen.
+- Die KI erkennt beim Einsprechen Artikel aus der Preisliste („zwei Siphons gewechselt").
+- Zuschläge in Prozent und Mindestauftragswert automatisch berechnen.
+- Preise direkt in der App ändern statt neu einlesen; Abgleich mit sevDesk.
 - KI teilt ein Diktat selbst in mehrere Arbeiten mit Kostenstelle auf.
 - Mehrere Rechnungen je Auftrag (Material/Arbeit getrennt, je Kostenstelle).
 - Rechnung geht an sevDesk, sevDesk macht Rechnung, Zahlungseingang und Mahnung.
@@ -380,6 +410,10 @@ mit Rückfrage) und bei Notizen/offenen Punkten „Als Aufgabe".
 
 - Wie soll eine Rechnung aussehen, wenn fünf Arbeiten auf verschiedene Kostenstellen gehen?
 - Wie soll die Preisliste funktionieren — was soll automatisch kommen, was nicht?
+  Welche Arbeiten fehlen in seiner Liste noch als Pauschale (z. B. Siphon oder Armatur
+  wechseln stehen auf seinen Rechnungen, aber nicht in der Liste)?
+- Wann sollen Zuschläge (Wochenende, Nacht, Verschmutzung) greifen — immer automatisch
+  oder nur, wenn er es ankreuzt?
 - Was soll beim Einsprechen vor Ort noch automatisch erkannt werden?
 - Wo fehlt ihm im Alltag ein Knopf, wo ist es zu viel?
 - Was soll im Bericht stehen, den er für sich behält (Zeiten nachvollziehen)?

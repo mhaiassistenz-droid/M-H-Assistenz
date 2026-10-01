@@ -1029,7 +1029,10 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .home-fuss { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
 .f-leistung { margin-bottom: 12px; }
 .pos-neu { margin-top: 12px; }
-.pos-anweisung { margin-left: auto; color: #7C3AED; }
+.pos-anweisung { color: #7C3AED; }
+.pos-artikel { color: var(--text-2); }
+/* Die Symbole bleiben zusammen rechts; umbrechen dürfen nur die Marken davor. */
+.pos-akt { margin-left: auto; display: flex; gap: 2px; flex: none; }
 .pos-del { }
 .sum-erklaerung { font-size: 13px; color: var(--text-3); line-height: 1.45; }
 .beleg-kopfzeile { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -1661,6 +1664,67 @@ textarea.inp { resize: vertical; min-height: 88px; line-height: 1.5; }
 .bericht-aeltere, .bericht-aktuell { display: flex; flex-direction: column; gap: 12px; }
 .bericht-aeltere summary, .bericht-aktuell summary { cursor: pointer; padding-block: 12px; font-size: 14px; color: #1D4ED8; }
 .sig-feld { width: 100%; height: auto; aspect-ratio: 3 / 1; background: var(--card); border: 1px dashed var(--line-stark); border-radius: 10px; touch-action: none; display: block; }
+
+/* ── Preisliste ──────────────────────────────
+   Edins Artikel aus sevDesk. Ruhig wie der Rest: Name vorn, Preis rechts in
+   Tabellenziffern, Beschreibung gedämpft. Fehlender Preis ist ein Wort, keine Farbe allein. */
+.pos-neu-zeile { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.pos-neu-zeile .pos-neu { margin-top: 0; flex: 1 1 200px; }
+.pl-info { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 14px; color: var(--text-2); }
+.pl-info strong { color: var(--text); font-weight: 600; }
+.pl-info > span { display: block; flex-basis: 100%; }
+.pl-warn { color: #9A6508; }
+.pl-gruppen { display: flex; flex-direction: column; gap: 8px; }
+.pl-gruppe { border: 1px solid var(--line); border-radius: var(--r-karte); background: var(--card); overflow: hidden; flex-shrink: 0; }
+.card-body > .pl-zeile:first-child { border-top: 0; }
+.card-body > .pl-zeile { padding-inline: 0; }
+.pl-gruppe > summary {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer; font-size: 14.5px; font-weight: 600; list-style: none;
+}
+.pl-gruppe > summary::-webkit-details-marker { display: none; }
+.pl-gruppe > summary::after { content: '›'; color: var(--text-3); font-size: 18px; line-height: 1; transition: transform .15s; }
+.pl-gruppe[open] > summary::after { transform: rotate(90deg); }
+.pl-gruppe > summary span:first-child { flex: 1; min-width: 0; }
+.pl-zeile {
+  display: flex; gap: 12px; align-items: flex-start; justify-content: space-between;
+  padding: 11px 14px; border-top: 1px solid var(--line); width: 100%;
+  background: var(--card); text-align: left; font: inherit; color: inherit;
+}
+.pl-zeile[hidden] { display: none; }
+button.pl-zeile { border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer; min-height: 52px; }
+button.pl-zeile:hover { background: var(--card-hover); }
+.pl-mitte { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.pl-name { display: block; font-size: 14.5px; font-weight: 500; color: var(--text); overflow-wrap: anywhere; }
+.pl-meta { display: block; font-size: 13px; color: var(--text-3); }
+.pl-text { font-size: 13px; color: var(--text-2); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pl-hinweis { font-size: 12.5px; color: #9A6508; }
+.pl-preis { flex: none; font-size: 14.5px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.pl-preis.offen { color: #9A6508; font-weight: 500; font-size: 13.5px; }
+.pl-alt { color: var(--text-3); font-weight: 400; text-decoration: line-through; }
+.pl-aenderung .pl-preis { white-space: normal; }
+.pl-import-knoepfe { display: flex; gap: 10px; flex-wrap: wrap; }
+.pl-import-knoepfe .btn { flex: 1 1 180px; }
+.pl-modus { display: flex; flex-direction: column; gap: 8px; }
+.pl-modus-wahl {
+  display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: var(--r-karte); background: var(--card);
+}
+.pl-modus-wahl:has(input:checked) { border-color: var(--aktion); }
+.pl-modus-wahl input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--aktion); flex: none; }
+.pl-modus-wahl strong { display: block; font-size: 14.5px; font-weight: 600; }
+.pl-modus-wahl small { display: block; font-size: 13px; color: var(--text-2); line-height: 1.45; margin-top: 2px; }
+.pl-zahlen { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+.pl-zahlen > div { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--card); }
+.pl-zahlen strong { display: block; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pl-zahlen span { font-size: 13px; color: var(--text-2); }
+.pl-verknuepft {
+  display: flex; gap: 10px; align-items: center; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 13.5px; color: var(--text-2);
+}
+.pl-verknuepft > svg { width: 16px; height: 16px; flex: none; }
+.pl-verknuepft > span { flex: 1; min-width: 0; }
+.pl-verknuepft strong { color: var(--text); font-weight: 600; }
 
 /* Drucken / „Als PDF sichern": nur das gewählte Berichtsdokument. Mit display statt
    visibility — sonst nähme Verstecktes Platz ein, und das fixierte Overlay würde auf

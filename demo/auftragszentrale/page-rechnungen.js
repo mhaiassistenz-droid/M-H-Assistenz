@@ -43,6 +43,8 @@ export function renderRechnungen(el) {
         <div class="page-sub">${alle.length} ${alle.length === 1 ? 'Rechnung' : 'Rechnungen'} ·
           ${entwuerfe.length} im Entwurf</div>
       </div>
+      <button class="btn" data-preisliste type="button">${icon('liste')} Preisliste${state.alleArtikel().length
+        ? ` <span class="chip-count">${state.alleArtikel().length}</span>` : ''}</button>
     </div>
 
     ${alle.length ? `
@@ -113,6 +115,11 @@ function zeileAuftragOhne(a) {
 }
 
 function binden(el) {
+  el.querySelector('[data-preisliste]')?.addEventListener('click', async () => {
+    const { preislisteOeffnen } = await import('./preisliste-ui.js');
+    preislisteOeffnen();
+  });
+
   el.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => {
     filter = b.dataset.filter;
     renderRechnungen(el);
