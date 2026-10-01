@@ -40,7 +40,7 @@
   .marke{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--rot);color:#fff;font-size:12.5px;font-weight:700;vertical-align:1px;}
   nav.inhalt{margin:18px 0 6px;border:1px solid var(--line);border-radius:12px;padding:14px 18px;}
   nav.inhalt b{display:block;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-  nav.inhalt ol{margin-left:20px;columns:2;column-gap:28px;font-size:15px;list-style:upper-alpha;}
+  nav.inhalt ol{margin-left:20px;columns:2;column-gap:28px;font-size:15px;list-style:none;}
   nav.inhalt li{margin:3px 0;break-inside:avoid;}
   nav.inhalt a{color:var(--blue);text-decoration:none;}
   .schritt{display:grid;grid-template-columns:1fr 290px;gap:28px;align-items:start;margin-top:30px;padding-top:26px;border-top:1px dashed var(--line);}
@@ -100,28 +100,55 @@
     <div class="kasten gelb">
       <p><b>Bevor du anfängst:</b></p>
       <ol>
-        <li>Öffne die App am Handy über den <b>Link von Matthias</b> (dann laufen Sprache, Foto und KI wirklich). Ganz unten auf der Startseite muss „Zugangscode entfernen“ stehen.</li>
+        <li>Öffne die App am Handy: <b>mhassistenz.de/demo/auftragszentrale</b> (oder über den Link von Matthias). Halte den <b>Zugangscode</b> von Matthias bereit — den gibst du gleich in Teil 0 ein.</li>
         <li><b>Speichere die zwei Übungsbilder</b> auf deinem Handy: antippen, dann lange auf das Bild drücken → „In Fotos sichern“ bzw. „Bild herunterladen“.</li>
         <li>Erkennt die App etwas <b>anders als auf den Bildern</b>? Kein Problem — einfach im Feld korrigieren. Genau dafür zeigt sie dir alles vorher.</li>
         <li>Alles ist erfunden. Es geht nichts raus, und es landet nichts bei Kunden.</li>
       </ol>
       <div class="dl">
-        <a href="auftragszettel.jpg"><img src="auftragszettel.jpg" alt="">Übungszettel<small>für Schritt 3</small></a>
-        <a href="zaunfoto.jpg"><img src="zaunfoto.jpg" alt="">Zaunfoto<small>für Schritt 18</small></a>
+        <a href="auftragszettel.jpg"><img src="auftragszettel.jpg" alt="">Übungszettel<small>für Teil A</small></a>
+        <a href="zaunfoto.jpg"><img src="zaunfoto.jpg" alt="">Zaunfoto<small>für Teil C</small></a>
       </div>
     </div>
 
     <nav class="inhalt" aria-label="Inhalt">
       <b>Ablauf</b>
-      <ol><li><a href="#a">Erster Auftrag — per Foto</a></li><li><a href="#b">Zweiter Auftrag — per Einsprechen</a></li><li><a href="#c">Zurück zur Diakonie — vor Ort dokumentieren</a></li><li><a href="#d">Zwischendurch — Notiz beim anderen Auftrag</a></li><li><a href="#e">Kostenstellen verteilen</a></li><li><a href="#f">Einsatzbericht, Unterschrift, PDF</a></li><li><a href="#g">Arbeit abschließen</a></li><li><a href="#h">Rechnung — bis zum Ende</a></li></ol>
+      <ol><li><a href="#freischalten">0 · Zuerst: KI freischalten</a></li><li><a href="#a">A · Erster Auftrag — per Foto</a></li><li><a href="#b">B · Zweiter Auftrag — per Einsprechen</a></li><li><a href="#c">C · Zurück zur Diakonie — vor Ort dokumentieren</a></li><li><a href="#d">D · Zwischendurch — Notiz beim anderen Auftrag</a></li><li><a href="#e">E · Kostenstellen verteilen</a></li><li><a href="#f">F · Einsatzbericht, Unterschrift, PDF</a></li><li><a href="#g">G · Arbeit abschließen</a></li><li><a href="#h">H · Rechnung — bis zum Ende</a></li></ol>
     </nav>
 
+    <h2 id="freischalten"><span class="nr">0</span>Zuerst: KI freischalten</h2>
+    <p>Nur damit erkennt die App wirklich Fotos und Sprache. Einmal pro Gerät — danach bleibt es.</p>
+    
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 1</div>
+        <h3>Knopf ganz unten auf der Startseite</h3>
+        <div class="b tipp"><span class="k">Tippen</span><p>Öffne die App, bleib auf <b>Home</b> und scroll ganz nach unten. Tippe auf <b>KI-Funktionen freischalten</b> <span class="marke">1</span>.</p></div><div class="b info"><p>Steht dort schon <b>Zugangscode entfernen</b>? Dann bist du schon freigeschaltet — weiter mit Teil A.</p></div>
+      </div>
+      <figure><img src="bilder/u00a-freischalten-knopf.jpg" alt="Knopf ganz unten auf der Startseite" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 2</div>
+        <h3>Code eingeben</h3>
+        <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Zugangscode</th><td>den Code, den Matthias dir geschickt hat</td></tr></table></div><div class="b info"><p>Genau so eingeben, wie er geschickt wurde — am besten kopieren und einfügen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Freischalten</b> <span class="marke">2</span>.</p></div>
+      </div>
+      <figure><img src="bilder/u00b-code-eingeben.jpg" alt="Code eingeben" loading="lazy" width="390" height="844"></figure>
+    </div>
+    <div class="schritt">
+      <div class="txt">
+        <div class="snr">Schritt 3</div>
+        <h3>Fertig freigeschaltet</h3>
+        <div class="b info"><p>Unten steht jetzt <b>Zugangscode entfernen</b> und im Kasten darüber „laufen über echte Dienste“. Das heißt: es klappt. <b>Nicht</b> auf „Zugangscode entfernen“ tippen.</p></div><div class="b info"><p>Kommt „Der Code stimmt nicht“: nochmal genau eingeben oder Matthias Bescheid sagen.</p></div>
+      </div>
+      <figure><img src="bilder/u00c-freigeschaltet.jpg" alt="Fertig freigeschaltet" loading="lazy" width="390" height="844"></figure>
+    </div>
     <h2 id="a"><span class="nr">A</span>Erster Auftrag — per Foto</h2>
     <p>Du legst den Diakonie-Auftrag vom Übungszettel an.</p>
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 1</div>
+        <div class="snr">Schritt 4</div>
         <h3>Auftrag erfassen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag erfassen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -129,7 +156,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 2</div>
+        <div class="snr">Schritt 5</div>
         <h3>Weg wählen: Foto</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Foto / Screenshot</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -137,7 +164,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 3</div>
+        <div class="snr">Schritt 6</div>
         <h3>Übungszettel nehmen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aus Galerie wählen</b> <span class="marke">2</span> und nimm den <b>Übungszettel</b>, den du oben gespeichert hast.</p></div><div class="b info"><p>Oder: <b>Foto aufnehmen</b> <span class="marke">1</span> und den Zettel am PC-Bildschirm abfotografieren.</p></div>
       </div>
@@ -145,7 +172,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 4</div>
+        <div class="snr">Schritt 7</div>
         <h3>Auswerten lassen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bild auswerten</b> <span class="marke">1</span>. Das dauert ein paar Sekunden.</p></div>
       </div>
@@ -153,7 +180,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 5</div>
+        <div class="snr">Schritt 8</div>
         <h3>Prüfen und übernehmen</h3>
         <div class="b info"><p>Kunde, Adresse und Aufgabe sind erkannt. Der <b>Termin fehlt</b> — der steht nicht auf dem Zettel. Die App rät ihn nicht.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Angaben übernehmen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -161,7 +188,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 6</div>
+        <div class="snr">Schritt 9</div>
         <h3>Fehlendes einsprechen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe oben auf <b>Per Sprache ergänzen</b> <span class="marke">1</span>. Der Knopf wird rot.</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Termin morgen um acht Uhr. Ansprechpartner Herr Neumann, Telefon 0228 5550120.“</p></div>
       </div>
@@ -169,7 +196,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 7</div>
+        <div class="snr">Schritt 10</div>
         <h3>Aufnahme beenden</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Fertig gesprochen? Tippe nochmal auf den Knopf <span class="marke">1</span>.</p></div>
       </div>
@@ -177,7 +204,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 8</div>
+        <div class="snr">Schritt 11</div>
         <h3>Ergänzung übernehmen</h3>
         <div class="b info"><p>Die App zeigt, was sie eintragen will: Termin, Ansprechpartner, Telefon. Mit den Häkchen könntest du etwas abwählen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -185,7 +212,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 9</div>
+        <div class="snr">Schritt 12</div>
         <h3>E-Mail und Rechnungsadresse</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>E-Mail (für die Rechnung)</th><td>rechnung@diakonie-test.example</td></tr><tr><th>Rechnungsadresse</th><td>Diakonie Testverbund, Verwaltung, Postfach 1020, 53111 Bonn</td></tr></table></div><div class="b info"><p>Die Rechnung geht an die Verwaltung, gearbeitet wird am Musterweg (Objektadresse).</p></div>
       </div>
@@ -193,7 +220,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 10</div>
+        <div class="snr">Schritt 13</div>
         <h3>Kunde merken und anlegen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Setz das Häkchen <b>Kunde für weitere Aufträge merken</b> <span class="marke">1</span>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag anlegen</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -201,7 +228,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 11</div>
+        <div class="snr">Schritt 14</div>
         <h3>Arbeit starten</h3>
         <div class="b info"><p>Die Auftragsakte geht auf. Stell dir vor, du bist jetzt beim Kunden.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe unten auf <b>Arbeit starten</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -212,7 +239,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 12</div>
+        <div class="snr">Schritt 15</div>
         <h3>Neuer Auftrag, Weg: Einsprechen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Schließ die Akte mit dem <b>X</b> oben links. Unten auf <b>Home</b>, dann <b>Auftrag erfassen</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Einsprechen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -220,7 +247,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 13</div>
+        <div class="snr">Schritt 16</div>
         <h3>Aufnahme starten</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme starten</b> <span class="marke">1</span> und sag in einem Satz:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Bürohaus Kastanienallee, Kastanienallee 7 in 53175 Bonn. Heizungsverteiler im Technikraum prüfen und entlüften. Heute um 14 Uhr.“</p></div>
       </div>
@@ -228,7 +255,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 14</div>
+        <div class="snr">Schritt 17</div>
         <h3>Aufnahme stoppen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme stoppen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -236,7 +263,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 15</div>
+        <div class="snr">Schritt 18</div>
         <h3>Prüfen und übernehmen</h3>
         <div class="b info"><p>Oben steht, was die App gehört hat, darunter die Angaben daraus.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Angaben übernehmen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -244,7 +271,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 16</div>
+        <div class="snr">Schritt 19</div>
         <h3>Anlegen und starten</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Auftrag anlegen</b> <span class="marke">1</span>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>In der Akte gleich unten auf <b>Arbeit starten</b>. Jetzt sind <b>zwei Aufträge gleichzeitig in Arbeit</b>.</p></div>
       </div>
@@ -255,7 +282,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 17</div>
+        <div class="snr">Schritt 20</div>
         <h3>Zum ersten Auftrag wechseln</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Akte mit <b>X</b> schließen. Auf <b>Home</b> ein Stück runterscrollen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Unter <b>Weitere laufende Arbeiten</b> tippst du auf den <b>Diakonie-Auftrag</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -263,7 +290,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 18</div>
+        <div class="snr">Schritt 21</div>
         <h3>Foto dazu</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bilder hinzufügen</b> <span class="marke">1</span> und nimm das <b>Zaunfoto</b> von oben — oder <b>Foto aufnehmen</b> und fotografier irgendetwas.</p></div><div class="b info"><p>Die App gibt dem Foto selbst einen Namen, z. B. „Zaun hinten, Pfosten schief“.</p></div>
       </div>
@@ -271,7 +298,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 19</div>
+        <div class="snr">Schritt 22</div>
         <h3>Alles in einem Satz erzählen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Schnell diktieren</b> <span class="marke">1</span> und sag:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Tür nachgestellt, Licht getauscht, Ablauf gereinigt und den Zaun repariert. Insgesamt viereinhalb Stunden, zwei Zaunlatten verbaut. Der zweite Zaunpfosten wackelt noch. Als Aufgabe: Zaunpfosten nachbestellen.“</p></div>
       </div>
@@ -279,7 +306,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 20</div>
+        <div class="snr">Schritt 23</div>
         <h3>Aufnahme stoppen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufnahme stoppen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -287,7 +314,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 21</div>
+        <div class="snr">Schritt 24</div>
         <h3>Prüfen und übernehmen</h3>
         <div class="b info"><p>Die App hat sortiert: ausgeführte Arbeit, 4,5 Stunden, 2 Zaunlatten, offener Punkt (Zaunpfosten wackelt) — und unter <b>Als Aufgabe gesagt</b> „Zaunpfosten nachbestellen“.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Lass das Häkchen bei der Aufgabe <span class="marke">1</span> drin und tippe auf <b>Übernehmen</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -295,7 +322,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 22</div>
+        <div class="snr">Schritt 25</div>
         <h3>Etwas, das keine Arbeit ist</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe nochmal auf <b>Schnell diktieren</b> und sag:</p></div><div class="b sprich"><span class="k">🎤 Einsprechen</span><p>„Der Hausmeister war informiert und hat den Keller aufgeschlossen.“</p></div><div class="b tipp"><span class="k">Tippen</span><p>Stoppen. Die App fragt <b>Wohin gehört das?</b> — tippe auf <b>Als Notiz</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -303,7 +330,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 23</div>
+        <div class="snr">Schritt 26</div>
         <h3>Material von Hand</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Material erfassen</b>.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Bezeichnung</th><td>Leuchtmittel LED E27</td></tr><tr><th>Menge</th><td>2</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Speichern</b> <span class="marke">3</span>.</p></div>
       </div>
@@ -314,7 +341,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 24</div>
+        <div class="snr">Schritt 27</div>
         <h3>Notiz von der Startseite</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Akte mit <b>X</b> schließen, <b>Home</b>. Oben steht das Bürohaus unter „Aktuell in Arbeit“.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe dort auf <b>Notiz</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -322,7 +349,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 25</div>
+        <div class="snr">Schritt 28</div>
         <h3>Notiz + Aufgabe</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Was ist vor Ort passiert?</th><td>Ventil im 2. OG klemmt, Ersatzventil bestellen.</td></tr></table></div><div class="b info"><p>Statt tippen geht auch <b>Per Sprache ergänzen</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Häkchen <b>Auch als Aufgabe zum Abhaken merken</b> <span class="marke">2</span>, dann <b>Notiz speichern</b> <span class="marke">3</span>.</p></div>
       </div>
@@ -330,7 +357,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 26</div>
+        <div class="snr">Schritt 29</div>
         <h3>Aufgaben ansehen und abhaken</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Unten auf <b>Aufgaben</b> <span class="marke">1</span>. Da stehen jetzt beide: Zaunpfosten und Ventil.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Stell dir vor, du hast das Ventil bestellt: Hake <b>Ventil …</b> ab <span class="marke">2</span>.</p></div>
       </div>
@@ -338,7 +365,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 27</div>
+        <div class="snr">Schritt 30</div>
         <h3>Erledigt</h3>
         <div class="b info"><p>Die Aufgabe rutscht nach <b>Heute erledigt</b> und verschwindet nach einem Tag. Aus Versehen abgehakt? Einfach nochmal tippen.</p></div>
       </div>
@@ -349,7 +376,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 28</div>
+        <div class="snr">Schritt 31</div>
         <h3>Zurück zur Diakonie</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Unten auf <b>Aufträge</b>, oben auf <b>In Arbeit</b> <span class="marke">1</span>, dann den <b>Diakonie-Auftrag</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -357,7 +384,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 29</div>
+        <div class="snr">Schritt 32</div>
         <h3>Tätigkeiten &amp; Kostenstellen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>In der Akte runterscrollen bis „Dokumentation“. Bei Arbeitszeit auf <b>Tätigkeiten &amp; Kostenstellen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -365,7 +392,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 30</div>
+        <div class="snr">Schritt 33</div>
         <h3>Teilen</h3>
         <div class="b info"><p>Deine 4,5 Stunden stehen noch in einer Zeile.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Teilen</b> <span class="marke">1</span>. Die App macht aus deinem Satz vier Zeilen.</p></div>
       </div>
@@ -373,7 +400,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 31</div>
+        <div class="snr">Schritt 34</div>
         <h3>Stunden und Kostenstelle je Arbeit</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>1 · Tür nachgestellt — Stunden</th><td>1</td></tr><tr><th>1 · Tür nachgestellt — Kostenstelle</th><td>KST 4100 Haus A</td></tr><tr><th>2 · Licht getauscht — Stunden</th><td>1</td></tr><tr><th>2 · Licht getauscht — Kostenstelle</th><td>KST 4100 Haus A</td></tr><tr><th>3 · Ablauf gereinigt — Stunden</th><td>1,5</td></tr><tr><th>3 · Ablauf gereinigt — Kostenstelle</th><td>KST 4200 Haus B</td></tr><tr><th>4 · Zaun repariert — Stunden</th><td>1</td></tr><tr><th>4 · Zaun repariert — Kostenstelle</th><td>KST 4300 Außenanlage</td></tr></table></div><div class="b info"><p>Je Zeile oben <b>Stunden</b> <span class="marke">1</span>, darunter <b>Kostenstelle</b> <span class="marke">2</span>. Weißt du eine Stunde nicht, lass sie leer — die App schätzt nie.</p></div>
       </div>
@@ -381,7 +408,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 32</div>
+        <div class="snr">Schritt 35</div>
         <h3>Aufteilen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Aufteilen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -389,7 +416,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 33</div>
+        <div class="snr">Schritt 36</div>
         <h3>Material zuordnen</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Zaunlatte</th><td>KST 4300 Außenanlage</td></tr><tr><th>Leuchtmittel LED E27</th><td>KST 4100 Haus A</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Dann <b>Fertig</b> <span class="marke">3</span>.</p></div>
       </div>
@@ -400,7 +427,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 34</div>
+        <div class="snr">Schritt 37</div>
         <h3>Bericht öffnen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bericht</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -408,7 +435,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 35</div>
+        <div class="snr">Schritt 38</div>
         <h3>Durchlesen, bestätigen lassen</h3>
         <div class="b info"><p>Scroll einmal durch: Arbeiten mit Stunden und Kostenstelle, Material, offene Punkte, Fotos. Unter „Was steht im Bericht?“ kannst du Fotos und Notizen an- und abwählen.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Bestätigen lassen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -416,7 +443,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 36</div>
+        <div class="snr">Schritt 39</div>
         <h3>Unterschreiben lassen</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Name der Person, die bestätigt</th><td>Herr Neumann</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Mit dem Finger ins Feld unterschreiben <span class="marke">2</span>, dann <b>Speichern (Demo)</b> <span class="marke">3</span>.</p></div>
       </div>
@@ -424,7 +451,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 37</div>
+        <div class="snr">Schritt 40</div>
         <h3>Als PDF sichern</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Drucken / PDF</b> <span class="marke">1</span>. Am iPhone: im Druckfenster oben auf das <b>Teilen-Symbol</b> → <b>In Dateien sichern</b>. Am Android: Drucker <b>Als PDF speichern</b>.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Danach mit dem Pfeil oben links zurück in die Akte.</p></div>
       </div>
@@ -435,7 +462,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 38</div>
+        <div class="snr">Schritt 41</div>
         <h3>Abschließen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe unten auf <b>Arbeit abschließen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -443,7 +470,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 39</div>
+        <div class="snr">Schritt 42</div>
         <h3>Ergebnis für den Kunden</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Ergebnis für den Kunden</th><td>Tür, Licht, Ablauf und Zaun erledigt. Zaunpfosten folgt.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Als erledigt markieren</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -454,7 +481,7 @@
     
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 40</div>
+        <div class="snr">Schritt 43</div>
         <h3>Rechnung erstellen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Rechnung erstellen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -462,7 +489,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 41</div>
+        <div class="snr">Schritt 44</div>
         <h3>Preis per KI ändern</h3>
         <div class="b info"><p>Jede Arbeit und jedes Material ist eine Zeile. 58 € ist nur ein Beispiel-Stundensatz.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe bei der ersten Zeile auf das <b>Funken-Symbol</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -470,7 +497,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 42</div>
+        <div class="snr">Schritt 45</div>
         <h3>Sagen, was anders sein soll</h3>
         <div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Was soll anders sein?</th><td>Setz den Stundensatz auf 62 Euro.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Senden</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -478,7 +505,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 43</div>
+        <div class="snr">Schritt 46</div>
         <h3>Vorschlag übernehmen</h3>
         <div class="b info"><p>Die KI zeigt vorher und nachher. Sie ändert nichts, bevor du zustimmst.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -486,7 +513,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 44</div>
+        <div class="snr">Schritt 47</div>
         <h3>Fehlende Preise eintragen</h3>
         <div class="b info"><p>Runterscrollen: Bei Material ist der Preis <b>offen</b> (gelb). Solange etwas fehlt, gibt es keinen Gesamtbetrag.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Zaunlatte → Einzelpreis</th><td>9,50</td></tr><tr><th>Leuchtmittel LED E27 → Einzelpreis</th><td>4,90</td></tr></table></div>
       </div>
@@ -494,7 +521,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 45</div>
+        <div class="snr">Schritt 48</div>
         <h3>Vorschau</h3>
         <div class="b info"><p>Jetzt steht unten der Gesamtbetrag.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Vorschau</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -502,7 +529,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 46</div>
+        <div class="snr">Schritt 49</div>
         <h3>In der Vorschau noch etwas ändern</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Ganz nach unten zu <b>Noch etwas ändern?</b> scrollen.</p></div><div class="b ein"><span class="k">⌨️ Eintippen</span><table><tr><th>Noch etwas ändern?</th><td>Die Zaunlatten haben 12 Euro das Stück gekostet.</td></tr></table></div><div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Senden</b> <span class="marke">2</span>.</p></div>
       </div>
@@ -510,7 +537,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 47</div>
+        <div class="snr">Schritt 50</div>
         <h3>Übernehmen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Übernehmen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -518,7 +545,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 48</div>
+        <div class="snr">Schritt 51</div>
         <h3>Rechnung stellen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Versand simulieren</b> <span class="marke">1</span>.</p></div><div class="b info"><p>In der Probe geht nichts raus. Später legt <b>sevDesk</b> die Rechnung an und verschickt sie.</p></div>
       </div>
@@ -526,7 +553,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 49</div>
+        <div class="snr">Schritt 52</div>
         <h3>Bestätigen</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Tippe auf <b>Demo-Versand bestätigen</b> <span class="marke">1</span>.</p></div>
       </div>
@@ -534,7 +561,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 50</div>
+        <div class="snr">Schritt 53</div>
         <h3>Zahlung vermerken</h3>
         <div class="b info"><p>Die Rechnung ist jetzt festgeschrieben und ändert sich nicht mehr.</p></div><div class="b tipp"><span class="k">Tippen</span><p>Der Kunde hat bezahlt? Tippe auf <b>Zahlung vermerken</b> <span class="marke">1</span>. (Am PC siehst du das dann auf der Startseite im Geldverlauf.)</p></div>
       </div>
@@ -542,7 +569,7 @@
     </div>
     <div class="schritt">
       <div class="txt">
-        <div class="snr">Schritt 51</div>
+        <div class="snr">Schritt 54</div>
         <h3>Geschafft</h3>
         <div class="b tipp"><span class="k">Tippen</span><p>Schließ die Rechnung und tippe unten auf <b>Rechnungen</b> <span class="marke">1</span>: Da steht deine Rechnung als versendet.</p></div><div class="b info"><p>Der Betrag kann bei dir etwas anders sein, wenn die KI etwas anders verstanden hat — das ist in Ordnung.</p></div>
       </div>
