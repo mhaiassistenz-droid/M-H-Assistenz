@@ -207,3 +207,141 @@ export function preislisteVergleich(alt, neu, modus = 'zusammen', felderDerDatei
   }
   return ergebnis;
 }
+
+/* ── Kandidaten für den Preis-Agenten ─────────
+   Die KI wählt nie frei aus der ganzen Liste. Die App sucht pro Position die
+   plausibelsten Artikel heraus — nur mit passender Einheit und nur mit einem
+   echten Wort- oder Synonym-Treffer. Gibt es keinen, wird die KI für diese
+   Position gar nicht gefragt und der Preis bleibt offen (Fachregel 5). */
+
+/** Wörter, die nichts über die Leistung sagen. */
+const STOPP = new Set(['und', 'oder', 'der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einen', 'mit', 'ohne',
+  'fuer', 'von', 'vom', 'zum', 'zur', 'auf', 'aus', 'bei', 'nach', 'inkl', 'inklusive', 'pro', 'per', 'je', 'als', 'wie',
+  'arbeitszeit', 'stunde', 'stunden', 'std', 'stk', 'stueck', 'pauschale', 'monat', 'einsatz', 'etage', 'raum', 'qm',
+  'zeit', 'arbeit', 'arbeiten', 'gemacht', 'erledigt', 'durchgefuehrt', 'neu', 'alt', 'test', 'beispielartikel']);
+
+/** Wortstämme, die dasselbe meinen. Ein Treffer über eine Gruppe zählt schwächer als ein direktes Wort.
+    Die ersten beiden Gruppen sind Tätigkeiten („tauschen", „reinigen") — sie sagen nicht,
+    WAS gemacht wurde, und zählen deshalb nur als Bonus, nie allein als Beleg. */
+const TAETIGKEIT = 2;
+const SYNONYME = [
+  ['wechsel', 'tausch', 'erneuer', 'ersetz', 'austausch', 'montier', 'einbau', 'eingebaut'],
+  ['reinig', 'putz', 'saeuber', 'wisch'],
+  ['siphon', 'geruchsversch', 'ablaufgarnitur'],
+  ['licht', 'lampe', 'leuchtmittel', 'birne', 'leuchte', 'led'],
+  ['hecke', 'gehoelz', 'strauch', 'straeuch', 'rueckschnitt', 'schnitt'],
+  ['rasen', 'maeh', 'gartenpflege', 'gras'],
+  ['fenster', 'glas', 'scheibe'],
+  ['muell', 'tonne', 'abfall'],
+  ['winter', 'schnee', 'streu', 'glaette', 'raeum'],
+  ['anfahrt', 'fahrt', 'fahrtkost'],
+  ['kehr', 'fege', 'aussenreinig', 'gehweg', 'hof'],
+  ['entruempel', 'raeumung', 'aufloes', 'sperrmuell'],
+  ['repar', 'montage', 'instandhalt', 'ausbesser'],
+  ['treppe', 'treppenhaus'],
+  ['boden', 'fussboden', 'parkett', 'laminat'],
+  ['notdienst', 'havarie', 'notfall', 'rohrbruch'],
+  ['kontroll', 'begehung', 'pruef', 'check', 'sichtkontroll'],
+  ['armatur', 'wasserhahn', 'mischbatterie', 'hahn'],
+  ['tuer', 'zarge'],
+  ['zaun', 'zaunlatte', 'pfosten'],
+  ['backofen', 'ofen'], ['dunstabzug', 'abzugshaube'], ['kochfeld', 'ceran', 'induktion'],
+  ['wc', 'toilette', 'klo', 'urinal'],
+  ['teppich', 'spruehextrakt'], ['jalousie', 'rollo', 'lamelle'],
+];
+
+const normalText = (s) => String(s || '').toLowerCase()
+  .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+  .replace(/m²|m2\b/g, ' ');
+
+/** Bedeutungstragende Wörter (≥ 3 Buchstaben, ohne Füllwörter). */
+export function woerter(s) {
+  return [...new Set((normalText(s).match(/[a-z]{3,}/g) || []).filter(w => !STOPP.has(w)))];
+}
+
+const gruppenVon = (wort) => SYNONYME.map((g, i) => g.some(st => wort.includes(st)) ? i : -1).filter(i => i >= 0);
+
+/** „gereinigt", „getauscht", „Reinigung" — nur Tätigkeit. „Baufeinreinigung" ist dagegen eine Sache:
+    Ein Wort zählt als reine Tätigkeit, wenn es kaum länger ist als der Tätigkeitsstamm. */
+function nurTaetigkeit(wort) {
+  if (gruppenVon(wort).some(g => g >= TAETIGKEIT)) return false;
+  return SYNONYME.slice(0, TAETIGKEIT).some(g => g.some(st => wort.includes(st) && wort.length - st.length <= 4));
+}
+
+/** Zwei Wörter meinen dasselbe Wort: gleich oder eines steckt im anderen (≥ 4 Buchstaben, z. B. „fenster" in „fensterreinigung"). */
+const gleichesWort = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && (a.includes(b) || b.includes(a)));
+
+/** Einheitsklasse: nur gleiche Klassen dürfen zueinander. */
+export function einheitKlasse(e) {
+  const roh = String(e || '').trim();
+  if (!roh) return null;
+  if (/^(m²|m2|qm)$/i.test(roh)) return 'flaeche';
+  if (/^(m³|m3|cbm)$/i.test(roh)) return 'volumen';
+  const t = normalText(roh).replace(/\./g, '').trim();
+  if (/^(std|stunde|stunden|h)$/.test(t)) return 'zeit';
+  if (/^(m|lfm|meter)$/.test(t)) return 'laenge';
+  if (t === '%' || t === 'prozent') return 'prozent';
+  return 'anzahl';   // Stück, Stk., Pauschale, Einsatz, Raum, Etage, Monat, Tag …
+}
+
+/**
+ * Wie gut passt ein Artikel zu einem Text? 2 Punkte je direkt gleichem Wort im
+ * Namen, 1 je gemeinsamer Sach-Synonymgruppe, 0,5 je Wort nur in der Beschreibung.
+ * Gemeinsame Tätigkeit („tauschen" ~ „wechseln") gibt 0,5 Bonus, zählt aber nicht
+ * als `beleg`. `direkt`: mindestens ein Wort stimmt wirklich überein.
+ */
+export function passung(text, a) {
+  const tw = woerter(text);
+  const nw = woerter(a.name);
+  const bw = woerter(a.beschreibung || '');
+  let beleg = 0, bonus = 0, direkt = false;
+  const gruppenText = new Set(tw.flatMap(gruppenVon));
+  const gruppenName = new Set(nw.flatMap(gruppenVon));
+  for (const w of tw) {
+    if (nurTaetigkeit(w)) {
+      // reine Tätigkeitswörter („gereinigt", „getauscht"): höchstens Bonus
+      if (nw.some(n => gleichesWort(w, n))) bonus += 0.5;
+      continue;
+    }
+    if (nw.some(n => gleichesWort(w, n))) { beleg += 2; direkt = true; }
+    else if (bw.some(n => gleichesWort(w, n))) beleg += 0.5;
+  }
+  for (const g of gruppenText) {
+    if (!gruppenName.has(g)) continue;
+    if (g < TAETIGKEIT) bonus += 0.5; else beleg += 1;
+  }
+  return { punkte: beleg >= 1 ? beleg + bonus : beleg, beleg, direkt };
+}
+
+/**
+ * Bis zu `n` Kandidaten für eine Rechnungsposition, bestes zuerst.
+ * Ohne passende Einheit oder ohne jeden Treffer: leer.
+ */
+export function kandidatenFuer(position, artikelListe, n = 5) {
+  const klasse = einheitKlasse(position.einheit);
+  // Ohne Einheit lässt sich nicht prüfen, ob ein Artikel passt — dann gar keine Kandidaten.
+  if (!klasse) return [];
+  return artikelListe
+    .filter(a => !istZuschlag(a))
+    .filter(a => einheitKlasse(a.einheit) === klasse)
+    .map(a => ({ a, ...passung(position.text, a) }))
+    .filter(x => x.beleg >= 1)
+    .sort((x, y) => y.punkte - x.punkte)
+    .slice(0, n);
+}
+
+/** Kandidaten für eine freie Anweisung („nimm die Gartenpflege nach Fläche") — ohne Einheitsfilter. */
+export function kandidatenFuerText(text, artikelListe, n = 8) {
+  return artikelListe
+    .filter(a => !istZuschlag(a))
+    .map(a => ({ a, ...passung(text, a) }))
+    .filter(x => x.beleg >= 1)
+    .sort((x, y) => y.punkte - x.punkte)
+    .slice(0, n)
+    .map(x => x.a);
+}
+
+/** Schlüssel, unter dem sich die App Edins Zuordnung „dieser Text → dieser Artikel" merkt. */
+export function lernSchluessel(text) {
+  return woerter(String(text || '').replace(/\(arbeitszeit\)/i, '')).sort().join(' ');
+}

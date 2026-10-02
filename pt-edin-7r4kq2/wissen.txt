@@ -253,8 +253,17 @@ Arbeit ist fertig.
   Im **Rechnungsentwurf** fügt „Aus Preisliste" eine Position hinzu; das Listen-Symbol an
   einer Position holt deren Preis aus der Liste. Hat ein alter Entwurf noch den
   Beispielpreis, bietet die App „Stundensatz übernehmen" an.
-- Die App ordnet **nie selbst** zu: Freier Text (z. B. „Siphon wechseln" getippt) bekommt
-  keinen Preis aus der Liste — nur was Edin aus der Liste wählt.
+- **KI-Preisvorschlag (neu):** Mit Preisliste sucht die KI beim „Rechnung erstellen" für jede
+  Position den passenden Artikel aus Edins Liste. Es erscheint die Liste **„Preise prüfen"**:
+  je Zeile Position → Artikel, bisheriger und neuer Preis, „sicher" / „wahrscheinlich" /
+  „von dir gelernt". Angehakt wird übernommen, „Anderer Artikel" wählt selbst. Den Preis
+  nimmt immer die App aus der Liste, die KI sucht nur aus. Bis Edin bestätigt, steht kein
+  Gesamtbetrag fest und die Rechnung kann nicht raus. Was er bestätigt, merkt sich die App
+  für das nächste Mal. „Preise vorschlagen" im Entwurf startet die Suche erneut.
+- **Am Ende ändern:** In der Vorschau unter „Noch etwas ändern?" tippen oder mit
+  „Einsprechen" sagen, auch mehrere Dinge auf einmal und Artikel aus der Liste
+  („Die Hecke war Gartenpflege, 120 m², die Anfahrt waren 25 km"). Vorher/Nachher, dann
+  „Übernehmen".
 - Zuschläge in Prozent (z. B. Wochenende +25 %) stehen in der Liste, werden aber noch
   nicht berechnet. Der Mindestauftragswert wird auch noch nicht automatisch geprüft.
 - Die Preisliste liegt wie alles andere nur auf dem Gerät, auf dem sie eingelesen wurde.

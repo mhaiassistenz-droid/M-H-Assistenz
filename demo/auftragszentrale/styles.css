@@ -1726,6 +1726,44 @@ button.pl-zeile:hover { background: var(--card-hover); }
 .pl-verknuepft > span { flex: 1; min-width: 0; }
 .pl-verknuepft strong { color: var(--text); font-weight: 600; }
 
+/* ── Preis-Agent ─────────────────────────────
+   KI-Vorschläge sind sichtbar markiert, bis Edin sie bestätigt — als Wort,
+   nicht nur als Farbe. Gelb wie „offen", nie Rot (kein Fehler). */
+.pos-marke.ki { color: #7A5206; border-color: #E6D28A; background: #FEFCF3; font-weight: 500; }
+.ki-box .abgleich-kopf { display: flex; align-items: center; gap: 8px; }
+.ki-box .abgleich-kopf svg { width: 16px; height: 16px; color: #7C3AED; flex: none; }
+.ki-liste { display: flex; flex-direction: column; gap: 10px; }
+.ki-zeile {
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: var(--r-karte); background: var(--card);
+}
+.ki-zeile.an { border-color: var(--aktion); }
+.ki-haken input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--aktion); }
+.ki-mitte { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.ki-pos { font-size: 14.5px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+.ki-menge { font-weight: 400; color: var(--text-3); }
+.ki-artikel { display: flex; gap: 4px; align-items: flex-start; font-size: 14px; color: var(--text-2); }
+.ki-artikel svg { width: 15px; height: 15px; flex: none; margin-top: 2px; }
+.ki-artikel strong { color: var(--text); font-weight: 600; }
+.ki-preise { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.ki-preise strong { color: var(--text); }
+.ki-bisher { color: var(--text-3); }
+.ki-grund { font-size: 13px; color: var(--text-2); line-height: 1.45; }
+.ki-stufe { display: inline-block; font-size: 12px; font-weight: 600; border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; margin-right: 4px; }
+.ki-stufe.stufe-hoch, .ki-stufe.stufe-gelernt, .ki-stufe.stufe-manuell { color: var(--st-fertig); border-color: #B5DEC6; }
+.ki-stufe.stufe-mittel { color: #7A5206; border-color: #E6D28A; }
+.ki-stufe.stufe-niedrig { color: var(--text-3); }
+.ki-zeile .btn-sm { align-self: flex-start; padding-left: 0; }
+.korr-aenderung { display: flex; flex-direction: column; gap: 4px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.korr-aenderung:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.korr-ziel { font-size: 13px; font-weight: 600; color: var(--text-2); overflow-wrap: anywhere; }
+/* Artikelnamen sind lang — umbrechen statt abschneiden. */
+.korr-aenderung .sum-zeile { gap: 14px; align-items: baseline; }
+.korr-aenderung .sum-wert { white-space: normal; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+/* Knopftexte nicht mitten im Wort trennen („Überneh-men"). */
+.sheet-foot .btn { hyphens: manual; -webkit-hyphens: manual; }
+.korr-warnung { font-size: 13px; color: #7A5206; background: #FEFCF3; border: 1px solid #E6D28A; border-radius: 8px; padding: 6px 10px; }
+
 /* Drucken / „Als PDF sichern": nur das gewählte Berichtsdokument. Mit display statt
    visibility — sonst nähme Verstecktes Platz ein, und das fixierte Overlay würde auf
    jeder Druckseite wiederholt (ergab zwei identische PDF-Seiten). */

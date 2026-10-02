@@ -12,7 +12,7 @@
    ============================================ */
 
 import { uid, parseZahl, istEmail, mengePruefen, preisPruefen, tagKey } from './util.js';
-import { artikelSchluessel, artikelAktualisiert, istZuschlag, istStundenArtikel } from './preisliste.js';
+import { artikelSchluessel, artikelAktualisiert, istZuschlag, istStundenArtikel, einheitKlasse, lernSchluessel } from './preisliste.js';
 
 const KEY = 'pt-auftragszentrale-v1';
 // Version 2 (28.09.2026): die App startet leer. Ein gespeicherter Stand mit
@@ -36,7 +36,8 @@ const store = { auftraege: [], rechnungen: [], kunden: [], aufgaben: [] };
    Liste löschen, die Edin selbst importiert hat. „Demo zurücksetzen" leert sie wie
    alles andere (Fachregel 12). Im ausgelieferten Code steht keine Liste. */
 const PREIS_KEY = 'pt-preisliste-v1';
-const preisliste = { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' };
+const LEER_PREISLISTE = () => ({ artikel: [], stundensatzNr: null, importiertAm: null, quelle: '', zuordnungen: {} });
+const preisliste = LEER_PREISLISTE();
 const hoerer = new Set();
 
 /* ── Persistenz ──────────────────────────── */
@@ -111,8 +112,9 @@ function preislisteLaden() {
     preisliste.stundensatzNr = d?.stundensatzNr ?? null;
     preisliste.importiertAm = d?.importiertAm ?? null;
     preisliste.quelle = d?.quelle ?? '';
+    preisliste.zuordnungen = d?.zuordnungen && typeof d.zuordnungen === 'object' ? d.zuordnungen : {};
   } catch {
-    Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
+    Object.assign(preisliste, LEER_PREISLISTE());
   }
 }
 
@@ -153,7 +155,7 @@ export function zuruecksetzen(melden = true, { mitPreisliste = true } = {}) {
   store.rechnungen = [];
   store.kunden     = [];
   store.aufgaben   = [];
-  if (mitPreisliste) Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
+  if (mitPreisliste) Object.assign(preisliste, LEER_PREISLISTE());
   save();
   // Bilder liegen in IndexedDB und müssen eigens weg, sonst bleiben Waisen zurück.
   import('./fotos.js').then(f => f.alleLoeschen()).catch(() => {});
@@ -657,8 +659,10 @@ export const RECHNUNGSSTATUS = {
  * keine Menge oder keinen Preis hat — dann wird bewusst kein Betrag behauptet.
  */
 export function summen(r) {
-  let netto = 0, vollstaendig = true, luecken = 0;
+  let netto = 0, vollstaendig = true, luecken = 0, kiOffen = 0;
   for (const p of r.positionen) {
+    // Ein Preis, den die KI eingesetzt hat, gilt erst, wenn Edin ihn bestätigt hat.
+    if (p.kiOffen) { vollstaendig = false; luecken++; kiOffen++; continue; }
     // Nur was die Validierung passiert, darf in die Summe. Eine negative
     // Menge würde sonst als Gutschrift durchgehen, die es hier nicht gibt.
     const m = mengePruefen(p.menge), pr = preisPruefen(p.preis);
@@ -666,7 +670,7 @@ export function summen(r) {
     netto += m.wert * pr.wert;
   }
   const ust = netto * (r.ustSatz / 100);
-  return { netto, ust, brutto: netto + ust, vollstaendig, luecken };
+  return { netto, ust, brutto: netto + ust, vollstaendig, luecken, kiOffen };
 }
 
 /* ── Rechnungen schreiben ────────────────── */
@@ -741,7 +745,9 @@ function positionenAusVerlauf(a) {
         einheit: 'Std.',
         preis: quelle ? quelle.preis : (v.artikelNr ? null : BEISPIEL_STUNDENSATZ),
         preisIstBeispiel: !quelle && !v.artikelNr,
-        artikelNr: quelle?.nr ?? null,
+        artikelNr: quelle ? artikelSchluessel(quelle) : null,
+        // Woher der Preis kommt — der Preis-Agent darf nur Standard und Beispiel verfeinern.
+        preisQuelle: gewaehlt ? 'artikel' : quelle ? 'standard' : v.artikelNr ? 'artikel' : 'beispiel',
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
         kostenstelle: v.kostenstelle ?? null,
@@ -757,7 +763,8 @@ function positionenAusVerlauf(a) {
         menge: Number(v.menge) || null,
         einheit: v.einheit || gewaehlt?.einheit || 'Stück',
         preis: gewaehlt ? gewaehlt.preis : null, // sonst kennt den Preis nur Edin — bleibt offen
-        artikelNr: gewaehlt?.nr ?? null,
+        artikelNr: gewaehlt ? artikelSchluessel(gewaehlt) : null,
+        preisQuelle: gewaehlt ? 'artikel' : null,
         herkunft: 'dokumentiert',
         quelleEintragId: v.id,
         kostenstelle: v.kostenstelle ?? null,
@@ -846,6 +853,8 @@ export function positionUpdate(rechnungId, posId, patch) {
   Object.assign(p, patch);
   // Sobald Edin den Preis anfasst, ist es kein Beispielwert mehr.
   if ('preis' in patch) p.preisIstBeispiel = false;
+  // Tippt Edin selbst Preis oder Einheit, hat er entschieden — der KI-Vorschlag ist erledigt.
+  if (p.kiOffen && ('preis' in patch || 'einheit' in patch)) kiFelderWeg(p);
   commit();
   return p;
 }
@@ -916,12 +925,13 @@ export function preislisteUebernehmen(neu, { modus = 'zusammen', felder, quelle 
   preisliste.importiertAm = new Date().toISOString();
   preisliste.quelle = String(quelle).slice(0, 120);
   if (preisliste.stundensatzNr && !standardStundensatz()) preisliste.stundensatzNr = null;
+  for (const [k, nr] of Object.entries(preisliste.zuordnungen)) if (!artikel(nr)) delete preisliste.zuordnungen[k];
   commit();
   return preislisteInfo();
 }
 
 export function preislisteLeeren() {
-  Object.assign(preisliste, { artikel: [], stundensatzNr: null, importiertAm: null, quelle: '' });
+  Object.assign(preisliste, LEER_PREISLISTE());
   commit();
 }
 
@@ -933,7 +943,7 @@ export function positionAusArtikel(rechnungId, nr) {
   const p = {
     id: uid('p'), text: a.name,
     menge: /^pauschale$/i.test(a.einheit) ? 1 : null,
-    einheit: a.einheit, preis: a.preis, artikelNr: artikelSchluessel(a),
+    einheit: a.einheit, preis: a.preis, artikelNr: artikelSchluessel(a), preisQuelle: 'liste',
     herkunft: 'preisliste', quelleEintragId: null, kostenstelle: null, zusatz: false,
   };
   r.positionen.push(p);
@@ -948,8 +958,10 @@ export function positionArtikelSetzen(rechnungId, posId, nr) {
   if (!r || istVersendet(r) || !a || istZuschlag(a)) return null;
   const p = r.positionen.find(x => x.id === posId);
   if (!p) return null;
-  Object.assign(p, { preis: a.preis, einheit: a.einheit, artikelNr: artikelSchluessel(a), preisIstBeispiel: false });
+  Object.assign(p, { preis: a.preis, einheit: a.einheit, artikelNr: artikelSchluessel(a), preisIstBeispiel: false, preisQuelle: 'liste' });
+  kiFelderWeg(p);
   if (!p.text?.trim()) p.text = a.name;
+  else zuordnungLernen(p.text, artikelSchluessel(a));
   commit();
   return p;
 }
@@ -964,9 +976,116 @@ export function stundensatzUebernehmen(rechnungId) {
   const s = standardStundensatz();
   if (!r || istVersendet(r) || !s) return 0;
   const ziel = beispielpreisPositionen(r);
-  for (const p of ziel) Object.assign(p, { preis: s.preis, artikelNr: artikelSchluessel(s), preisIstBeispiel: false });
+  for (const p of ziel) Object.assign(p, { preis: s.preis, artikelNr: artikelSchluessel(s), preisIstBeispiel: false, preisQuelle: 'standard' });
   if (ziel.length) commit();
   return ziel.length;
+}
+
+/* ── Preis-Agent ──────────────────────────
+   Die KI ordnet Positionen Artikeln aus Edins Preisliste zu. Den Preis setzt immer
+   die App aus der Liste — die KI nennt nie einen. Sicheres wird als unbestätigter
+   Vorschlag eingesetzt (`kiOffen`), Unsicheres nur angeboten (`r.kiAngebote`).
+   Bis Edin bestätigt, gibt es keinen Gesamtbetrag und keinen Versand (Fachregel 5). */
+
+const KI_FELDER = ['kiOffen', 'kiVorher', 'kiSicherheit', 'kiGrund'];
+function kiFelderWeg(p) { for (const f of KI_FELDER) delete p[f]; }
+
+/** Edins eigene Zuordnung „dieser Text → dieser Artikel" — wird beim nächsten Mal ohne KI genutzt. */
+function zuordnungLernen(text, nr) {
+  const k = lernSchluessel(text);
+  if (!k || !nr || !artikel(nr)) return;
+  delete preisliste.zuordnungen[k];          // neu einsortieren = zuletzt benutzt
+  preisliste.zuordnungen[k] = nr;
+  const keys = Object.keys(preisliste.zuordnungen);
+  if (keys.length > 500) delete preisliste.zuordnungen[keys[0]];
+}
+
+/** Gelernter Artikel für einen Positionstext — nur, wenn es ihn noch gibt. */
+export function gelernterArtikel(text) {
+  const nr = preisliste.zuordnungen[lernSchluessel(text)];
+  return nr ? artikel(nr) : null;
+}
+
+/** Gleiche Einheitsklasse — eine Position ohne Einheit passt zu nichts (kein Raten). */
+export const passtEinheit = (a, p) => !!einheitKlasse(p.einheit) && einheitKlasse(a.einheit) === einheitKlasse(p.einheit);
+
+/**
+ * Positionen, für die der Agent einen Preis suchen darf: Preis offen, Beispielpreis
+ * oder nur der Standard-Stundensatz. Was Edin selbst gewählt oder getippt hat, bleibt.
+ */
+export function agentPositionen(r) {
+  return (r?.positionen || []).filter(p => p.text?.trim() && !p.kiOffen
+    && (p.preisQuelle === 'standard' || p.preisIstBeispiel || (!p.artikelNr && preisPruefen(p.preis).status === 'leer')));
+}
+
+/** Ergebnis des Agenten in die Rechnung (sicher/gelernt) bzw. als Angebot (wahrscheinlich/unsicher). */
+export function kiVorschlaegeAnwenden(rechnungId, vorschlaege) {
+  const r = rechnung(rechnungId);
+  if (!r || istVersendet(r)) return null;
+  const angebote = [];
+  let eingesetzt = 0;
+  for (const v of vorschlaege) {
+    const p = r.positionen.find(x => x.id === v.positionId);
+    const a = artikel(v.artikelNr);
+    if (!p || !a || istZuschlag(a) || !passtEinheit(a, p)) continue;
+    const nr = artikelSchluessel(a);
+    if (p.artikelNr === nr) continue;               // steht schon so drin
+    const grund = String(v.grund || '').slice(0, 200);
+    if (v.sicherheit === 'hoch' || v.sicherheit === 'gelernt') {
+      p.kiVorher = { preis: p.preis, einheit: p.einheit, artikelNr: p.artikelNr ?? null,
+        preisIstBeispiel: !!p.preisIstBeispiel, preisQuelle: p.preisQuelle ?? null };
+      Object.assign(p, { preis: a.preis, einheit: a.einheit, artikelNr: nr, preisIstBeispiel: false,
+        preisQuelle: 'ki', kiOffen: true, kiSicherheit: v.sicherheit, kiGrund: grund });
+      eingesetzt++;
+    } else if (v.sicherheit === 'mittel' || v.sicherheit === 'niedrig') {
+      angebote.push({ positionId: p.id, artikelNr: nr, sicherheit: v.sicherheit, grund });
+    }
+  }
+  const betroffen = new Set(vorschlaege.map(v => v.positionId));
+  r.kiAngebote = [...(r.kiAngebote || []).filter(x => !betroffen.has(x.positionId)), ...angebote];
+  r.kiGelaufenAm = new Date().toISOString();
+  commit();
+  return { eingesetzt, angeboten: angebote.length };
+}
+
+/** Was in der Prüfliste steht. */
+export function kiPruefung(r) {
+  const eingesetzt = (r?.positionen || []).filter(p => p.kiOffen);
+  const angeboten = (r?.kiAngebote || []).filter(x => {
+    const p = r.positionen.find(y => y.id === x.positionId);
+    return p && !p.kiOffen && artikel(x.artikelNr) && p.artikelNr !== x.artikelNr;
+  });
+  return { eingesetzt, angeboten };
+}
+
+/**
+ * Edins Entscheidung aus der Prüfliste. Je Position: Artikelnummer = so übernehmen
+ * (auch ein anderer als vorgeschlagen), null = nicht übernehmen (eingesetzter Vorschlag
+ * wird zurückgenommen). Bestätigtes merkt sich die App für das nächste Mal.
+ */
+export function kiEntscheiden(rechnungId, entscheidungen) {
+  const r = rechnung(rechnungId);
+  if (!r || istVersendet(r)) return 0;
+  let uebernommen = 0;
+  for (const e of entscheidungen) {
+    const p = r.positionen.find(x => x.id === e.positionId);
+    if (!p) continue;
+    const a = e.artikelNr ? artikel(e.artikelNr) : null;
+    if (!a || istZuschlag(a)) {
+      if (p.kiOffen && p.kiVorher) Object.assign(p, p.kiVorher);
+      kiFelderWeg(p);
+      continue;
+    }
+    const nr = artikelSchluessel(a);
+    Object.assign(p, { preis: a.preis, einheit: a.einheit, artikelNr: nr, preisIstBeispiel: false, preisQuelle: 'ki-bestaetigt' });
+    kiFelderWeg(p);
+    zuordnungLernen(p.text, nr);
+    uebernommen++;
+  }
+  const erledigt = new Set(entscheidungen.map(e => e.positionId));
+  r.kiAngebote = (r.kiAngebote || []).filter(x => !erledigt.has(x.positionId));
+  commit();
+  return uebernommen;
 }
 
 /**
@@ -991,6 +1110,7 @@ export function versandHindernisse(r) {
     if (m.status === 'leer')      fehlt.push(`${nr}: Menge fehlt`);
     else if (m.status !== 'ok')   fehlt.push(`${nr}: Menge — ${m.hinweis.toLowerCase()}`);
 
+    if (p.kiOffen) fehlt.push(`${nr}: Preis von der KI vorgeschlagen — bitte bestätigen`);
     const pr = preisPruefen(p.preis);
     if (pr.status === 'leer')     fehlt.push(`${nr}: Preis fehlt`);
     else if (pr.status !== 'ok')  fehlt.push(`${nr}: Preis — ${pr.hinweis.toLowerCase()}`);

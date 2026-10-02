@@ -70,6 +70,8 @@ function api(index) {
   return {
     /** Nur diese Ebene neu zeichnen (z.B. nach dem Anlegen eines Verlaufseintrags). */
     render: () => { if (stack.length - 1 === index) zeichnen(); },
+    /** Ist diese Ebene gerade die oberste (sichtbare)? */
+    oben: () => stack.length - 1 === index,
     schliessen: sheetSchliessen,
   };
 }

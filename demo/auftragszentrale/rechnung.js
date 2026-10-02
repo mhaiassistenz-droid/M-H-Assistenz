@@ -14,8 +14,10 @@ import { esc, icon, fmtEuro, fmtDatum, parseZahl, zahlZuFeld, parseTermin,
 import * as flows from './flows.js';
 import { freischaltenKnopf } from './freischalten.js';
 import * as state from './state.js';
-import { artikelWaehlen, preislisteOeffnen } from './preisliste-ui.js';
-import { artikelSchluessel } from './preisliste.js';
+import { artikelWaehlen, preislisteOeffnen, preisText } from './preisliste-ui.js';
+import { artikelSchluessel, kandidatenFuerText, einheitKlasse } from './preisliste.js';
+import { preiseVorschlagen, preisePruefen, laeuft as agentLaeuft, ergebnisText } from './preisagent.js';
+import { voicing } from './voicing.js';
 import { sheetOeffnen, sheetSchliessen, sheetErsetzen, bestaetigen, toast, badge, hinweisBox } from './ui.js';
 
 /* Zwei getrennte Fragen. `echterDienst`: laeuft die Auswertung echt (Sprache, Foto,
@@ -63,6 +65,8 @@ export function rechnungOeffnen(auftragId, danach) {
     : 'Vorhandener Entwurf geöffnet — es wurde keine zweite Rechnung angelegt.');
 
   entwurfOeffnen(r.id, danach);
+  // Mit Preisliste sucht der Preis-Agent gleich beim Erstellen die passenden Preise.
+  if (neu && state.alleArtikel().length) agentStarten(r.id);
 }
 
 /** Direkteinstieg aus der Rechnungsliste. */
@@ -83,17 +87,54 @@ export function entwurfOeffnen(rechnungId, danach) {
             ? `Gesamt inkl. ${holen().ustSatz} % USt.`
             : 'Gesamtbetrag steht noch nicht fest'}</span>
           <span class="foot-summe-wert ${s.vollstaendig ? '' : 'offen'}">
-            ${s.vollstaendig ? fmtEuro(s.brutto) : `${s.luecken} ${s.luecken === 1 ? 'Angabe fehlt' : 'Angaben fehlen'}`}
+            ${s.vollstaendig ? fmtEuro(s.brutto) : lueckenText(s)}
           </span>
         </div>
         <button class="btn" data-vorschau type="button">${icon('rechnung')} Vorschau</button>
         <button class="btn btn-primaer" data-versand type="button">${icon('senden')} ${VERSAND_LABEL()}</button>`;
     },
     bind: (el, api) => editorBinden(el, api, rechnungId, danach),
-    onClose: () => danach?.(),
+    onClose: () => { if (editorAktiv?.id === rechnungId) editorAktiv = null; danach?.(); },
   });
 
   beschriftungNachziehen(sheet);
+}
+
+/* ── Preis-Agent im Entwurf ──────────────── */
+
+/** Der gerade offene Entwurf — damit der Agent ihn nach dem Lauf neu zeichnen kann. */
+let editorAktiv = null;
+
+async function agentStarten(rechnungId, { immerMelden = false } = {}) {
+  const neuZeichnen = () => { if (editorAktiv?.id === rechnungId) editorAktiv.api.render(); };
+  const mitKi = await flows.verfuegbar();
+  const lauf = preiseVorschlagen(rechnungId, { mitKi });
+  neuZeichnen();                       // zeigt „Die KI sucht …"
+  const e = await lauf;
+  neuZeichnen();
+  const offen = state.kiPruefung(state.rechnung(rechnungId));
+  const etwas = offen.eingesetzt.length || offen.angeboten.length;
+  if (etwas && editorAktiv?.id === rechnungId && editorAktiv.api.oben()) preisePruefen(rechnungId, neuZeichnen);
+  else if (etwas || immerMelden || e.fehler) toast(ergebnisText(e));
+}
+
+/** Hinweis im Entwurf: Agent läuft bzw. eingesetzte Preise warten auf Bestätigung. */
+function kiBox(r) {
+  if (agentLaeuft.has(r.id)) {
+    return `<div class="abgleich-box ki-box" data-ki-laeuft>
+      <div class="abgleich-kopf">${icon('funke')} Die KI sucht passende Preise in deiner Preisliste …</div></div>`;
+  }
+  const { eingesetzt, angeboten } = state.kiPruefung(r);
+  if (!eingesetzt.length && !angeboten.length) return '';
+  const n = eingesetzt.length, m = angeboten.length;
+  return `
+    <div class="abgleich-box ki-box" data-ki-box>
+      <div class="abgleich-kopf">${icon('funke')} ${n
+        ? `${n} ${n === 1 ? 'Preis' : 'Preise'} aus deiner Preisliste eingesetzt — noch nicht bestätigt`
+        : `${m} ${m === 1 ? 'Preisvorschlag' : 'Preisvorschläge'} aus deiner Preisliste`}</div>
+      <div class="abgleich-t">${n ? 'Solange du nicht bestätigt hast, steht kein Gesamtbetrag fest und die Rechnung kann nicht raus.' : 'Noch nicht eingesetzt — bitte ansehen.'}${n && m ? ` Dazu ${m} weitere ${m === 1 ? 'Vorschlag' : 'Vorschläge'}.` : ''}</div>
+      <button class="btn btn-sm btn-primaer" data-ki-pruefen type="button">Preise prüfen</button>
+    </div>`;
 }
 
 /* ── Editor ──────────────────────────────── */
@@ -140,6 +181,7 @@ function editorKoerper(r) {
       </div>` : ''}
 
     ${abgleichHinweis(r)}
+    ${kiBox(r)}
     ${stundensatzHinweis(r)}
 
     <!-- Empfänger -->
@@ -182,7 +224,8 @@ function editorKoerper(r) {
       <div class="pos-neu-zeile">
         <button class="btn pos-neu" data-pos-neu type="button">${icon('plus')} Position hinzufügen</button>
         ${state.alleArtikel().length
-          ? `<button class="btn pos-neu" data-pos-aus-liste type="button">${icon('liste')} Aus Preisliste</button>` : ''}
+          ? `<button class="btn pos-neu" data-pos-aus-liste type="button">${icon('liste')} Aus Preisliste</button>
+             <button class="btn pos-neu" data-ki-vorschlagen type="button" ${agentLaeuft.has(r.id) ? 'disabled' : ''}>${icon('funke')} Preise vorschlagen</button>` : ''}
       </div>
     </div>
 
@@ -270,6 +313,7 @@ function positionZeile(p, i) {
         ${p.herkunft === 'dokumentiert' ? '<span class="pos-marke">Aus Dokumentation</span>' : ''}
         ${p.herkunft === 'manuell'      ? '<span class="pos-marke">Manuell ergänzt</span>' : ''}
         ${p.herkunft === 'preisliste'   ? '<span class="pos-marke">Aus Preisliste</span>' : ''}
+        ${p.kiOffen                      ? '<span class="pos-marke ki">KI-Vorschlag · prüfen</span>' : ''}
         ${artikelMarke(p)}
         ${p.zusatz                       ? '<span class="pos-marke">Zusätzlich zur Anfrage</span>' : ''}
         ${p.preisIstBeispiel             ? '<span class="pos-marke">Beispielpreis</span>' : ''}
@@ -346,6 +390,10 @@ function summenKoerper(r) {
 
 function editorBinden(el, api, rechnungId, danach) {
   const r = () => state.rechnung(rechnungId);
+  editorAktiv = { id: rechnungId, api };
+
+  el.querySelector('[data-ki-pruefen]')?.addEventListener('click', () => preisePruefen(rechnungId));
+  el.querySelector('[data-ki-vorschlagen]')?.addEventListener('click', () => agentStarten(rechnungId, { immerMelden: true }));
 
   /* Empfängerfelder — live in den State, ohne Neuzeichnen (Fokus bleibt). */
   el.querySelectorAll('[data-emp]').forEach(i => i.addEventListener('input', () => {
@@ -512,14 +560,18 @@ function feldFehler(inputEl, text) {
 }
 
 /** Hält den Betrag in der Fußleiste aktuell, ohne das Sheet neu zu zeichnen. */
+/** „2 Angaben fehlen" — oder, wenn nur noch KI-Preise offen sind, „2 KI-Preise prüfen". */
+function lueckenText(s) {
+  if (s.kiOffen && s.kiOffen === s.luecken) return `${s.kiOffen} ${s.kiOffen === 1 ? 'KI-Preis' : 'KI-Preise'} prüfen`;
+  return `${s.luecken} ${s.luecken === 1 ? 'Angabe fehlt' : 'Angaben fehlen'}`;
+}
+
 function fussSummeAktualisieren(el, r) {
   const ziel = el.querySelector('.foot-summe-wert');
   const label = el.querySelector('.foot-summe > span:first-child');
   if (!ziel) return;
   const s = state.summen(r);
-  ziel.textContent = s.vollstaendig
-    ? fmtEuro(s.brutto)
-    : `${s.luecken} ${s.luecken === 1 ? 'Angabe fehlt' : 'Angaben fehlen'}`;
+  ziel.textContent = s.vollstaendig ? fmtEuro(s.brutto) : lueckenText(s);
   ziel.classList.toggle('offen', !s.vollstaendig);
   if (label) {
     label.textContent = s.vollstaendig
@@ -684,8 +736,25 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
   let korrPhase = 'eingabe';   // eingabe → wertetAus → vorschlag
   let korrText = '';
   let korrFrage = null;
-  let korrVorschlag = null;
+  let korrVorschlag = null;    // Liste von Änderungen (eine Anweisung kann mehrere enthalten)
   let korrFehler = null;
+  let korrApi = null;
+
+  // Diktieren statt tippen: das Gesprochene landet im Feld, Edin schickt es selbst ab.
+  const stimme = voicing({
+    kontext: 'doku',
+    label: 'Einsprechen',
+    freischalten: false,
+    beispiel: () => ({ ok: true, transkript: 'Die Zaunlatten haben 12 Euro das Stück gekostet.', vorschlag: {} }),
+    demoText: '<strong>Diktat ist simuliert.</strong> Es wird nichts aufgenommen; der Knopf füllt ein hinterlegtes Beispiel ein.',
+    onErgebnis: (antwort) => {
+      const t = String(antwort.transkript || '').trim();
+      if (!t) return toast('Es wurde nichts erkannt.');
+      korrText = [korrText.trim(), t].filter(Boolean).join(' ');
+      korrApi?.render();
+      toast('Erkannt — prüfen und „Senden" tippen.');
+    },
+  });
 
   const konfig = {
     titel: state.istVersendet(r)
@@ -693,6 +762,7 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
       : 'Rechnungsvorschau',
     body: () => belegKoerper(holen(), state.istVersendet(holen()) ? null : {
       phase: korrPhase, text: korrText, frage: korrFrage, vorschlag: korrVorschlag, fehler: korrFehler,
+      stimme: stimme.html(),
     }),
     foot: () => {
       const akt = holen();
@@ -708,6 +778,8 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
            : `<button class="btn btn-primaer" data-zahlung type="button">${icon('check')} Zahlung vermerken</button>`}`;
     },
     bind: (el, api) => {
+      korrApi = api;
+      stimme.binden(el);
       el.querySelector('[data-zu]').addEventListener('click', sheetSchliessen);
       el.querySelector('[data-versand]')?.addEventListener('click', () => versandOeffnen(rechnungId, danach));
 
@@ -719,16 +791,22 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
       });
 
       el.querySelector('[data-korr-uebernehmen]')?.addEventListener('click', () => {
-        const v = korrVorschlag;
-        if (v.ziel === 'position') {
-          const rechnung = holen();
-          const pos = rechnung.positionen[v.positionIndex];
-          if (pos) state.positionUpdate(rechnungId, pos.id, { [v.feld]: v.neuerWert, preisIstBeispiel: false });
-        } else if (v.ziel === 'empfaenger') {
-          state.rechnungUpdate(rechnungId, { empfaenger: { ...holen().empfaenger, [v.feld]: v.neuerWert } });
+        const liste = korrVorschlag || [];
+        const pos = holen().positionen;        // Stand bei der Anfrage: Indizes passen
+        // Erst Artikel (setzt Preis und Einheit), dann Menge/Text/Preis darüber.
+        const sortiert = [...liste].sort((x, y) => (y.feld === 'artikel') - (x.feld === 'artikel'));
+        for (const v of sortiert) {
+          if (v.ziel === 'position') {
+            const p = pos[v.positionIndex];
+            if (!p) continue;
+            if (v.feld === 'artikel') state.positionArtikelSetzen(rechnungId, p.id, v.neuerWert);
+            else state.positionUpdate(rechnungId, p.id, { [v.feld]: v.neuerWert, ...(v.feld === 'preis' ? { preisIstBeispiel: false } : {}) });
+          } else if (v.ziel === 'empfaenger') {
+            state.rechnungUpdate(rechnungId, { empfaenger: { ...holen().empfaenger, [v.feld]: v.neuerWert } });
+          }
         }
         korrPhase = 'eingabe'; korrVorschlag = null; korrFrage = null; korrText = '';
-        toast('Änderung übernommen.');
+        toast(liste.length === 1 ? 'Änderung übernommen.' : `${liste.length} Änderungen übernommen.`);
         api.render();
       });
 
@@ -742,7 +820,8 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
         const rechnung = holen();
         let antwort;
         if (echterDienst) {
-          antwort = await flows.rechnungKorrektur({ anweisung, rechnung });
+          const artikel = kandidatenFuerText(anweisung, state.alleArtikel()).map(a => ({ ...a, nr: artikelSchluessel(a) }));
+          antwort = await flows.rechnungKorrektur({ anweisung, rechnung, artikel });
         } else {
           // Demo ohne Dienst: einfache lokale Nachbildung, klar gekennzeichnet.
           const treffer = rechnung.positionen
@@ -769,7 +848,26 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
           api.render();
           return;
         }
-        korrVorschlag = antwort;
+        // Eine oder mehrere Änderungen; alles, was sich hier nicht zuordnen lässt, fällt weg.
+        const liste = (Array.isArray(antwort.aenderungen) ? antwort.aenderungen : [antwort])
+          .map(v => aenderungAufbereiten(v, rechnung)).filter(Boolean);
+        // Wechselt ein Artikel die Einheit (Std. → m²) und nennt Edin keine neue Menge,
+        // stünde sonst „2 m²". Kein Raten: sichtbar darauf hinweisen.
+        for (const v of liste) {
+          if (v.feld !== 'artikel') continue;
+          const p = rechnung.positionen[v.positionIndex], a = state.artikel(v.neuerWert);
+          const neueMenge = liste.some(x => x.positionIndex === v.positionIndex && x.feld === 'menge');
+          if (p && a && einheitKlasse(p.einheit) !== einheitKlasse(a.einheit) && !neueMenge) {
+            v.hinweis = `Einheit wechselt von ${p.einheit || '—'} auf ${a.einheit} — bitte die Menge prüfen (bisher ${zahlZuFeld(p.menge) || '—'}).`;
+          }
+        }
+        if (!liste.length) {
+          korrFrage = 'Ich konnte die Änderung nicht sicher zuordnen. Nenn bitte die Position und was dort stehen soll.';
+          korrPhase = 'eingabe'; korrText = anweisung;
+          api.render();
+          return;
+        }
+        korrVorschlag = liste;
         korrPhase = 'vorschlag';
         api.render();
       });
@@ -785,7 +883,7 @@ export function belegOeffnen(rechnungId, { ersetzen = false, danach } = {}) {
         belegOeffnen(rechnungId, { ersetzen: true, danach });
       });
     },
-    onClose: () => danach?.(),
+    onClose: () => { stimme.abbrechen(); danach?.(); },
   };
 
   ersetzen ? sheetErsetzen(konfig) : sheetOeffnen(konfig);
@@ -910,16 +1008,21 @@ function korrekturBlock(korr) {
   }
 
   if (korr.phase === 'vorschlag') {
-    const v = korr.vorschlag;
-    const ziel = v.ziel === 'position' ? esc(v.positionText) : 'Empfänger · ' + esc(FELD_LABEL[v.feld] || v.feld);
-    const fmt = (x) => (v.feld === 'preis' || v.feld === 'menge') && typeof x === 'number' ? zahlZuFeld(x) : esc(x);
+    const liste = korr.vorschlag;
+    const zeilen = liste.map(v => `
+      <div class="korr-aenderung">
+        <div class="korr-ziel">${v.ziel === 'position' ? esc(v.positionText) : 'Empfänger'} · ${esc(FELD_LABEL[v.feld] || v.feld)}</div>
+        <div class="sum-zeile"><span>Bisher</span><span class="sum-wert">${esc(v.alterAnzeige)}</span></div>
+        <div class="sum-zeile gesamt"><span>Neu</span><span class="sum-wert">${esc(v.neuAnzeige)}</span></div>
+        ${v.hinweis ? `<div class="korr-warnung">${esc(v.hinweis)}</div>` : ''}
+      </div>`).join('');
+    const grund = liste.map(v => v.begruendung).find(Boolean);
     return `
       <div class="card korr-block">
-        <div class="card-head"><div class="card-title">${icon('funke')} Vorschlag: ${ziel}</div></div>
+        <div class="card-head"><div class="card-title">${icon('funke')} ${liste.length === 1 ? 'Vorschlag' : `${liste.length} Änderungen`}</div></div>
         <div class="card-body stapel">
-          <div class="sum-zeile"><span>Bisher</span><span class="sum-wert">${v.alterWert !== null && v.alterWert !== undefined ? fmt(v.alterWert) : '—'}</span></div>
-          <div class="sum-zeile gesamt"><span>Neu</span><span class="sum-wert">${fmt(v.neuerWert)}</span></div>
-          ${v.begruendung ? `<div class="hint-note">${esc(v.begruendung)}</div>` : ''}
+          ${zeilen}
+          ${grund ? `<div class="hint-note">${esc(grund)}</div>` : ''}
           <div class="korr-aktionen">
             <button class="btn" data-korr-verwerfen type="button">Verwerfen</button>
             <button class="btn btn-primaer" data-korr-uebernehmen type="button">Übernehmen</button>
@@ -935,15 +1038,49 @@ function korrekturBlock(korr) {
         ${korr.frage ? `<div class="hinweis"><span>${esc(korr.frage)}</span></div>` : ''}
         ${korr.fehler ? `<div class="state-box error">${esc(korr.fehler)}</div>` : ''}
         <div class="korr-eingabe">
-          <input class="inp" id="korr-text" placeholder="z. B. „Der Dichtungssatz war teurer, mach 16 Euro rein."" value="${esc(korr.text)}">
+          <input class="inp" id="korr-text" placeholder="z. B. „Die Hecke war Gartenpflege, 120 m², Anfahrt über 15 km."" value="${esc(korr.text)}">
           <button class="btn btn-primaer" data-korr-senden type="button">${icon('funke')} Senden</button>
         </div>
+        ${korr.stimme || ''}
+        ${state.alleArtikel().length ? '<div class="f-hilfe">Du kannst mehrere Dinge auf einmal sagen und Artikel aus deiner Preisliste nennen — der Preis kommt dann aus der Liste.</div>' : ''}
       </div>
     </div>`;
 }
 
-const FELD_LABEL = { preis: 'Preis', menge: 'Menge', einheit: 'Einheit', text: 'Text',
+const FELD_LABEL = { preis: 'Preis', menge: 'Menge', einheit: 'Einheit', text: 'Text', artikel: 'Artikel aus Preisliste',
   name: 'Name', adresse: 'Adresse', email: 'E-Mail', ansprechpartner: 'Ansprechpartner' };
+
+/**
+ * Eine Änderung aus der Antwort prüfen und für die Anzeige vorbereiten. Den alten
+ * Wert nimmt die App aus ihrem eigenen Stand (der Empfänger wird nicht immer
+ * mitgeschickt). Ein Artikel muss in der Preisliste stehen, sonst fällt die Änderung weg.
+ */
+function aenderungAufbereiten(v, rechnung) {
+  if (!v || !v.feld) return null;
+  const zahl = (x) => (typeof x === 'number' ? zahlZuFeld(x) : String(x ?? ''));
+  if (v.ziel === 'position') {
+    const p = rechnung.positionen[v.positionIndex];
+    if (!p) return null;
+    if (v.feld === 'artikel') {
+      const a = state.artikel(v.neuerWert);
+      if (!a) return null;
+      const alt = p.artikelNr ? state.artikel(p.artikelNr) : null;
+      return { ...v, neuerWert: artikelSchluessel(a), positionText: p.text,
+        alterAnzeige: alt ? `${alt.name} · ${preisText(alt)}` : (p.preis !== null && p.preis !== undefined ? `${zahl(p.preis)} € / ${p.einheit || ''}` : 'offen'),
+        neuAnzeige: `${a.name} · ${preisText(a)}` };
+    }
+    if (!['preis', 'menge', 'einheit', 'text'].includes(v.feld)) return null;
+    const alt = p[v.feld];
+    return { ...v, positionText: p.text,
+      alterAnzeige: alt === null || alt === undefined || alt === '' ? '—' : zahl(alt),
+      neuAnzeige: zahl(v.neuerWert) };
+  }
+  if (v.ziel === 'empfaenger' && ['name', 'adresse', 'email', 'ansprechpartner'].includes(v.feld)) {
+    const alt = rechnung.empfaenger?.[v.feld];
+    return { ...v, alterAnzeige: alt || '—', neuAnzeige: String(v.neuerWert ?? '') };
+  }
+  return null;
+}
 
 /* ── Simulierter Versand ─────────────────── */
 

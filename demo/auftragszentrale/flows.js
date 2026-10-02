@@ -31,6 +31,7 @@ const N8N_ZIEL = {
   foto: 'pt-foto',
   preiskorrektur: 'pt-preiskorrektur',
   rechnungskorrektur: 'pt-rechnungskorrektur',
+  preisvorschlag: 'pt-preisvorschlag',
 };
 const CODE_KEY = 'pt-zugangscode';
 
@@ -299,27 +300,40 @@ export async function preisAnweisung({ anweisung, position }) {
  * zuordnen, was gemeint ist. Der Flow fragt aktiv nach, statt zu raten,
  * sobald das nicht eindeutig ist (Fachregel 5 und 11).
  */
-export async function rechnungKorrektur({ anweisung, rechnung }) {
+/**
+ * Betrifft die Anweisung den Empfänger? Nur dann gehen Name, Adresse und E-Mail des
+ * Kunden mit an die KI — sonst bleiben sie auf dem Gerät (Datensparsamkeit).
+ */
+export const betrifftEmpfaenger = (anweisung) =>
+  /empf[aä]nger|adress|anschrift|e-?mail|@|ansprechpartner|z\.?\s?hd|firmenname|kundenname|rechnung\s+(geht|soll|muss)?\s*an\b|\ban\s+(die|den|das|frau|herrn?)\b/i.test(String(anweisung || ''));
+
+export async function rechnungKorrektur({ anweisung, rechnung, artikel = [] }) {
   const daten = {
     anweisung,
     kopftext: rechnung.kopftext || '',
     fusstext: rechnung.fusstext || '',
-    empfaenger: {
+    empfaenger: betrifftEmpfaenger(anweisung) ? {
       name: rechnung.empfaenger?.name || '',
       adresse: rechnung.empfaenger?.adresse || '',
       email: rechnung.empfaenger?.email || '',
       ansprechpartner: rechnung.empfaenger?.ansprechpartner || '',
-    },
+    } : null,
     positionen: (rechnung.positionen || []).map((p, i) => ({
       index: i, text: p.text, menge: p.menge, einheit: p.einheit, preis: p.preis,
     })),
+    // Artikel aus Edins Preisliste, die zur Anweisung passen könnten. Ohne Preis:
+    // den setzt die App aus der Liste, die KI wählt nur die Nummer.
+    artikel: artikel.slice(0, 8).map(a => ({ nr: a.nr, name: a.name, einheit: a.einheit, kategorie: a.kategorie || '' })),
   };
   await verfuegbar();
+  const steuerung = new AbortController();
+  const abbruch = setTimeout(() => steuerung.abort(), KI_ZEITLIMIT.rechnungskorrektur);
   try {
     const antwort = await fetch(ziel('rechnungskorrektur'), {
       method: 'POST',
       headers: kopfzeilen('application/json'),
       body: JSON.stringify(daten),
+      signal: steuerung.signal,
     });
     const abgelehnt = codeAbgelehnt(antwort);
     if (abgelehnt) return abgelehnt;
@@ -327,8 +341,46 @@ export async function rechnungKorrektur({ anweisung, rechnung }) {
     return (ergebnis && typeof ergebnis === 'object')
       ? ergebnis
       : { ok: false, fehler: 'Die Antwort war nicht lesbar.' };
-  } catch {
-    return { ok: false, fehler: 'Die Auswertung ist nicht erreichbar. Läuft der Server noch?' };
+  } catch (e) {
+    return { ok: false, fehler: e?.name === 'AbortError'
+      ? 'Die Auswertung hat zu lange gebraucht. Bitte noch einmal senden.'
+      : 'Die Auswertung ist nicht erreichbar. Läuft der Server noch?' };
+  } finally {
+    clearTimeout(abbruch);
+  }
+}
+
+/**
+ * Preis-Agent: ordnet Positionen Artikeln aus Edins Preisliste zu.
+ * Geschickt werden nur Positionstext, Menge, Einheit und je Position die von der App
+ * vorausgewählten Kandidaten — keine Kundendaten, keine Preise, nicht die ganze Liste.
+ * Antwort: `{ ok, vorschlaege: [{ id, nr|null, sicherheit, grund }] }`.
+ */
+/** Zeitlimits der KI-Aufrufe (ms). Ein hängender Server darf die App nicht festhalten. */
+export const KI_ZEITLIMIT = { preisvorschlag: 45000, rechnungskorrektur: 30000 };
+
+export async function preisVorschlag({ positionen }) {
+  await verfuegbar();
+  const steuerung = new AbortController();
+  const abbruch = setTimeout(() => steuerung.abort(), KI_ZEITLIMIT.preisvorschlag);
+  try {
+    const antwort = await fetch(ziel('preisvorschlag'), {
+      method: 'POST',
+      headers: kopfzeilen('application/json'),
+      body: JSON.stringify({ positionen }),
+      signal: steuerung.signal,
+    });
+    const abgelehnt = codeAbgelehnt(antwort);
+    if (abgelehnt) return abgelehnt;
+    const ergebnis = await antwort.json();
+    return (ergebnis && typeof ergebnis === 'object')
+      ? ergebnis
+      : { ok: false, fehler: 'Die Antwort war nicht lesbar.' };
+  } catch (e) {
+    return { ok: false, fehler: e?.name === 'AbortError'
+      ? 'Die Preissuche hat zu lange gebraucht.' : 'Die Preissuche ist gerade nicht erreichbar.' };
+  } finally {
+    clearTimeout(abbruch);
   }
 }
 
