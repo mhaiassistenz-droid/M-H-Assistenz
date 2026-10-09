@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.bunny.net; font-src 'self' https://fonts.bunny.net; img-src 'self' data:; connect-src 'self' https://n8n.mhassistenz.de; frame-ancestors 'self'; form-action 'self';">
+<meta name="robots" content="noindex,nofollow">
+<title>Telefonassistent · Fragebogen für 2Hands Hausverwaltung</title>
+<link rel="icon" href="../favicon.png">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=geist:400,500,600,700&display=swap">
+<style>
+  :root{
+    --blue:#2F5CFF; --blue-soft:#EEF1FF; --blue-border:#C0CCFF;
+    --ink:#0F0F0F; --gray:#3F3F46; --muted:#6B6B73; --line:#E4E4E7; --bg:#F5F5F5;
+    --green:#0F7A45; --green-soft:#E8F5EE; --red:#B42318; --red-soft:#FEF3F2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:28px 12px 60px;-webkit-text-size-adjust:100%;}
+  .card{max-width:760px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .head{padding:28px 30px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .head img{display:block;height:46px;}
+  .body{padding:20px 30px 30px;}
+  h1{font-size:24px;line-height:1.2;margin-bottom:10px;letter-spacing:-.01em;}
+  h2.block{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin:34px 0 4px;padding-top:22px;border-top:1px solid var(--line);}
+  .intro{font-size:15px;color:var(--gray);line-height:1.6;margin-bottom:12px;}
+  .intro b{color:var(--ink);}
+  .note{display:flex;gap:10px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;color:var(--gray);margin:14px 0 6px;}
+  .note svg{flex:none;margin-top:2px;}
+  .progress{height:5px;background:var(--line);border-radius:3px;margin:22px 0 4px;overflow:hidden;}
+  .progress i{display:block;height:100%;width:3%;background:var(--blue);border-radius:3px;transition:width .3s;}
+  .progress-t{font-size:12.5px;color:var(--muted);}
+  .q{margin-top:26px;}
+  .q-num{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px;}
+  .q-label{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:6px;}
+  .q-text{font-size:15px;color:var(--gray);line-height:1.55;margin-bottom:6px;}
+  .q-hint{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+  textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;line-height:1.5;color:var(--ink);resize:vertical;min-height:150px;background:#FAFAFA;}
+  textarea:focus{outline:none;border-color:var(--blue);background:#fff;}
+  .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center;}
+  .btn{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .btn:hover{background:#F4F4F5;}
+  .btn.mic{color:#1D4ED8;background:#EFF6FF;border-color:#BFDBFE;}
+  .btn.mic.an{background:var(--red);border-color:var(--red);color:#fff;}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .btn svg{width:17px;height:17px;flex:none;}
+  .diktat-live{font-size:13px;color:var(--muted);font-style:italic;min-height:0;}
+  .files{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+  .file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 8px 8px 12px;font-size:14px;background:#FAFAFA;min-width:0;}
+  .file span{flex:1;min-width:0;overflow-wrap:anywhere;}
+  .file small{color:var(--muted);white-space:nowrap;}
+  .file button{flex:none;width:36px;height:36px;border:0;background:none;border-radius:8px;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;}
+  .file button:hover{background:#EDEDED;}
+  input[type=file]{display:none;}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  /* Chat */
+  .chat{border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;background:#FCFCFD;}
+  .msgs{display:flex;flex-direction:column;gap:10px;padding:14px;max-height:520px;overflow-y:auto;}
+  .msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px;}
+  .msg.assistant{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px;}
+  .msg.info{align-self:center;background:none;color:var(--muted);font-size:13px;text-align:center;}
+  .msg.fehler{align-self:center;background:var(--red-soft);color:var(--red);font-size:13.5px;}
+  .chat-in{border-top:1px solid var(--line);padding:12px;background:#fff;}
+  .chat-in textarea{min-height:80px;}
+  .chat-in .tools{justify-content:space-between;}
+  .vorschlaege{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px;}
+  .vorschlag{border:1px solid var(--blue-border);background:var(--blue-soft);color:#1D4ED8;border-radius:999px;padding:7px 12px;font:inherit;font-size:13.5px;cursor:pointer;}
+  /* Absenden */
+  .submit{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:12px;min-height:54px;font-size:16px;font-weight:700;cursor:pointer;margin-top:30px;font-family:inherit;}
+  .submit:disabled{opacity:.55;cursor:default;}
+  .status{text-align:center;font-size:13.5px;color:var(--muted);margin-top:10px;min-height:18px;line-height:1.5;}
+  .status.ok{color:var(--green);} .status.err{color:var(--red);}
+  .foot{padding:18px 30px 24px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.6;}
+  .foot a{color:var(--muted);}
+  .state{padding:30px 0 12px;text-align:center;}
+  .state h2{font-size:20px;margin:14px 0 8px;}
+  .state p{font-size:15px;color:var(--gray);line-height:1.6;max-width:440px;margin:0 auto;}
+  .state .icon{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--green-soft);}
+  .hidden{display:none !important;}
+  @media (max-width:520px){ body{padding:12px 8px 40px;} .head{padding:22px 18px 0;} .head img{height:38px;} .body{padding:16px 18px 24px;} .foot{padding:16px 18px 20px;} h1{font-size:21px;} .msg{max-width:94%;} }
+</style>
+<style>.intro{white-space:pre-line}.head .brand{font-size:13px;font-weight:600;color:var(--muted);text-align:right}.head img{max-width:65%;object-fit:contain}.q-label{display:block}.action-row{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 12px}.call-link{margin:2px 0 8px;text-decoration:none;background:var(--blue);border-color:var(--blue);color:white}.call-link:hover{background:#254de0}.storage-error{color:var(--red);background:var(--red-soft);padding:12px;border:1px solid #fecdca;border-radius:10px;margin:14px 0;font-size:14px;line-height:1.5}.phase{font-size:13px;color:var(--muted);padding:0 14px 12px}#resetWarning{color:var(--red);margin-top:14px}.state .btn{margin-top:20px}</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><img src="logo.png" alt="M&amp;H Assistenz"><span class="brand">Für Marco Reschke<br>Sandbox-Fragebogen</span></div>
+  <div class="body hidden" id="viewDone">
+    <div class="state"><span class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0F7A45" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <h2>Danke, Marco!</h2><p>Alles ist bei Matthias angekommen: deine Antworten, alle bestätigten Testfälle, offenen Punkte, Verbesserungswünsche und der vollständige Chat.</p>
+      <p id="resetWarning" role="alert"></p><button class="btn" type="button" id="newSession">Neuen Fragebogen starten</button>
+    </div>
+  </div>
+  <div class="body" id="viewForm">
+    <h1>Hallo Marco, dein Telefonassistent für die Hausverwaltung</h1>
+    <p class="intro" id="intro"></p>
+    <a class="btn call-link" href="https://marco.128-140-66-91.sslip.io" target="_blank" rel="noopener">Telefonassistent ausprobieren</a>
+    <div class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6" fill="#2F5CFF"/></svg>
+      <span>Bitte ausschließlich anonymisierte oder erfundene Testdaten verwenden. Keine echten Mieter-, Objekt- oder Kontaktdaten, Passwörter oder Tokens eintragen. Schreib oder sprich deine Antworten; dein Fragebogen und der strukturierte Chatstand werden <b>auf diesem Gerät</b> zwischengespeichert. Der Pilot betrifft ausschließlich Hausverwaltung.</span>
+    </div>
+    <div class="storage-error hidden" id="storageError" role="alert"></div>
+    <div class="progress"><i id="bar"></i></div><div class="progress-t" id="barText">0 von 5 Fragen beantwortet</div>
+    <input class="hp" type="text" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div id="fragen"></div>
+    <h2 class="block">Sonst noch etwas?</h2>
+    <div class="q"><label class="q-label" for="zusatz">Alles, was oben keinen Platz hatte</label><p class="q-hint">Weitere Wünsche oder offene Regeln für Agent und Dashboard. Nur anonymisierte Testdaten; keine Fotos oder Bild-Uploads.</p>
+      <textarea id="zusatz" placeholder="Was dir sonst noch wichtig ist …"></textarea><div class="tools"></div>
+    </div>
+    <h2 class="block">Sieben geführte Testfälle</h2>
+    <p class="q-text">Beschreibe jeweils einen typischen Anruf. Der Assistent fragt passende fehlende Angaben nach und fasst den Fall zur Bestätigung zusammen. Mit „Stopp“ oder „reicht“ beendest du die Fallaufnahme und sammelst anschließend Verbesserungen. Neue Ideen werden als eigene Anforderungen festgehalten. Terminwünsche erhalten immer den Status „Freigabe durch Marco erforderlich“; der Assistent bucht oder ändert keine Termine und macht keine verbindlichen Zusagen.</p>
+    <p class="q-hint">Bei akuter Gefahr: 112 und gegebenenfalls den zuständigen Notdienst kontaktieren. WhatsApp bleibt ein Zukunftshinweis.</p>
+    <p class="q-hint" id="speechHint"></p>
+    <div class="chat">
+      <div class="msgs" id="msgs" aria-live="polite" role="log" aria-label="Vollständiger Chat"></div>
+      <div class="phase"><span id="caseProgress"></span><br><span id="phaseText"></span></div>
+      <div class="action-row">
+        <button class="btn hidden" id="confirmCase" type="button">Diesen Fall bestätigen</button>
+        <button class="btn hidden" id="resumeCase" type="button">Zurück zum Fall</button>
+        <button class="btn" id="stopCases" type="button">Stopp · Fallaufnahme beenden</button>
+        <button class="btn hidden" id="finishImprovements" type="button">Sammlung abschließen</button>
+        <button class="btn hidden" id="retryMessage" type="button">Nachricht erneut senden</button>
+      </div>
+      <div class="vorschlaege"><button class="vorschlag" type="button" data-start="Ein typischer Anruf ist: ">Typischen Anruf beschreiben</button><button class="vorschlag" type="button" data-start="Eine neue Idee für das Dashboard: ">Neue Idee festhalten</button></div>
+      <div class="chat-in"><label class="q-hint" for="chatText">Deine Beschreibung, Ergänzung oder Idee</label><textarea id="chatText" placeholder="Schreib oder sprich hier einen Fall …"></textarea>
+        <div class="tools"><span class="chat-tools"></span><button class="btn" id="chatSenden" type="button">Senden</button></div>
+      </div>
+    </div>
+    <button class="submit" id="btnSubmit" type="button">Alles an Matthias abschicken</button>
+    <div class="status" id="status" role="status">Deine Eingaben werden auf diesem Gerät automatisch gespeichert.</div>
+  </div>
+  <div class="foot">M&amp;H Assistenz · Matthias Heuchemer<br><a href="https://mhassistenz.de/impressum.html">Impressum</a> · <a href="https://mhassistenz.de/datenschutz.html">Datenschutz</a> · Antworten und vollständiger Chat gehen über den bestehenden Versand mit n8n/Gmail nur an Matthias. Nur anonymisierte Testdaten verwenden. Der KI-Chat läuft über Azure OpenAI in Schweden (EU). Browser-Spracherkennung kann über den Browseranbieter verarbeitet werden.</div>
+</div>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
