@@ -107,8 +107,8 @@
   </div>
 
   <div class="body" id="viewForm">
-    <h1>Hallo Edin, Runde 2: nur noch ein paar Fragen</h1>
-    <p class="intro">Danke für deine vielen Antworten aus der ersten Runde. Daraus ist schon einiges entstanden. Jetzt fehlen nur noch ein paar Punkte. <b>Eine kurze Antwort reicht</b>, gern mit einem Beispiel aus deinem Alltag.</p>
+    <h1>Hallo Edin, Runde 2: nur noch drei kurze Fragen</h1>
+    <p class="intro">Danke für deine vielen Antworten aus der ersten Runde. Daraus ist schon einiges entstanden. Jetzt fehlen nur noch drei Punkte. <b>Eine kurze Antwort reicht</b>, gern mit einem Beispiel aus deinem Alltag.</p>
     <p class="intro"><b>Diktieren:</b> Auf „Diktieren“ tippen, sprechen, dann auf „Fertig“. Der Text erscheint im Feld, und du kannst ihn noch korrigieren.</p>
     <p class="intro" id="introChat">Ganz unten ist wieder der <b>Assistent</b>. Wenn du an der App etwas geändert haben willst, schreib es ihm einfach. Er fragt nach, damit Matthias genau versteht, was du meinst. Mit dem Knopf ganz unten geht <b>alles zusammen an Matthias</b>.</p>
     <div class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F5CFF" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.5" r=".6" fill="#2F5CFF"/></svg>
@@ -161,7 +161,7 @@
 (function () {
   'use strict';
   const N8N = 'https://n8n.mhassistenz.de/webhook';
-  const KEY = 'pt-edin-fragebogen-r2-v1';
+  const KEY = 'pt-edin-fragebogen-r2-v2';   // v2: 3 statt 9 Fragen, Nummern haben sich verschoben
   const MAX_BYTES = 14 * 1024 * 1024;   // unter der Grenze von n8n und Gmail
   // Schalter: Chat und sevDesk-Feld erst einschalten, wenn die n8n-Flows dafür stehen
   // (pt-edin-chat-r2 und pt-edin-sevdesk). Gespeicherte Antworten bleiben beim Umschalten erhalten.
@@ -172,29 +172,15 @@
   /* ── Die Fragen ─────────────────────────── */
   const BILD = 'Fotos und Screenshots legst du mit „Bild anhängen“ dazu, Listen und PDFs mit „Datei anhängen“.';
   const BLOECKE = [
-    ['Bevor ich weiterbaue', [
-      ['Deine Daten in der App', 'Hast du in der App schon Aufträge, Notizen oder Aufgaben gespeichert, die du behalten möchtest? Auch Übungen zählen.', 'Die Rechnungen werden gerade nach Kostenstellen umgebaut, und dabei soll nichts von dir verloren gehen. Ein kurzes Ja oder Nein reicht.'],
-    ]],
-    ['Rechnungen', [
-      ['Material und Arbeit getrennt', 'Wann stellst du Material und Arbeit getrennt in Rechnung, und wann kommt alles auf eine Rechnung?', 'Am besten mit einem echten Beispiel. ' + BILD],
-      ['Versand je Kostenstelle', 'Hab ich dich richtig verstanden: Jede Kostenstelle bekommt ihre Rechnung als eigene Mail, auch wenn alles an dieselbe Adresse geht?', 'Ein Ja reicht. Wenn es Ausnahmen gibt, schreib sie gern dazu.'],
-    ]],
     ['sevDesk', [
-      ['Deine Artikelliste in sevDesk', 'Ist deine Artikelliste in sevDesk aktuell, oder fehlen dort Leistungen, die du oft abrechnest? Und welchen sevDesk Tarif hast du?', 'Die App soll später direkt mit deiner Liste aus sevDesk arbeiten, damit du Preise nur noch an einer Stelle pflegst. Den Tarif siehst du in sevDesk in den Einstellungen.'],
+      ['Zugang zu sevDesk', 'Damit die App deine Artikel und Kunden direkt aus sevDesk nimmt und Rechnungen dort anlegt, braucht sie deinen sevDesk-Zugangsschlüssel (API-Token). Dein Passwort oder deine Anmeldedaten brauchen wir nicht.', 'So findest du ihn: In sevDesk unter Einstellungen bei den Benutzern deinen Benutzer öffnen, dort steht der API-Token. Unten einfügen und auf „Schlüssel sicher übermitteln“ tippen. Wenn du ihn nicht findest, schreib es kurz ins Feld, Matthias hilft dir dann.'],
+      ['Deine Artikelliste in sevDesk', 'Ist deine Artikelliste in sevDesk aktuell, oder fehlen dort Leistungen, die du oft abrechnest? Welchen sevDesk Tarif hast du? Und verschickst du Rechnungen heute schon direkt aus sevDesk per Mail?', 'Den Tarif siehst du in sevDesk in den Einstellungen.'],
     ]],
     ['Preise', [
-      ['Anfahrt', 'Die App soll die Strecke von deiner Firma zum Einsatzort selbst ausrechnen und die Anfahrt nach deiner Staffel vorschlagen: bis 5 km 0 €, bis 15 km 25 €, bis 30 km 45 €, bis 50 km 65 €. Passt die Staffel so? Und zählt die einfache Strecke oder hin und zurück?', ''],
       ['Nachlässe und Skonto', 'Wann gibst du Stammkunden 10 % Nachlass und wann 5 %? Und wann bietest du Skonto an, zum Beispiel 2 % bei Zahlung in 5 Tagen?', 'Ein, zwei Beispiele reichen.'],
     ]],
-    ['Angebote', [
-      ['Was in jedem Angebot steht', 'Was soll in jedem Angebot immer drinstehen? Zum Beispiel deine Hinweise zu Material, zur Zahlung oder wie lange das Angebot gilt.', 'Gern ein Angebot als Beispiel anhängen. ' + BILD],
-      ['Unterschrift vor Ort', 'Wenn ein Kunde dein Angebot vor Ort unterschreibt: Darf diese Person den Auftrag auch erteilen, oder entscheidet bei manchen Kunden die Verwaltung?', 'Damit die Unterschrift vor Ort auch wirklich zählt.'],
-    ]],
-    ['Zum Schluss', [
-      ['Diktieren', 'Hat das Diktieren diesmal geklappt? Wenn nicht: Mit welchem Handy und welchem Browser warst du unterwegs, und was ist passiert?', ''],
-    ]],
   ];
-  const SEVDESK_FRAGE = 'Deine Artikelliste in sevDesk';
+  const SEVDESK_FRAGE = 'Zugang zu sevDesk';
 
   /* ── Rendern ─────────────────────────────── */
   const box = $('#fragen');
@@ -217,8 +203,7 @@
       q.querySelector('textarea').dataset.feld = String(nr);
       if (titel === SEVDESK_FRAGE) q.insertAdjacentHTML('beforeend', `
         <div class="key" id="keyBox">
-          <div class="key-t">sevDesk-Zugang für die App (freiwillig)</div>
-          <p>Damit die App später deine Artikel und Kunden aus sevDesk lesen und Rechnungen dort anlegen kann, braucht sie einen Zugangsschlüssel. Du findest ihn in sevDesk in den Einstellungen bei deinem Benutzer als „API-Token“. Wenn du ihn nicht findest, lass das Feld einfach leer. Matthias hilft dir dann.</p>
+          <div class="key-t">Schlüssel hier sicher übermitteln</div>
           <label><input type="checkbox" id="keyOk"> Ich bin einverstanden, dass die Auftragszentrale mit diesem Schlüssel meine Artikel und Kunden in sevDesk liest und dort Rechnungen anlegt.</label>
           <input type="password" id="keyFeld" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Schlüssel hier einfügen">
           <button class="btn" id="keySenden" type="button">Schlüssel sicher übermitteln</button>
@@ -234,7 +219,7 @@
     $('#introChat').innerHTML = 'Mit dem Knopf ganz unten geht <b>alles zusammen an Matthias</b>.';
   }
   if (!SCHLUESSEL_AKTIV) {
-    $('#keyBox').innerHTML = '<div class="key-t">sevDesk-Zugang für die App</div><p>Den Zugangsschlüssel aus sevDesk brauchen wir später. Matthias meldet sich dazu bei dir. Bitte schick ihn nicht per Mail, WhatsApp oder hier ins Antwortfeld.</p>';
+    $('#keyBox').innerHTML = '<div class="key-t">Schlüssel übermitteln</div><p>Das Feld zum sicheren Übermitteln wird gerade eingerichtet. Matthias sagt dir Bescheid. Bitte schick den Schlüssel nicht per Mail, WhatsApp oder hier ins Antwortfeld.</p>';
   }
 
   const ICON_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>';
