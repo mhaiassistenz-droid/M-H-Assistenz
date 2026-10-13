@@ -55,17 +55,6 @@
   .file button:hover{background:#EDEDED;}
   input[type=file]{display:none;}
   .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
-  /* sevDesk-Zugang */
-  .key{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#FCFCFD;}
-  .key-t{font-size:15px;font-weight:700;margin-bottom:6px;}
-  .key p{font-size:14px;color:var(--gray);line-height:1.55;margin-bottom:10px;}
-  .key label{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;color:var(--ink);margin-bottom:10px;cursor:pointer;}
-  .key label input{margin-top:3px;width:18px;height:18px;flex:none;}
-  .key input[type=password]{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;font-size:16px;background:#fff;margin-bottom:8px;}
-  .key .key-hinweis{font-size:12.5px;color:var(--muted);margin:10px 0 0;}
-  .key-status{font-size:14px;line-height:1.5;margin-top:8px;}
-  .key-status:empty{display:none;}
-  .key-status.ok{color:var(--green);font-weight:600;} .key-status.err{color:var(--red);}
   /* Chat */
   .chat{border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;background:#FCFCFD;}
   .msgs{display:flex;flex-direction:column;gap:10px;padding:14px;max-height:520px;overflow-y:auto;}
@@ -154,7 +143,7 @@
 
   <div class="foot">M&amp;H Assistenz · Matthias Heuchemer<br>
     <a href="https://mhassistenz.de/impressum.html">Impressum</a> · <a href="https://mhassistenz.de/datenschutz.html">Datenschutz</a> ·
-    Antworten und Anhänge gehen per Mail nur an Matthias. Der Assistent läuft über Azure OpenAI (Rechenzentrum Schweden, EU) und bekommt keine Anhänge. Diktieren: Die Aufnahme wird über einen Dienst in den USA (Groq) in Text umgewandelt; bei uns wird sie nicht gespeichert. Der sevDesk-Schlüssel geht nicht per Mail, sondern direkt in Matthias’ geschützten Bereich.</div>
+    Antworten und Anhänge gehen per Mail nur an Matthias. Der Assistent läuft über Azure OpenAI (Rechenzentrum Schweden, EU) und bekommt keine Anhänge. Diktieren: Die Aufnahme wird über einen Dienst in den USA (Groq) in Text umgewandelt; bei uns wird sie nicht gespeichert. Der sevDesk-Schlüssel aus Frage 1 geht mit deinen Antworten per Mail nur an Matthias; du kannst ihn in sevDesk jederzeit löschen, dann ist er ungültig.</div>
 </div>
 
 <script>
@@ -163,24 +152,22 @@
   const N8N = 'https://n8n.mhassistenz.de/webhook';
   const KEY = 'pt-edin-fragebogen-r2-v2';   // v2: 3 statt 9 Fragen, Nummern haben sich verschoben
   const MAX_BYTES = 14 * 1024 * 1024;   // unter der Grenze von n8n und Gmail
-  // Schalter: Chat und sevDesk-Feld erst einschalten, wenn die n8n-Flows dafür stehen
-  // (pt-edin-chat-r2 und pt-edin-sevdesk). Gespeicherte Antworten bleiben beim Umschalten erhalten.
+  // Schalter: Chat erst einschalten, wenn der n8n-Flow pt-edin-chat-r2 steht.
+  // Gespeicherte Antworten bleiben beim Umschalten erhalten.
   const CHAT_AKTIV = false;
-  const SCHLUESSEL_AKTIV = false;
   const $ = (s, r = document) => r.querySelector(s);
 
   /* ── Die Fragen ─────────────────────────── */
   const BILD = 'Fotos und Screenshots legst du mit „Bild anhängen“ dazu, Listen und PDFs mit „Datei anhängen“.';
   const BLOECKE = [
     ['sevDesk', [
-      ['Zugang zu sevDesk', 'Damit die App deine Artikel und Kunden direkt aus sevDesk nimmt und Rechnungen dort anlegt, braucht sie deinen sevDesk-Zugangsschlüssel (API-Token). Dein Passwort oder deine Anmeldedaten brauchen wir nicht.', 'So findest du ihn: In sevDesk unter Einstellungen bei den Benutzern deinen Benutzer öffnen, dort steht der API-Token. Unten einfügen und auf „Schlüssel sicher übermitteln“ tippen. Wenn du ihn nicht findest, schreib es kurz ins Feld, Matthias hilft dir dann.'],
-      ['Deine Artikelliste in sevDesk', 'Ist deine Artikelliste in sevDesk aktuell, oder fehlen dort Leistungen, die du oft abrechnest? Welchen sevDesk Tarif hast du? Und verschickst du Rechnungen heute schon direkt aus sevDesk per Mail?', 'Den Tarif siehst du in sevDesk in den Einstellungen.'],
+      ['Zugang zu sevDesk', 'Damit die App deine Artikel und Kunden direkt aus sevDesk nimmt und Rechnungen dort anlegt, braucht sie deinen sevDesk-Zugangsschlüssel (API-Token). Dein Passwort oder deine Anmeldedaten brauchen wir nicht.', 'So findest du ihn: In sevDesk unter Einstellungen bei den Benutzern deinen Benutzer öffnen, dort steht der API-Token. Einfach hier ins Feld einfügen. Wenn du ihn nicht findest, schreib es kurz rein, Matthias hilft dir dann.'],
+      ['Deine Artikelliste in sevDesk', 'Ist deine Artikelliste in sevDesk aktuell und vollständig?', 'Ein Ja oder Nein reicht.'],
     ]],
     ['Preise', [
       ['Nachlässe und Skonto', 'Wann gibst du Stammkunden 10 % Nachlass und wann 5 %? Und wann bietest du Skonto an, zum Beispiel 2 % bei Zahlung in 5 Tagen?', 'Ein, zwei Beispiele reichen.'],
     ]],
   ];
-  const SEVDESK_FRAGE = 'Zugang zu sevDesk';
 
   /* ── Rendern ─────────────────────────────── */
   const box = $('#fragen');
@@ -201,15 +188,6 @@
       q.querySelector('.q-text').textContent = frage;
       if (hinweis) q.querySelector('.q-hint').textContent = hinweis;
       q.querySelector('textarea').dataset.feld = String(nr);
-      if (titel === SEVDESK_FRAGE) q.insertAdjacentHTML('beforeend', `
-        <div class="key" id="keyBox">
-          <div class="key-t">Schlüssel hier sicher übermitteln</div>
-          <label><input type="checkbox" id="keyOk"> Ich bin einverstanden, dass die Auftragszentrale mit diesem Schlüssel meine Artikel und Kunden in sevDesk liest und dort Rechnungen anlegt.</label>
-          <input type="password" id="keyFeld" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Schlüssel hier einfügen">
-          <button class="btn" id="keySenden" type="button">Schlüssel sicher übermitteln</button>
-          <div class="key-status" id="keyStatus"></div>
-          <p class="key-hinweis">Der Schlüssel geht nicht per Mail und nicht an den Assistenten, sondern direkt in Matthias’ geschützten Bereich. Auf diesem Gerät wird er nicht gespeichert. Du kannst ihn in sevDesk jederzeit löschen, dann ist er ungültig.</p>
-        </div>`);
       box.appendChild(q);
     }
   }
@@ -218,9 +196,6 @@
     $('#chatBereich').classList.add('hidden');
     $('#introChat').innerHTML = 'Mit dem Knopf ganz unten geht <b>alles zusammen an Matthias</b>.';
   }
-  if (!SCHLUESSEL_AKTIV) {
-    $('#keyBox').innerHTML = '<div class="key-t">Schlüssel übermitteln</div><p>Das Feld zum sicheren Übermitteln wird gerade eingerichtet. Matthias sagt dir Bescheid. Bitte schick den Schlüssel nicht per Mail, WhatsApp oder hier ins Antwortfeld.</p>';
-  }
 
   const ICON_MIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>';
   const ICON_STOPP = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
@@ -228,7 +203,7 @@
   const ICON_CLIP ='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>';
 
   /* ── Speichern auf dem Gerät ─────────────── */
-  let stand = { antworten: {}, chat: [], schluessel: '' };
+  let stand = { antworten: {}, chat: [] };
   try { stand = Object.assign(stand, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { /* frisch */ }
   let speicherTimer = null;
   const sichern = () => {
@@ -365,38 +340,6 @@
   document.querySelectorAll('.q, .chat-in').forEach(werkzeuge);
   if (!KANN_AUFNEHMEN) melde('Tipp: Zum Diktieren die Mikrofon-Taste auf der Tastatur benutzen.', '');
 
-  /* ── sevDesk-Schlüssel ───────────────────────
-     Geht getrennt vom Fragebogen direkt an n8n; dort wird er bei sevDesk geprüft und
-     verschlüsselt als Zugangsdatum abgelegt. Er landet nie in der Mail, im Chat oder auf
-     dem Gerät. Gespeichert wird nur, DASS er übermittelt wurde. */
-  if (SCHLUESSEL_AKTIV) {
-  const keyStatus = $('#keyStatus');
-  function keyZeigen() {
-    if (stand.schluessel === 'uebermittelt') {
-      keyStatus.className = 'key-status ok';
-      keyStatus.textContent = '✓ Schlüssel ist angekommen und von sevDesk bestätigt. Du kannst ihn bei Bedarf durch einen neuen ersetzen.';
-      $('#keySenden').textContent = 'Neuen Schlüssel übermitteln';
-    }
-  }
-  keyZeigen();
-  $('#keySenden').addEventListener('click', async () => {
-    const feld = $('#keyFeld'); const wert = feld.value.trim(); const btn = $('#keySenden');
-    keyStatus.className = 'key-status err';
-    if (!$('#keyOk').checked) { keyStatus.textContent = 'Bitte zuerst das Häkchen beim Einverständnis setzen.'; return; }
-    if (!/^[A-Za-z0-9]{20,64}$/.test(wert)) { keyStatus.textContent = 'Das sieht noch nicht nach einem vollständigen Schlüssel aus. Bitte komplett kopieren und einfügen.'; return; }
-    btn.disabled = true; keyStatus.className = 'key-status'; keyStatus.textContent = 'Wird bei sevDesk geprüft …';
-    try {
-      const r = await fetch(N8N + '/pt-edin-sevdesk', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ schluessel: wert, einverstanden: true, website: $('#website').value }) });
-      const d = await r.json().catch(() => ({}));
-      if (!r.ok || !d.ok) throw new Error(d.fehler || 'Das Übermitteln hat nicht geklappt. Bitte später noch einmal versuchen.');
-      feld.value = '';
-      stand.schluessel = 'uebermittelt'; sichern(); keyZeigen();
-    } catch (e) {
-      keyStatus.className = 'key-status err'; keyStatus.textContent = e.message;
-    } finally { btn.disabled = false; }
-  });
-  }
 
   /* ── Dateien ─────────────────────────────── */
   const fmtKB = (n) => n > 1024 * 1024 ? (n / 1024 / 1024).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
@@ -523,7 +466,7 @@
     const fd = new FormData();
     fd.append('daten', JSON.stringify({ name: 'Edin', runde: 2, fragen, zusatz,
       zusatzDateien: dateien.filter(d => d.frage === 'zusatz').map(d => d.name), chat: stand.chat,
-      schluessel: stand.schluessel === 'uebermittelt' ? 'uebermittelt' : 'offen' }));
+      schluessel: (stand.antworten[1] || '').trim() ? 'antwort' : 'offen' }));
     fd.append('website', $('#website').value);
     dateien.forEach((d, i) => {
       const praefix = d.frage === 'zusatz' ? 'Sonstiges' : 'Frage' + d.frage;
